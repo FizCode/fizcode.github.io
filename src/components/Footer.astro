@@ -1,0 +1,53 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer-container">
+    <div class="footer-content">
+      <p class="copyright">&copy; {currentYear} FizCode</p>
+      
+      <div class="social-links">
+        <a href="https://github.com/fizcode" target="_blank" rel="noopener noreferrer" aria-label="GitHub">GitHub</a>
+        <a href="https://linkedin.com/in/fizcode" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
+        <a href="https://medium.com/@fizcode" target="_blank" rel="noopener noreferrer" aria-label="Medium">Medium</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: var(--spacing-xl) 0;
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--spacing-xxl);
+    background-color: var(--color-surface);
+  }
+
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+  }
+
+  .copyright {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .social-links {
+    display: flex;
+    gap: var(--spacing-md);
+  }
+
+  .social-links a {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .social-links a:hover {
+    color: var(--color-primary);
+  }
+</style>

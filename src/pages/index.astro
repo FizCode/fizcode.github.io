@@ -1,16 +1,257 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="FizCode Portfolio">
+	
+	<section id="home" class="hero">
+		<div class="container hero-container">
+			<div class="hero-content">
+				<span class="badge">Android Developer</span>
+				<h1 class="hero-title">
+					Building <span class="text-primary">Mobile Experiences</span> That Matter.
+				</h1>
+				<p class="hero-subtitle">
+					I craft high-performance, user-centric Android applications using Kotlin and Jetpack Compose. 
+					Let's turn your ideas into reality.
+				</p>
+				<div class="hero-actions">
+					<a href="#projects" class="btn btn-primary">View Projects</a>
+					<a href="#contact" class="btn btn-outline">Contact Me</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="about" class="section">
+		<div class="container">
+			<h2 class="section-title">About Me</h2>
+			<div class="about-grid">
+				<div class="about-text">
+					<p>
+						Hello, I'm <strong class="text-primary">FizCode</strong>! 
+						Passionate about designing, learning, and building innovative mobile applications. 
+						Driven to excel in Android development, leveraging my skills, expertise, and creativity to contribute meaningfully to exciting projects. 
+						Eager to continue learning and growing in this dynamic field.
+					</p>
+					<p>
+						My tech stack includes <strong class="text-primary">Kotlin, Jetpack Compose, Coroutines, Koin/Hilt, Room Database, Retrofit/Ktor Client</strong> and more... <br/><br/>
+						I believe in writing code that is not only functional but also maintainable and testable.
+					</p>
+				</div>
+				<div class="about-stats">
+					<div class="stat-card">
+						<h3>2+</h3>
+						<p>Years Experience</p>
+					</div>
+					<div class="stat-card">
+						<h3>5+</h3>
+						<p>Apps Developed</p>
+					</div>
+					<div class="stat-card">
+						<h3>100%</h3>
+						<p>Client Satisfaction</p>
+					</div>
+				</div>
+			</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="projects" class="section">
+		<div class="container">
+			<h2 class="section-title">Featured Projects</h2>
+			<div class="projects-grid">
+			<ProjectCard 
+					title="Casheer App" 
+					description="Casheer is Point of Sale (POS) application for small and medium businesses (SMEs) that allows them to manage their sales and inventory in real-time. The app is built using Kotlin and Jetpack Compose, and it provides a user-friendly interface for businesses to track their sales, manage their inventory, and generate reports." 
+					tags={['Kotlin', 'KMP', 'Jetpack Compose', 'Room', 'Koin', 'MVI', 'Ktor Client', 'Coroutines', 'ML Kit']}
+				/>
+				<ProjectCard 
+					title="MyTelkomsel App" 
+					description="An official mobile app from Telkomsel - Indonesia’s largest telecom operator. It serves as a comprehensive hub such as provides users with the ability to check the status of their account, including their balance, data usage, and the ability to top up their account. Also there have a video streaming feature using ExoPlayer." 
+					tags={['Kotlin', 'Jetpack Compose', 'Room', 'Koin', 'MVVM', 'Retrofit', 'Coroutines', 'ExoPlayer', 'Location Tracking', 'Push Notification', 'Firebase']}
+				/>
+				<ProjectCard 
+					title="Presensi App" 
+					description="This attendance system can only be used within the STMIK Jayakarta radius, confirmed through biometric authentication on each student’s phone. The goal of this application is to simplify the attendance process for students, reduce wasted attendance time, and prevent any fraudulent activities during attendance." 
+					tags={['Kotlin', 'Jetpack Compose', 'Dagger/Hilt', 'Room', 'Retrofit', 'Coroutines', 'MVVM', 'Biometric Authentication', 'Location Tracking']}
+				/>
+				<ProjectCard 
+					title="MediQ App" 
+					description="MediQ is an app that specializes in managing medical check-up queues for patients, making it easier for them to track their queue number and reducing their wait time at the hospital. Our team embarked on this project with enthusiasm, aiming to fulfill the requirements set by the Project Management course during the 6th semester of our college studies." 
+					tags={['Kotlin', 'Jetpack Compose', 'Dagger/Hilt', 'Room', 'Retrofit', 'Coroutines', 'Material 3', 'MVVM']}
+				/>
+				<ProjectCard 
+					title="SecondHand App" 
+					description="This platform serves as an online marketplace tailored for purchasing and selling pre-owned items. It encompasses a wide array of categories to cater to users’ diverse requirements. Upon registration, users are empowered to function as both sellers and buyers through a unified account. The platform facilitates seamless interaction between sellers and buyers, enabling them to negotiate items and finalize transactions external to the platform." 
+					tags={['Kotlin', 'Dagger/Hilt', 'Room', 'Retrofit', 'Coroutines', 'MVVM']}
+				/>
+			</div>
+		</div>
+	</section>
+
+	<section id="contact" class="section">
+		<div class="container contact-container">
+			<div class="contact-content">
+				<h2 class="section-title">Let's Connect</h2>
+				<p>
+					I'm currently looking for new opportunities as an Android Developer. 
+					Whether you have a question or just want to say hi, my inbox is always open.
+				</p>
+				<a href="mailto:fizcode.dev@gmail.com" class="btn btn-primary big-btn">Say Hello</a>
+			</div>
+		</div>
+	</section>
+
+</Layout>
+
+<style>
+/* ... previous styles ... */
+
+	.projects-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: var(--spacing-lg);
+		margin-top: var(--spacing-lg);
+	}
+
+	.contact-container {
+		text-align: center;
+		display: flex;
+		justify-content: center;
+	}
+
+	.contact-content {
+		max-width: 600px;
+	}
+
+	.contact-content p {
+		margin-bottom: var(--spacing-xl);
+		color: var(--color-text-muted);
+		font-size: 1.1rem;
+	}
+
+	.big-btn {
+		padding: 1rem 2.5rem;
+		font-size: 1.1rem;
+	}
+	.hero {
+		padding: var(--spacing-xxl) 0;
+		display: flex;
+		align-items: center;
+		min-height: 80vh;
+		background: radial-gradient(circle at top right, rgba(61, 220, 132, 0.1) 0%, transparent 40%);
+	}
+
+	.hero-content {
+		max-width: 800px;
+	}
+
+	.badge {
+		background: rgba(61, 220, 132, 0.1);
+		color: var(--color-primary);
+		padding: 0.5rem 1rem;
+		border-radius: var(--radius-full);
+		font-size: 0.875rem;
+		font-weight: 600;
+		margin-bottom: var(--spacing-md);
+		display: inline-block;
+	}
+
+	.hero-title {
+		font-size: 4rem;
+		margin-bottom: var(--spacing-md);
+		line-height: 1.1;
+		font-weight: 800;
+	}
+
+	.hero-subtitle {
+		font-size: 1.25rem;
+		color: var(--color-text-muted);
+		margin-bottom: var(--spacing-lg);
+		max-width: 600px;
+	}
+
+	.hero-actions {
+		display: flex;
+		gap: var(--spacing-sm);
+	}
+
+	.section {
+		padding: var(--spacing-xxl) 0;
+	}
+
+	.section-title {
+		font-size: 2.5rem;
+		margin-bottom: var(--spacing-xl);
+		position: relative;
+		display: inline-block;
+	}
+
+	.section-title::after {
+		content: '';
+		position: absolute;
+		bottom: -10px;
+		left: 0;
+		width: 60px;
+		height: 4px;
+		background: var(--color-primary);
+		border-radius: var(--radius-full);
+	}
+
+	.about-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--spacing-xl);
+		align-items: center;
+	}
+
+	.about-text p {
+		margin-bottom: var(--spacing-md);
+		font-size: 1.1rem;
+		color: var(--color-text-muted);
+	}
+
+	.about-stats {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: var(--spacing-md);
+	}
+
+	.stat-card {
+		background: var(--color-surface);
+		padding: var(--spacing-lg);
+		border-radius: var(--radius-md);
+		text-align: center;
+		border: 1px solid var(--color-border);
+		transition: transform var(--transition-normal);
+	}
+
+	.stat-card:hover {
+		transform: translateY(-5px);
+		border-color: var(--color-primary);
+	}
+
+	.stat-card h3 {
+		font-size: 2.5rem;
+		color: var(--color-primary);
+		margin-bottom: var(--spacing-xs);
+	}
+
+	.stat-card p {
+		color: var(--color-text-muted);
+		font-size: 0.9rem;
+	}
+
+	@media (max-width: 768px) {
+		.hero-title {
+			font-size: 2.5rem;
+		}
+
+		.about-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
