@@ -4,15 +4,17 @@ interface Props {
   description: string;
   tags: string[];
   link?: string;
+  slug?: string;
 }
 
-const { title, description, tags, link = '#' } = Astro.props;
+const { title, description, tags, link, slug } = Astro.props;
+const href = slug ? `/projects/${slug}` : link || '#';
 ---
 
 <article class="project-card">
   <div class="card-content">
     <h3 class="card-title">
-      <a href={link} target="_blank" rel="noopener noreferrer">
+      <a href={href}>
         {title}
       </a>
     </h3>
@@ -23,7 +25,7 @@ const { title, description, tags, link = '#' } = Astro.props;
       ))}
     </div>
     <div class="card-footer">
-        <a href={link} class="link-arrow">
+        <a href={href} class="link-arrow">
             View Project 
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </a>

@@ -1,0 +1,136 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('projects');
+	return posts.map((post) => ({
+		params: { slug: post.slug },
+		props: post,
+	}));
+}
+
+const post = Astro.props;
+const { Content } = await post.render();
+---
+
+<Layout title={`${post.data.title} - FizCode`} description={post.data.description}>
+	<article class="project-detail">
+		<div class="container">
+			<a href="/#projects" class="back-link">← Back to Projects</a>
+			
+			<header class="project-header">
+				<h1 class="project-title">{post.data.title}</h1>
+				<p class="project-description">{post.data.description}</p>
+				<div class="tags">
+					{post.data.tags.map(tag => <span class="tag">{tag}</span>)}
+				</div>
+                {post.data.link && (
+                    <a href={post.data.link} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                        View Live Project
+                    </a>
+                )}
+			</header>
+            
+            <hr class="divider" />
+
+			<div class="project-content">
+				<Content />
+			</div>
+		</div>
+	</article>
+</Layout>
+
+<style>
+	.project-detail {
+		padding: 120px 0 var(--spacing-xxl);
+	}
+
+	.back-link {
+		color: var(--color-text-muted);
+		font-size: 0.9rem;
+		margin-bottom: var(--spacing-lg);
+		display: inline-block;
+	}
+
+	.back-link:hover {
+		color: var(--color-primary);
+	}
+
+	.project-header {
+		margin-bottom: var(--spacing-xl);
+        text-align: center;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+	}
+
+	.project-title {
+		font-size: 3rem;
+		margin-bottom: var(--spacing-sm);
+	}
+
+	.project-description {
+		font-size: 1.25rem;
+		color: var(--color-text-muted);
+		margin-bottom: var(--spacing-md);
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		justify-content: center;
+        margin-bottom: var(--spacing-lg);
+	}
+
+	.tag {
+		background: rgba(61, 220, 132, 0.1);
+		color: var(--color-primary);
+		padding: 0.25rem 0.75rem;
+		border-radius: var(--radius-full);
+		font-size: 0.875rem;
+	}
+    
+    .divider {
+        border: 0;
+        height: 1px;
+        background: var(--color-border);
+        margin: var(--spacing-xl) 0;
+    }
+
+	.project-content {
+		max-width: 800px;
+		margin: 0 auto;
+		font-size: 1.125rem;
+		color: var(--color-text-main);
+        line-height: 1.8;
+	}
+    
+    /* Markdown Styles */
+    .project-content :global(h2) {
+        font-size: 2rem;
+        margin-top: var(--spacing-xl);
+        margin-bottom: var(--spacing-md);
+        color: var(--color-text-main);
+    }
+    
+    .project-content :global(p) {
+        margin-bottom: var(--spacing-md);
+        color: var(--color-text-muted);
+    }
+    
+    .project-content :global(ul) {
+        margin-bottom: var(--spacing-md);
+        padding-left: 1.5rem;
+        color: var(--color-text-muted);
+    }
+    
+    .project-content :global(li) {
+        margin-bottom: 0.5rem;
+    }
+    
+    .project-content :global(strong) {
+        color: var(--color-primary);
+    }
+</style>

@@ -1,11 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+	(a, b) => b.data.priority - a.data.priority
+);
 ---
 
 <Layout title="FizCode Portfolio">
 	
 	<section id="home" class="hero">
+        {/* ... hero content ... */}
 		<div class="container hero-container">
 			<div class="hero-content">
 				<span class="badge">Android Developer</span>
@@ -25,6 +31,7 @@ import ProjectCard from '../components/ProjectCard.astro';
 	</section>
 
 	<section id="about" class="section">
+        {/* ... about content ... */}
 		<div class="container">
 			<h2 class="section-title">About Me</h2>
 			<div class="about-grid">
@@ -63,31 +70,14 @@ import ProjectCard from '../components/ProjectCard.astro';
 		<div class="container">
 			<h2 class="section-title">Featured Projects</h2>
 			<div class="projects-grid">
-			<ProjectCard 
-					title="Casheer App" 
-					description="Casheer is Point of Sale (POS) application for small and medium businesses (SMEs) that allows them to manage their sales and inventory in real-time. The app is built using Kotlin and Jetpack Compose, and it provides a user-friendly interface for businesses to track their sales, manage their inventory, and generate reports." 
-					tags={['Kotlin', 'KMP', 'Jetpack Compose', 'Room', 'Koin', 'MVI', 'Ktor Client', 'Coroutines', 'ML Kit']}
-				/>
-				<ProjectCard 
-					title="MyTelkomsel App" 
-					description="An official mobile app from Telkomsel - Indonesia’s largest telecom operator. It serves as a comprehensive hub such as provides users with the ability to check the status of their account, including their balance, data usage, and the ability to top up their account. Also there have a video streaming feature using ExoPlayer." 
-					tags={['Kotlin', 'Jetpack Compose', 'Room', 'Koin', 'MVVM', 'Retrofit', 'Coroutines', 'ExoPlayer', 'Location Tracking', 'Push Notification', 'Firebase']}
-				/>
-				<ProjectCard 
-					title="Presensi App" 
-					description="This attendance system can only be used within the STMIK Jayakarta radius, confirmed through biometric authentication on each student’s phone. The goal of this application is to simplify the attendance process for students, reduce wasted attendance time, and prevent any fraudulent activities during attendance." 
-					tags={['Kotlin', 'Jetpack Compose', 'Dagger/Hilt', 'Room', 'Retrofit', 'Coroutines', 'MVVM', 'Biometric Authentication', 'Location Tracking']}
-				/>
-				<ProjectCard 
-					title="MediQ App" 
-					description="MediQ is an app that specializes in managing medical check-up queues for patients, making it easier for them to track their queue number and reducing their wait time at the hospital. Our team embarked on this project with enthusiasm, aiming to fulfill the requirements set by the Project Management course during the 6th semester of our college studies." 
-					tags={['Kotlin', 'Jetpack Compose', 'Dagger/Hilt', 'Room', 'Retrofit', 'Coroutines', 'Material 3', 'MVVM']}
-				/>
-				<ProjectCard 
-					title="SecondHand App" 
-					description="This platform serves as an online marketplace tailored for purchasing and selling pre-owned items. It encompasses a wide array of categories to cater to users’ diverse requirements. Upon registration, users are empowered to function as both sellers and buyers through a unified account. The platform facilitates seamless interaction between sellers and buyers, enabling them to negotiate items and finalize transactions external to the platform." 
-					tags={['Kotlin', 'Dagger/Hilt', 'Room', 'Retrofit', 'Coroutines', 'MVVM']}
-				/>
+				{projects.map((project) => (
+					<ProjectCard 
+						title={project.data.title}
+						description={project.data.description}
+						tags={project.data.tags}
+						slug={project.slug}
+					/>
+				))}
 			</div>
 		</div>
 	</section>
