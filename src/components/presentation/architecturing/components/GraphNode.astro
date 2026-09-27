@@ -1,0 +1,99 @@
+---
+import { NODE_W, NODE_H, type GraphNode } from '../data/coupling';
+
+interface Props {
+	node: GraphNode;
+}
+
+const { node } = Astro.props;
+// Modules are named by their label; a package is named after the module it lives in
+const name = node.kind === 'package' ? `${node.label[0]} (in ${node.module})` : node.label.join('');
+const moduleName = node.module ?? name;
+// Two-line labels ("feature" over "layer") sit either side of the middle
+const lineY = node.label.length === 2 ? [NODE_H / 2 - 12, NODE_H / 2 + 12] : [NODE_H / 2];
+---
+
+<g
+	class:list={['node', `kind-${node.kind}`, { optional: node.optional }]}
+	data-id={node.id}
+	data-name={name}
+	data-module={moduleName}
+	transform={`translate(${node.x},${node.y})`}
+	tabindex="0"
+	role="button"
+	aria-label={`${name}: show what breaks when it changes`}
+>
+	<rect width={NODE_W} height={NODE_H} rx="10" />
+	{node.label.map((line, i) => <text x={NODE_W / 2} y={lineY[i]}>{line}</text>)}
+</g>
+
+<style>
+	.node {
+		--c-border: var(--c-feature);
+		cursor: pointer;
+		outline: none;
+		transition: opacity var(--transition-normal);
+	}
+
+	.kind-shared {
+		--c-border: var(--c-core);
+	}
+
+	.kind-package {
+		--c-border: var(--c-package);
+	}
+
+	rect {
+		fill: var(--color-surface);
+		stroke: var(--c-border);
+		stroke-width: 2.5;
+		transition: fill var(--transition-fast), stroke var(--transition-fast);
+	}
+
+	.optional rect {
+		stroke-dasharray: 8 6;
+	}
+
+	.node:hover rect {
+		fill: var(--color-surface-hover);
+	}
+
+	.node:focus-visible rect {
+		stroke: var(--color-accent);
+		stroke-width: 4;
+	}
+
+	text {
+		fill: var(--color-text-main);
+		font-family: var(--font-mono);
+		font-size: 18px;
+		font-weight: 700;
+		text-anchor: middle;
+		dominant-baseline: central;
+		pointer-events: none;
+	}
+
+	/* Packages are folders inside a module: plain text, like on the module structure slide */
+	.kind-package text {
+		font-family: var(--font-sans);
+		font-size: 19px;
+		font-weight: 600;
+	}
+
+	/* Blast radius (set by the slide): the changed module, and everything that breaks */
+	:global(.blasting) .node:not(.changed):not(.affected) {
+		opacity: 0.25;
+	}
+
+	.changed rect {
+		fill: color-mix(in srgb, var(--c-bad) 22%, var(--color-surface));
+		stroke: var(--c-bad);
+		stroke-width: 4;
+	}
+
+	.affected rect {
+		fill: color-mix(in srgb, var(--c-bad) 10%, var(--color-surface));
+		stroke: var(--c-bad);
+		stroke-dasharray: 7 5;
+	}
+</style>

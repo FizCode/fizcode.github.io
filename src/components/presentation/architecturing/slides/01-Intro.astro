@@ -1,0 +1,108 @@
+---
+import Slide from '../../Slide.astro';
+import { hook, parts, footer } from '../data/intro';
+---
+
+<Slide width={150} stack={false}>
+	<span class="eyebrow">Architecturing</span>
+	<h1>Modularization, Clean Code &amp; Clean Architecture</h1>
+	<p class="lead"><strong class="question">“{hook.question}”</strong> {hook.text}</p>
+
+	<!-- The route through the talk, in the order it zooms in -->
+	<ol class="parts">
+		{parts.map((part, i) => (
+			<li class="part">
+				<p class="part-title"><span class="part-number">{i + 1}</span>{part.title}</p>
+				<p class="part-goal">{part.goal}</p>
+				<p class="part-topics">{part.topics}</p>
+			</li>
+		))}
+	</ol>
+
+	<p class="footer">
+		{footer.map((item) => <span>{item}</span>)}
+	</p>
+</Slide>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	.question {
+		color: var(--color-text-main);
+	}
+
+	.parts {
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1em;
+		margin-top: clamp(1rem, 4vh, 3rem);
+		font-size: clamp(0.85rem, min(2.1vh, 1.2vw), 1.9rem); /* ~23px */
+	}
+
+	.part {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3em;
+		padding: 0.9em 1.2em 1em;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		line-height: 1.35;
+	}
+
+	.part-title {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		font-family: var(--font-display);
+		font-size: 1.3em;
+		font-weight: 700;
+		color: var(--color-text-main);
+	}
+
+	.part-number {
+		display: grid;
+		place-items: center;
+		width: 1.6em;
+		height: 1.6em;
+		font-size: 0.75em;
+		color: var(--color-bg);
+		background: var(--color-primary);
+		border-radius: 50%;
+	}
+
+	.part-goal {
+		color: var(--color-text-main);
+	}
+
+	.part-topics {
+		font-size: 0.85em;
+		color: var(--color-text-muted);
+	}
+
+	/* Who it is for and who is talking, separated by dots */
+	.footer {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3em 0;
+		margin-top: clamp(1rem, 3.5vh, 2.5rem);
+		font-size: clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem); /* ~21px */
+		color: var(--color-text-muted);
+	}
+
+	.footer span:not(:last-child)::after {
+		content: '·';
+		margin: 0 0.7em;
+	}
+
+	.footer span:last-child {
+		font-weight: 700;
+		color: var(--color-text-main);
+	}
+
+	@media (max-width: 800px) {
+		.parts {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

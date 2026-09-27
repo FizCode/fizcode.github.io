@@ -1,0 +1,61 @@
+---
+/**
+ * Vertical "depends on" arrow between two stacked boxes; the head points at the dependency.
+ * Size it from the surrounding slide with CSS variables:
+ *   --arrow-length, --arrow-margin, --arrow-font (label size), --arrow-label-scale
+ */
+interface Props {
+	direction?: 'down' | 'up' | 'none';
+	label?: string;
+}
+
+const { direction = 'down', label = 'depends on' } = Astro.props;
+---
+
+<div class={`dependency-arrow head-${direction}`} aria-hidden="true">
+	{label && <span>{label}</span>}
+</div>
+
+<style>
+	/* Values in comments are at 1920x1080 */
+	.dependency-arrow {
+		position: relative;
+		justify-self: center;
+		align-self: center;
+		width: 3px;
+		height: var(--arrow-length, clamp(2rem, 5.5vh, 4.5rem));
+		margin: var(--arrow-margin, 12px 0);
+		background: var(--color-text-muted);
+		font-size: var(--arrow-font, clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem)); /* ~21px */
+	}
+
+	.head-down::after,
+	.head-up::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		border-left: 9px solid transparent;
+		border-right: 9px solid transparent;
+	}
+
+	.head-down::after {
+		bottom: -12px;
+		border-top: 12px solid var(--color-text-muted);
+	}
+
+	.head-up::after {
+		top: -12px;
+		border-bottom: 12px solid var(--color-text-muted);
+	}
+
+	span {
+		position: absolute;
+		left: 1em;
+		top: 50%;
+		transform: translateY(-50%);
+		white-space: nowrap;
+		font-size: var(--arrow-label-scale, 1em);
+		color: var(--color-text-muted);
+	}
+</style>

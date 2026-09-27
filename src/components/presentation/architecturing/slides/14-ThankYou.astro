@@ -1,0 +1,24 @@
+---
+import Slide from '../../Slide.astro';
+---
+
+<Slide width={150} stack={false}>
+	<span class="eyebrow">Architecturing</span>
+	<h1>Thank you</h1>
+	<!-- The joke: a callback to the YAGNI slide, so no questions are needed -->
+	<p class="lead">Questions? <span class="joke"><strong>YAGNI</strong>: You Aren't Gonna Need It.</span></p>
+	<p class="lead">
+		<a class="site" href="https://fizcode.dev" target="_blank" rel="noopener noreferrer">fizcode.dev</a>
+	</p>
+</Slide>
+
+<style>
+	.joke strong {
+		color: var(--color-text-main);
+	}
+
+	.site {
+		font-weight: 700;
+		color: var(--color-primary);
+	}
+</style>

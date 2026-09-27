@@ -1,0 +1,157 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import MiniSketch from '../components/MiniSketch.astro';
+import { principles, closing } from '../data/solid';
+---
+
+<Slide width="full" pinned>
+	<SlideHeader
+		title="You already know SOLID"
+		subtitles={[{ name: 'Surprise', text: 'without noticing, this talk just taught you five principles' }]}
+	/>
+
+	<div class="solid-body">
+		<!-- Each click fills in the next letter, in S-O-L-I-D order; the closing comes last.
+		     A filled-in card zooms when clicked. -->
+		<ol class="letters">
+			{principles.map((p) => (
+				<li class="letter-card" data-zoomable>
+					<p class="letter">{p.letter}</p>
+					<div class="details fragment">
+						<p class="name">{p.name}</p>
+						<p class="meaning">{p.meaning}</p>
+						<MiniSketch sketch={p.sketch} />
+						<p class="seen">{p.seen}</p>
+						<p class="slides">
+							{p.slides.map((n) => <span class="slide-tag">slide {n}</span>)}
+						</p>
+					</div>
+				</li>
+			))}
+		</ol>
+		<p class="closing fragment">{closing}</p>
+	</div>
+</Slide>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	.solid-body {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.2em;
+		padding-top: clamp(0.5rem, 4vh, 3.5rem);
+		font-size: clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem); /* ~21px */
+	}
+
+	/* Five letters side by side, so SOLID reads as one word */
+	.letters {
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 1em;
+		width: min(100%, 92em);
+	}
+
+	.letter-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6em;
+		padding: 0.8em 1em 1em;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		line-height: 1.35;
+		transition: border-color var(--transition-normal);
+	}
+
+	/* A filled-in letter lights up */
+	.letter-card:has(.details.visible) {
+		border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-border));
+	}
+
+	.letter {
+		font-family: var(--font-display);
+		font-size: 3.4em; /* ~72px */
+		font-weight: 800;
+		line-height: 1;
+		color: var(--color-text-muted);
+		opacity: 0.45;
+		transition: color var(--transition-normal), opacity var(--transition-normal);
+	}
+
+	.letter-card:has(.details.visible) .letter {
+		color: var(--color-primary);
+		opacity: 1;
+	}
+
+	.details {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4em;
+	}
+
+	.name {
+		font-family: var(--font-display);
+		font-size: 1.15em;
+		font-weight: 700;
+		color: var(--color-text-main);
+	}
+
+	/* Two lines reserved, so the sketches line up across the cards */
+	.meaning {
+		min-height: 2.7em;
+		color: var(--color-text-main);
+	}
+
+	.details :global(.sketch) {
+		height: clamp(3rem, 8vh, 6.5rem);
+		margin: 0.3em 0;
+	}
+
+	.seen {
+		color: var(--color-text-muted);
+	}
+
+	.slides {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4em;
+	}
+
+	/* Points back to where the audience saw it */
+	.slide-tag {
+		padding: 0.1em 0.6em;
+		font-family: var(--font-mono);
+		font-size: 0.8em;
+		font-weight: 700;
+		color: var(--color-primary);
+		border: 1px solid color-mix(in srgb, var(--color-primary) 55%, var(--color-border));
+		border-radius: 999px;
+	}
+
+	.closing {
+		margin-top: 0.4em;
+		font-family: var(--font-display);
+		font-size: 1.5em;
+		font-weight: 700;
+		color: var(--color-text-main);
+		text-align: center;
+	}
+
+	@media (max-width: 800px) {
+		.letters {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.letter-card,
+		.letter {
+			transition: none;
+		}
+	}
+</style>

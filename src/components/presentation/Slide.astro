@@ -1,0 +1,50 @@
+---
+/**
+ * One slide of a presentation. The layout handles showing slides one at a time;
+ * this sets how wide the content may grow and how it is laid out.
+ * Extra attributes (e.g. data-* hooks for a slide's script) go on the content element.
+ */
+interface Props {
+	/** Maximum content width in vh (keeps a slide-like shape on wide screens), or 'full' */
+	width?: number | 'full';
+	/** Space between the header and the blocks below it */
+	gap?: 'sm' | 'md' | 'lg';
+	/** Fill the slide height so the header stays at the top while the content below changes size */
+	pinned?: boolean;
+	/** Stack children in a column with `gap` (default); off for free-flowing text */
+	stack?: boolean;
+	[attr: `data-${string}`]: unknown;
+}
+
+const { width = 150, gap = 'md', pinned = false, stack = true, ...attrs } = Astro.props;
+const maxWidth = width === 'full' ? 'none' : `min(100%, ${width}vh)`;
+---
+
+<section class="slide">
+	<div class:list={['slide-content', `gap-${gap}`, { pinned, 'slide-stack': stack }]} style={`--slide-max-width: ${maxWidth}`} {...attrs}>
+		<slot />
+	</div>
+</section>
+
+<style>
+	.slide-content {
+		width: 100%;
+		max-width: var(--slide-max-width);
+		margin: 0 auto;
+	}
+
+	/* Prefixed so it can't collide with a slide's own class names */
+	.slide-stack {
+		display: flex;
+		flex-direction: column;
+		gap: var(--slide-gap);
+	}
+
+	.gap-sm { --slide-gap: clamp(0.75rem, 1.8vh, 1.5rem); }
+	.gap-md { --slide-gap: clamp(1rem, 2.5vh, 2rem); }
+	.gap-lg { --slide-gap: clamp(1rem, 3vh, 2.5rem); }
+
+	.pinned {
+		flex: 1;
+	}
+</style>

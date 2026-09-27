@@ -1,0 +1,187 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import CodeMorph from '../../CodeMorph.astro';
+import CodeComparison from '../components/CodeComparison.astro';
+import { splitFunction, oneThingTest, oneLevel, naming, namingClosing, comments } from '../data/functions';
+---
+
+<Slide width={170} pinned>
+	<SlideHeader
+		title="Small functions, clear names"
+		subtitles={[
+			{ name: 'Small functions', text: 'each one does one thing' },
+			{ name: 'Small functions', text: 'each one does one thing' },
+			{ name: 'One level of abstraction', text: 'every line is a step, not a detail' },
+			{ name: 'Naming', text: 'say what, so the reader can skip the how' },
+			{ name: 'Comments', text: 'the name says what, the comment says why' },
+		]}
+	/>
+
+	<!-- Steps, in order: the function gets split, one level of abstraction, naming, comments -->
+	<div class="split-step fragment" hidden></div>
+	<div class="level-step fragment" hidden></div>
+	<div class="naming-step fragment" hidden></div>
+	<div class="comments-step fragment" hidden></div>
+
+	<div class="functions-body">
+		<section class="panel panel-split">
+			<CodeMorph trigger="split-step" {...splitFunction} />
+			<p class="test">{oneThingTest}</p>
+		</section>
+
+		<section class="panel panel-level">
+			<CodeComparison comparison={oneLevel} />
+		</section>
+
+		<section class="panel panel-naming">
+			<ul class="names">
+				{naming.map((n) => (
+					<li class="name-card">
+						<p class="name-pair">
+							<code class="name-bad">{n.bad}</code>
+							<span class="name-arrow">→</span>
+							<code class="name-good">{n.good}</code>
+						</p>
+						<p class="name-why">{n.why}</p>
+					</li>
+				))}
+			</ul>
+			<p class="closing">{namingClosing}</p>
+		</section>
+
+		<section class="panel panel-comments">
+			<CodeComparison comparison={comments} />
+		</section>
+	</div>
+</Slide>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	/* Panels hang from the top, so a changing code block never moves its label */
+	.functions-body {
+		flex: 1;
+		display: grid;
+		align-items: start;
+		justify-items: center;
+		padding-top: clamp(0.5rem, 3vh, 3rem);
+		font-size: clamp(0.9rem, min(2.3vh, 1.3vw), 2.1rem); /* ~25px */
+	}
+
+	/* The panels share one spot; each step shows one of them */
+	.panel {
+		grid-area: 1 / 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.8em;
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	:global(.slide:has(.level-step.visible)) .panel-split,
+	:global(.slide:not(:has(.level-step.visible))) .panel-level,
+	:global(.slide:has(.naming-step.visible)) .panel-level,
+	:global(.slide:not(:has(.naming-step.visible))) .panel-naming,
+	:global(.slide:has(.comments-step.visible)) .panel-naming,
+	:global(.slide:not(:has(.comments-step.visible))) .panel-comments {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	/* One code block at a time, so it can be large */
+	.panel-split {
+		--code-font: clamp(0.75rem, min(2.1vh, 1.2vw), 1.8rem); /* ~23px */
+	}
+
+	/* Two short snippets, so they can be larger than a usual comparison */
+	.panel-comments {
+		--code-font: clamp(0.85rem, min(2.4vh, 1.3vw), 2rem); /* ~25px */
+		padding-top: clamp(1rem, 6vh, 5rem);
+	}
+
+	.panel-comments :global(.comparison) {
+		font-size: clamp(0.9rem, min(2.4vh, 1.35vw), 2.1rem); /* ~26px */
+		gap: 1.4em;
+	}
+
+	/* The "and" test arrives with the split code */
+	.test {
+		font-family: var(--font-display);
+		font-size: 1.2em;
+		font-weight: 700;
+		opacity: 0;
+		transition: opacity var(--transition-normal);
+	}
+
+	:global(.slide:has(.split-step.visible)) .test {
+		opacity: 1;
+	}
+
+	/* ---------- Naming ---------- */
+	.names {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.2em;
+		width: min(100%, 60em);
+		list-style: none;
+	}
+
+	.name-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+		padding: 1.1em 1.4em;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+	}
+
+	.name-pair {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.3em 0.6em;
+		font-family: var(--font-mono);
+		font-size: 1.1em;
+		font-weight: 700;
+	}
+
+	.name-bad {
+		color: var(--c-bad);
+		text-decoration: line-through;
+	}
+
+	.name-arrow {
+		color: var(--color-text-muted);
+	}
+
+	.name-good {
+		color: var(--c-app);
+	}
+
+	.name-why {
+		color: var(--color-text-muted);
+	}
+
+	.closing {
+		margin-top: 0.6em;
+		font-family: var(--font-display);
+		font-size: 1.4em;
+		font-weight: 700;
+		text-align: center;
+	}
+
+	@media (max-width: 800px) {
+		.names {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.panel,
+		.test {
+			transition: none;
+		}
+	}
+</style>

@@ -1,0 +1,85 @@
+---
+/**
+ * Slide title with a subtitle. With several subtitles, the one shown follows the slide's
+ * step: subtitle 1 at step 0, subtitle 2 once the first step is revealed, and so on.
+ * All subtitles share one spot, so switching never moves anything below the header.
+ */
+export interface Subtitle {
+	/** Bold lead-in, e.g. the name of what the slide shows */
+	name?: string;
+	text: string;
+}
+
+interface Props {
+	title: string;
+	subtitles?: (string | Subtitle)[];
+	/** 'small' for a short hint rather than a statement */
+	size?: 'normal' | 'small';
+}
+
+const { title, subtitles = [], size = 'normal' } = Astro.props;
+const items = subtitles.map((s) => (typeof s === 'string' ? { text: s } : s));
+---
+
+<header class:list={['slide-header', `size-${size}`]} data-slide-header>
+	<h2>{title}</h2>
+	{items.map((s, i) => (
+		<p class:list={['subtitle', { current: i === 0 }]}>
+			{s.name && <strong>{s.name}</strong>}{s.name ? `: ${s.text}` : s.text}
+		</p>
+	))}
+</header>
+
+<script>
+	import { onStepChange } from './slide-events';
+
+	document.querySelectorAll<HTMLElement>('[data-slide-header]').forEach((header) => {
+		const subtitles = [...header.querySelectorAll<HTMLElement>('.subtitle')];
+		if (subtitles.length < 2) return;
+
+		onStepChange(header.closest<HTMLElement>('.slide')!, (step) => {
+			const shown = Math.min(step, subtitles.length - 1);
+			subtitles.forEach((s, i) => s.classList.toggle('current', i === shown));
+		});
+	});
+</script>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	.slide-header {
+		display: grid;
+		text-align: center;
+	}
+
+	.slide-header h2 {
+		margin-bottom: 0.1em;
+	}
+
+	.subtitle {
+		grid-row: 2;
+		grid-column: 1;
+		color: var(--color-text-muted);
+		font-size: clamp(1rem, min(2.6vh, 1.5vw), 2.4rem); /* ~28px */
+		transition: opacity var(--transition-normal);
+	}
+
+	.size-small .subtitle {
+		font-size: clamp(0.9rem, min(2.2vh, 1.25vw), 2rem); /* ~24px */
+	}
+
+	.subtitle:not(.current) {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.subtitle strong {
+		color: var(--color-text-main);
+		font-weight: 600;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.subtitle {
+			transition: none;
+		}
+	}
+</style>

@@ -1,0 +1,337 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import GraphNode from '../components/GraphNode.astro';
+import { nodes, edges, rules, moduleFrame, VIEWBOX } from '../data/coupling';
+---
+
+<Slide width={170} pinned data-coupling>
+	<SlideHeader
+		title="Keep modules decoupled"
+		subtitles={[
+			{ name: 'High coupling', text: "features reach into each other's internals" },
+			{ name: 'Low coupling', text: 'features share through common modules, never each other' },
+		]}
+	/>
+
+	<div class="decouple-body">
+		<svg class="graph" viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} role="group" aria-label="Module dependency graph">
+			<defs>
+				{['muted', 'bad'].map((tone) => (
+					<marker id={`cpl-arrow-${tone}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+						<path class={`arrowhead-${tone}`} d="M0 0 10 5 0 10z" />
+					</marker>
+				))}
+			</defs>
+
+			{(['before', 'after'] as const).map((state) => (
+				<g class:list={[`state-${state}`, { fragment: state === 'after' }]}>
+					{state === 'after' && (
+						<g class="module-frame">
+							<rect class="frame" x={moduleFrame.x} y={moduleFrame.y} width={moduleFrame.width} height={moduleFrame.height} rx="14" />
+							<rect class="frame-tag" x={moduleFrame.x} y={moduleFrame.y - 32} width="130" height="26" rx="7" />
+							<text class="frame-title" x={moduleFrame.x + 65} y={moduleFrame.y - 19}>{moduleFrame.title}</text>
+						</g>
+					)}
+					{edges.filter((e) => e.state === state).map((e) => (
+						<path class:list={['edge', { cross: e.cross }]} d={e.d} data-edge data-from={e.from} data-to={e.to} data-state={state} />
+					))}
+					{nodes.filter((n) => n.state === state).map((n) => <GraphNode node={n} />)}
+				</g>
+			))}
+
+			<!-- The presentation modules of A-C exist in both states, drawn last so they stay on top -->
+			{nodes.filter((n) => !n.state).map((n) => <GraphNode node={n} />)}
+		</svg>
+
+		<aside class="side">
+			<div class="result" aria-live="polite">
+				<p class="result-label">Blast radius</p>
+				<p class="result-text" data-result>Click a module to see what breaks when it changes.</p>
+
+				<!-- The changed module plus everything that depends on it has to be rebuilt -->
+				<div class="rebuild" data-rebuild hidden>
+					<p class="result-label rebuild-label">Rebuild</p>
+					<p class="rebuild-count" data-rebuild-count></p>
+					<ul class="rebuild-list" data-rebuild-list></ul>
+				</div>
+			</div>
+
+			<ol class="rules">
+				{rules.map((rule) => <li>{rule}</li>)}
+			</ol>
+		</aside>
+	</div>
+</Slide>
+
+<script>
+	import { onSlideClick, onSlideReset } from '../../slide-events';
+
+	const HINT = 'Click a module to see what breaks when it changes.';
+
+	document.querySelectorAll<HTMLElement>('[data-coupling]').forEach((root) => {
+		const slide = root.closest<HTMLElement>('.slide')!;
+		const graph = root.querySelector<SVGSVGElement>('.graph')!;
+		const result = root.querySelector<HTMLElement>('[data-result]')!;
+		const rebuild = root.querySelector<HTMLElement>('[data-rebuild]')!;
+		const rebuildCount = root.querySelector<HTMLElement>('[data-rebuild-count]')!;
+		const rebuildList = root.querySelector<HTMLElement>('[data-rebuild-list]')!;
+		const after = root.querySelector<SVGGElement>('.state-after')!;
+		let selected: string | null = null;
+
+		const clear = () => {
+			selected = null;
+			graph.classList.remove('blasting');
+			graph.querySelectorAll('.changed, .affected, .hot').forEach((el) => el.classList.remove('changed', 'affected', 'hot'));
+			result.textContent = HINT;
+			rebuild.hidden = true;
+		};
+
+		// Everything that depends on the changed module, directly or through others
+		const dependentsOf = (id: string, edges: SVGPathElement[]) => {
+			const hit = new Set([id]);
+			const queue = [id];
+			while (queue.length) {
+				const current = queue.shift()!;
+				edges.filter((e) => e.dataset.to === current && !hit.has(e.dataset.from!)).forEach((e) => {
+					hit.add(e.dataset.from!);
+					queue.push(e.dataset.from!);
+				});
+			}
+			return hit;
+		};
+
+		const nodeOf = (id: string) => graph.querySelector<SVGGElement>(`.node[data-id="${id}"]`);
+		const moduleOf = (id: string) => nodeOf(id)?.dataset.module ?? id;
+
+		const blast = (node: SVGGElement) => {
+			clear();
+			selected = node.dataset.id!;
+			const state = after.classList.contains('visible') ? 'after' : 'before';
+			const edges = [...graph.querySelectorAll<SVGPathElement>(`[data-edge][data-state="${state}"]`)];
+			const hit = dependentsOf(selected, edges);
+
+			graph.classList.add('blasting');
+			node.classList.add('changed');
+			hit.forEach((id) => id !== selected && graph.querySelector(`.node[data-id="${id}"]`)?.classList.add('affected'));
+			edges.filter((e) => hit.has(e.dataset.from!) && hit.has(e.dataset.to!)).forEach((e) => e.classList.add('hot'));
+
+			// Packages inside one module are rebuilt together, so the rebuild counts modules, not boxes
+			const modules = [...new Set([...hit].map(moduleOf))];
+			const broken = hit.size - 1;
+			result.textContent =
+				broken === 0 ? `Changing ${node.dataset.name} breaks nothing else.`
+				: modules.length === 1 ? `Changing ${node.dataset.name} only affects code inside ${modules[0]}.`
+				: `Changing ${node.dataset.name} breaks ${broken} other module${broken === 1 ? '' : 's'}.`;
+
+			// The changed module first, then its dependents in the order they were reached
+			rebuildCount.textContent = modules.length === 1 ? 'Only 1 module rebuilds:' : `${modules.length} modules rebuild:`;
+			rebuildList.replaceChildren(...modules.map((name) => {
+				const item = document.createElement('li');
+				item.className = 'pill pill--code';
+				item.textContent = name;
+				return item;
+			}));
+			rebuild.hidden = false;
+		};
+
+		const toggle = (node: SVGGElement) => (selected === node.dataset.id ? clear() : blast(node));
+
+		onSlideClick<SVGGElement>(slide, '.node', { onItem: toggle, onOutside: clear, hasSelection: () => selected !== null });
+
+		// Enter/Space on a focused module, without the layout turning the slide
+		graph.addEventListener('keydown', (e) => {
+			const node = (e.target as Element).closest<SVGGElement>('.node');
+			if (!node || (e.key !== 'Enter' && e.key !== ' ')) return;
+			e.preventDefault();
+			e.stopPropagation();
+			toggle(node);
+		});
+
+		// Switching graphs or leaving the slide clears a highlight
+		onSlideReset(slide, clear);
+	});
+</script>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	.decouple-body {
+		flex: 1;
+		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+		align-items: center;
+		gap: clamp(1rem, 4vw, 5rem);
+	}
+
+	/* Graph */
+	.graph {
+		display: block;
+		width: 100%;
+		height: auto;
+		max-height: 62vh;
+		overflow: visible;
+	}
+
+	/* Crossfade between the coupled and the decoupled graph */
+	.state-before,
+	.state-after {
+		transition: opacity 0.5s ease, visibility 0.5s;
+	}
+
+	.graph .state-after.fragment {
+		transform: none;
+	}
+
+	.graph:has(.state-after.visible) .state-before {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	/* One module holding featureD's layers as packages */
+	.frame {
+		fill: none;
+		stroke: var(--c-feature);
+		stroke-width: 2.5;
+	}
+
+	.frame-tag {
+		fill: var(--color-surface);
+		stroke: var(--c-feature);
+		stroke-width: 2;
+	}
+
+	.frame-title {
+		fill: var(--color-text-main);
+		font-family: var(--font-mono);
+		font-size: 17px;
+		font-weight: 700;
+		text-anchor: middle;
+		dominant-baseline: central;
+	}
+
+	.blasting .module-frame {
+		opacity: 0.6;
+	}
+
+	.edge {
+		fill: none;
+		stroke: var(--color-text-muted);
+		stroke-width: 2.5;
+		marker-end: url(#cpl-arrow-muted);
+		transition: opacity var(--transition-normal), stroke var(--transition-fast);
+	}
+
+	/* A feature reaching into another feature */
+	.edge.cross {
+		stroke: var(--c-bad);
+		stroke-width: 3;
+		marker-end: url(#cpl-arrow-bad);
+	}
+
+	.arrowhead-muted { fill: var(--color-text-muted); }
+	.arrowhead-bad { fill: var(--c-bad); }
+
+	/* Blast radius: the paths between the changed module and what breaks */
+	.blasting .edge:not(.hot) {
+		opacity: 0.25;
+	}
+
+	.edge.hot {
+		stroke: var(--c-bad);
+		marker-end: url(#cpl-arrow-bad);
+	}
+
+	/* Side panel */
+	.side {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5em;
+		font-size: clamp(0.95rem, min(2.4vh, 1.35vw), 2.2rem); /* ~26px */
+	}
+
+	.result {
+		padding: 0.8em 1em;
+		background: var(--color-surface);
+		border-left: 4px solid var(--c-bad);
+		border-radius: var(--radius-sm);
+	}
+
+	.result-label {
+		margin-bottom: 0.2em;
+		color: var(--c-bad);
+		font-size: 0.75em;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.result-text {
+		line-height: 1.4;
+	}
+
+	.rebuild {
+		margin-top: 0.8em;
+		padding-top: 0.7em;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.rebuild[hidden] {
+		display: none;
+	}
+
+	.rebuild-label {
+		color: var(--color-accent);
+	}
+
+	.rebuild-count {
+		margin-bottom: 0.4em;
+	}
+
+	/* Its items are shared .pill labels created by the script; the list sets their size */
+	.rebuild-list {
+		list-style: none;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		font-size: 0.72em; /* ~19px */
+	}
+
+	/* The rules only appear with the decoupled graph */
+	.rules {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6em;
+		padding-left: 1.3em;
+		font-weight: 600;
+		line-height: 1.35;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(8px);
+		transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s, visibility 0.5s;
+	}
+
+	.rules li::marker {
+		color: var(--c-app);
+	}
+
+	:global(.slide:has(.state-after.visible)) .rules {
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+	}
+
+	@media (max-width: 800px) {
+		.decouple-body {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.state-before,
+		.state-after,
+		.rules {
+			transition: none;
+		}
+	}
+</style>

@@ -1,0 +1,110 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import { referenceGroups } from '../data/references';
+---
+
+<Slide width="full" pinned>
+	<SlideHeader
+		title="References"
+		subtitles={[{ name: 'Further reading', text: 'the articles and books this talk was built on' }]}
+	/>
+
+	<div class="references">
+		{referenceGroups.map((group) => (
+			<section class="group">
+				<p class="topic">{group.topic}</p>
+				<ul class="items">
+					{group.items.map((item) => (
+						<li>
+							{item.url ? (
+								<a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a>
+							) : (
+								<span class="book">{item.title}</span>
+							)}
+							<span class="source">{item.source}</span>
+						</li>
+					))}
+				</ul>
+			</section>
+		))}
+	</div>
+</Slide>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	/* Three groups per row, so every link is on one screen */
+	.references {
+		flex: 1;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		align-content: start;
+		gap: 1.1em;
+		width: min(100%, 90em);
+		margin: 0 auto;
+		padding-top: clamp(0.5rem, 4vh, 3.5rem);
+		font-size: clamp(0.75rem, min(1.8vh, 1.05vw), 1.6rem); /* ~19px */
+	}
+
+	.group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.7em;
+		padding: 0.9em 1.2em 1em;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+	}
+
+	.topic {
+		font-family: var(--font-display);
+		font-size: 1.15em;
+		font-weight: 700;
+		color: var(--color-text-main);
+	}
+
+	.items {
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 0.55em;
+	}
+
+	.items li {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.3;
+	}
+
+	.items a,
+	.book {
+		font-weight: 600;
+		color: var(--color-text-main);
+	}
+
+	.items a {
+		text-decoration: underline;
+		text-decoration-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+		text-underline-offset: 0.2em;
+	}
+
+	.items a:hover {
+		color: var(--color-primary);
+	}
+
+	.book {
+		font-style: italic;
+	}
+
+	.source {
+		font-size: 0.85em;
+		color: var(--color-text-muted);
+	}
+
+	@media (max-width: 800px) {
+		.references {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
