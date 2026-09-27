@@ -1,0 +1,99 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import LayerTransitionDiagram from '../components/LayerTransitionDiagram.astro';
+import LayerCode from '../components/LayerCode.astro';
+import CodeComparison from '../components/CodeComparison.astro';
+import { filesWithoutDomain, filesWithDomain, withoutDomain, withDomain, useCases } from '../data/repositories';
+---
+
+<Slide width={170} pinned>
+	<SlideHeader
+		title="Who asks for the data?"
+		subtitles={[
+			{ name: 'Repository', text: 'one contract the screen depends on, one implementation behind it' },
+			{ name: 'What about a domain layer?', text: 'the contract moves into the domain; the implementation stays in data' },
+			{ name: 'Use cases', text: 'most screens don\'t need one; complex business logic does' },
+		]}
+	/>
+
+	<div class="repo-body">
+		<!-- Where the files live: two layers first; the domain then grows in and takes the contract -->
+		<LayerTransitionDiagram feature=":featureD" before={filesWithoutDomain} after={filesWithDomain} trigger="domain-step" />
+		<!-- The slide's first step; the diagram and code follow it -->
+		<div class="domain-step fragment" hidden></div>
+
+		<!-- The code for each step, sharing one spot -->
+		<div class="step-stack code">
+			<div class="code-set no-domain">
+				{withoutDomain.snippets.map((snippet) => <LayerCode snippet={snippet} />)}
+			</div>
+			<div class="code-set with-domain">
+				{withDomain.snippets.map((snippet) => <LayerCode snippet={snippet} />)}
+			</div>
+			<div class="code-set use-case-step fragment">
+				<CodeComparison comparison={useCases} />
+			</div>
+		</div>
+	</div>
+</Slide>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	.repo-body {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: clamp(1rem, 2.2vh, 2.5rem);
+		--diagram-width: min(100%, 55vw, 110vh);
+	}
+
+	/* Each step's content shares one spot, so switching never moves anything */
+	.step-stack {
+		display: grid;
+		align-items: start;
+	}
+
+	.step-stack > * {
+		grid-area: 1 / 1;
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	.step-stack > .fragment {
+		transform: none;
+	}
+
+	/* The use-case code is the longest on this slide; slightly smaller here, readable via click-to-zoom */
+	.use-case-step {
+		--code-font: clamp(0.68rem, min(1.55vh, 0.9vw), 1.4rem); /* ~17px */
+	}
+
+	.code-set {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		gap: clamp(1rem, 3vw, 3rem);
+	}
+
+	/* Step 1: no domain. Step 2: the domain appears. Step 3: use cases replace the code */
+	:global(.slide:has(.domain-step.visible)) .no-domain,
+	:global(.slide:not(:has(.domain-step.visible))) .with-domain,
+	:global(.slide:has(.use-case-step.visible)) .with-domain {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	@media (max-width: 800px) {
+		.code-set {
+			flex-direction: column;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.step-stack > * {
+			transition: none;
+		}
+	}
+</style>

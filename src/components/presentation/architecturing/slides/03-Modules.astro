@@ -1,0 +1,377 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import DependencyArrow from '../../DependencyArrow.astro';
+import ModuleNode from '../components/ModuleNode.astro';
+import { app, features, core, shared, tour } from '../data/modules';
+---
+
+<Slide width="full" gap="sm" pinned data-arch data-tour={JSON.stringify(tour)}>
+	<SlideHeader title="Module structure" subtitles={tour.map(({ name, text }) => ({ name, text }))} />
+
+	<!-- One step per tour stop after the first (see `tour`) -->
+	{tour.slice(1).map(() => <div class="fragment" hidden></div>)}
+
+	<!-- The picture builds up: each part appears at the step in its data-from -->
+	<div class="board">
+		<div class="column column-shared" data-from="1">
+			<p class="column-label">Shared by features</p>
+			{shared.map((node) => <ModuleNode node={node} />)}
+		</div>
+
+		<div class="column column-main">
+			<ModuleNode node={app} />
+			<div class="features">
+				<DependencyArrow direction="none" />
+				<!-- Features sit in one row; the open feature's internals appear underneath the whole row -->
+				<div class="feature-group">
+					<ul class="feature-row">
+						{features.map((node) => <li><ModuleNode node={node} detached /></li>)}
+					</ul>
+					{features.map((node) => <ModuleNode node={node} childrenOnly />)}
+				</div>
+			</div>
+		</div>
+
+		<div class="column column-core" data-from="1">
+			<ModuleNode node={core} />
+		</div>
+
+		<!-- Focus: a clicked box, alone with what is inside it, and what it is for -->
+		<div class="focus" aria-live="polite">
+			<div class="focus-node" data-focus-node></div>
+			<div class="focus-note">
+				<strong class="focus-name" data-focus-name></strong>
+				<p class="focus-text" data-focus-text></p>
+				<p class="focus-hint">Click a box to go deeper · click anywhere else to go back</p>
+			</div>
+		</div>
+	</div>
+</Slide>
+
+<script>
+	import { onStepChange } from '../../slide-events';
+	import type { TourStep } from '../data/modules';
+
+	// A detached box points at its children with aria-controls; otherwise they follow the box
+	const childrenOf = (box: HTMLElement) => {
+		const id = box.getAttribute('aria-controls');
+		return id ? document.getElementById(id) : box.parentElement!.querySelector<HTMLElement>(':scope > .children');
+	};
+
+	const setOpen = (box: HTMLElement, open: boolean) => {
+		const children = childrenOf(box);
+		if (!children) return;
+		box.setAttribute('aria-expanded', String(open));
+		children.hidden = !open;
+		// Closing a module closes everything inside it too
+		if (!open) {
+			children.querySelectorAll<HTMLElement>('.box[aria-expanded="true"]').forEach((b) => setOpen(b, false));
+		}
+	};
+
+	/** A copy of a box with its direct children showing (deeper levels closed), for the focus view */
+	const branchOf = (box: HTMLElement) => {
+		const node = box.parentElement!.cloneNode(false) as HTMLElement;
+		const boxCopy = box.cloneNode(true) as HTMLElement;
+		boxCopy.removeAttribute('aria-controls');
+		node.append(boxCopy);
+
+		const children = childrenOf(box);
+		const list = children?.matches('.children') ? children : children?.querySelector<HTMLElement>(':scope > .children');
+		if (list) {
+			const listCopy = list.cloneNode(true) as HTMLElement;
+			listCopy.hidden = false;
+			listCopy.querySelectorAll<HTMLElement>('.children').forEach((c) => (c.hidden = true));
+			listCopy.querySelectorAll('.box[aria-expanded]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+			boxCopy.setAttribute('aria-expanded', 'true');
+			node.append(listCopy);
+		}
+		return node;
+	};
+
+	document.querySelectorAll<HTMLElement>('[data-arch]').forEach((root) => {
+		const slide = root.closest<HTMLElement>('.slide')!;
+		const board = root.querySelector<HTMLElement>('.board')!;
+		const focusNode = root.querySelector<HTMLElement>('[data-focus-node]')!;
+		const focusName = root.querySelector<HTMLElement>('[data-focus-name]')!;
+		const focusText = root.querySelector<HTMLElement>('[data-focus-text]')!;
+		const tour: TourStep[] = JSON.parse(root.dataset.tour!);
+
+		const focusOn = (box: HTMLElement) => {
+			focusNode.replaceChildren(branchOf(box));
+			focusName.textContent = box.dataset.name ?? '';
+			focusText.textContent = box.dataset.description ?? '';
+			board.classList.add('focusing');
+		};
+
+		const unfocus = () => board.classList.remove('focusing');
+
+		// Each step shows the parts it has reached and opens its boxes; any focus closes
+		onStepChange(slide, (step) => {
+			const stop = tour[Math.min(step, tour.length - 1)];
+			unfocus();
+			board.querySelectorAll<HTMLElement>('.column .box[aria-expanded="true"]').forEach((b) => setOpen(b, false));
+			stop.open.forEach((name) => {
+				const box = board.querySelector<HTMLElement>(`.column .box[data-name="${name}"][aria-expanded]`);
+				if (box) setOpen(box, true);
+			});
+			board.querySelectorAll<HTMLElement>('[data-from]').forEach((part) => {
+				part.classList.toggle('shown', step >= Number(part.dataset.from));
+			});
+		});
+
+		// A box (on the board, or inside the focus view) takes the focus; a click elsewhere while
+		// focused goes back. Neither reveals the next step.
+		slide.addEventListener('click', (e) => {
+			const box = (e.target as HTMLElement).closest<HTMLElement>('[data-node]');
+			if (box) {
+				e.stopPropagation();
+				focusOn(box);
+			} else if (board.classList.contains('focusing')) {
+				e.stopPropagation();
+				unfocus();
+			}
+		});
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') unfocus();
+		});
+	});
+</script>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	/* Equal side columns keep the main tree centred, even while the sides are still hidden */
+	.board {
+		position: relative;
+		flex: 1;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+		align-items: start;
+		gap: clamp(0.75rem, 1.2vw, 2rem);
+	}
+
+	.column-shared { justify-self: end; }
+	.column-core { justify-self: start; }
+
+	.column {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
+		font-size: clamp(0.9rem, min(2.65vh, 1.5vw), 2.4rem);
+		flex: none;
+	}
+
+	.column-main {
+		padding: 0 0.25em 0.5em;
+		/* The :app -> features line: no head (the feature row draws those), its gap cancelled by the margin */
+		--arrow-length: clamp(2rem, 6vh, 5rem);
+		--arrow-margin: -1em 0;
+		--arrow-font: 1em;
+		--arrow-label-scale: 0.7em;
+	}
+
+	.column-label {
+		font-size: 0.8em;
+		color: var(--color-text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	.column-core {
+		padding: 0.6em;
+		background: color-mix(in srgb, var(--c-core) 6%, transparent);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+	}
+
+	/* :app -> rail -> an arrow down to each feature */
+	.feature-group {
+		--rail: clamp(0.75rem, 2.2vh, 1.5rem);
+		--head: 10px;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.feature-row {
+		list-style: none;
+		display: flex;
+	}
+
+	/* Equal slots keep the features evenly spread when an open feature widens the group */
+	.feature-row > li {
+		position: relative;
+		flex: 1 1 0;
+		display: flex;
+		justify-content: center;
+		padding: var(--rail) 0.4em 0;
+	}
+
+	.feature-row > li::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: calc(50% - 1.5px);
+		width: 3px;
+		height: calc(var(--rail) - var(--head));
+		background: var(--color-text-muted);
+	}
+
+	.feature-row > li::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: var(--color-text-muted);
+	}
+
+	.feature-row > li:first-child::after { left: 50%; }
+	.feature-row > li:last-child::after { right: 50%; }
+
+	.feature-row > li > :global(.node)::before {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: calc(var(--rail) - var(--head));
+		transform: translateX(-50%);
+		border-left: 7px solid transparent;
+		border-right: 7px solid transparent;
+		border-top: var(--head) solid var(--color-text-muted);
+	}
+
+	/* Line from the open feature down to its internals' rail (+2px clears the box border) */
+	.feature-row :global(.box[aria-expanded='true'])::after {
+		content: '';
+		position: absolute;
+		left: calc(50% - 1px);
+		top: calc(100% + 2px);
+		width: 2px;
+		height: var(--rail);
+		background: var(--color-text-muted);
+	}
+
+	/* Build-up: a part waits, invisible but holding its place, until its step arrives */
+	[data-from] {
+		transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	[data-from]:not(.shown) {
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(12px);
+	}
+
+	.column-shared[data-from]:not(.shown) { transform: translateX(-24px); }
+	.column-core[data-from]:not(.shown) { transform: translateX(24px); }
+
+	/* The :app -> features line and the feature row appear together */
+	.features {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
+	}
+
+	/* ---------- Focus ---------- */
+	/* The board steps back; the focused box and its note take its place */
+	.column {
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	.board.focusing > .column {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.focus {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(1.5rem, 4vw, 5rem);
+		padding-bottom: 8vh;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	.board.focusing .focus {
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.focus-note {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4em;
+		max-width: 28em;
+		padding: 0.9em 1.3em;
+		background: var(--color-surface);
+		border-left: 4px solid var(--color-primary);
+		border-radius: var(--radius-sm);
+		font-size: clamp(0.95rem, min(2.4vh, 1.35vw), 2.2rem); /* ~26px */
+		line-height: 1.4;
+	}
+
+	.focus-name {
+		font-family: var(--font-mono);
+		color: var(--color-primary);
+	}
+
+	.focus-text {
+		color: var(--color-text-main);
+	}
+
+	.focus-hint {
+		margin-top: 0.3em;
+		font-size: 0.7em;
+		color: var(--color-text-muted);
+	}
+
+	/* Narrow screens: stack the columns, main tree first */
+	@media (max-width: 800px) {
+		.board {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.column-shared,
+		.column-core {
+			justify-self: auto;
+		}
+
+		.focus {
+			flex-direction: column;
+		}
+
+		.column {
+			align-items: stretch;
+		}
+
+		.column-main { order: -1; }
+
+		.feature-row :global(.box[aria-expanded='true'])::after {
+			display: none;
+		}
+
+		/* Three features side by side on a phone need smaller boxes */
+		.feature-row > li {
+			min-width: 0;
+			padding-inline: 0.15em;
+		}
+
+		.feature-row :global(.box) {
+			gap: 0.3em;
+			padding-inline: 0.5em;
+			font-size: 0.8rem;
+		}
+	}
+</style>

@@ -1,0 +1,12 @@
+---
+import { highlightKotlin } from './highlight';
+
+/** A Kotlin code block, highlighted at build time. Styles: `.code-block` in presentation.css */
+interface Props {
+	code: string;
+}
+
+const { code } = Astro.props;
+---
+
+<pre class="code-block"><code set:html={highlightKotlin(code.trim())} /></pre>
