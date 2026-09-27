@@ -62,7 +62,6 @@ const projects = (await getCollection('projects')).sort(
 					</div>
 				</div>
 			</div>
-			</div>
 		</div>
 	</section>
 
@@ -75,7 +74,7 @@ const projects = (await getCollection('projects')).sort(
 						title={project.data.title}
 						description={project.data.description}
 						tags={project.data.tags}
-						slug={project.slug}
+						slug={project.id}
 					/>
 				))}
 			</div>
