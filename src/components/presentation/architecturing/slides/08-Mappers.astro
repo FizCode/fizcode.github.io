@@ -1,0 +1,301 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import Code from '../../Code.astro';
+import LayerCode from '../components/LayerCode.astro';
+import LayerTransitionDiagram from '../components/LayerTransitionDiagram.astro';
+import CodeComparison from '../components/CodeComparison.astro';
+import {
+	dto, domainModel, uiModel, singleMapper, splitMappers,
+	separation, separationWithDomain, mapperFiles, mapperFilesWithDomain,
+} from '../data/mappers';
+
+const [toDomain, toUi] = splitMappers;
+---
+
+<Slide width={170} pinned>
+	<SlideHeader
+		title="Mappers: each layer speaks its own model"
+		subtitles={[
+			{ name: 'One mapper', text: 'turns the API response straight into what the screen shows' },
+			{ name: 'What about a domain layer?', text: 'the mapper splits in two, each with one job' },
+			{ name: 'Why a separate file?', text: 'the mapper belongs to neither model' },
+			{ name: 'And with a domain?', text: 'the same rule keeps DTOs out of the domain' },
+		]}
+	/>
+
+	<div class="mappers-body">
+		<!-- Top: the models, replaced by where the mapper files live on the last step -->
+		<div class="top">
+			<!-- Models, left to right in the order data flows -->
+			<div class="flow">
+				<div data-zoomable class={`card layer-${dto.layer}`}>
+					<p class="card-layer">{dto.layer}</p>
+					<Code code={dto.code} />
+				</div>
+
+				<!-- Without a domain this arrow is toUiModel(); with one, it becomes toDomain() -->
+				<div class="arrow">
+					<div class="arrow-labels">
+						<p class="arrow-label solo"><code>{singleMapper.title}</code><span>lives in {singleMapper.lives}</span></p>
+						<p class="arrow-label split"><code>{toDomain.title}</code><span>lives in {toDomain.lives}</span></p>
+					</div>
+					<span class="arrow-line" aria-hidden="true"></span>
+				</div>
+
+				<!-- Revealed by clicking the slide: the domain model and its mapper open up in the middle -->
+				<div class="domain-group fragment">
+					<div class="domain-inner">
+						<div data-zoomable class={`card layer-${domainModel.layer}`}>
+							<p class="card-layer">{domainModel.layer}</p>
+							<Code code={domainModel.code} />
+						</div>
+
+						<div class="arrow">
+							<div class="arrow-labels">
+								<p class="arrow-label"><code>{toUi.title}</code><span>lives in {toUi.lives}</span></p>
+							</div>
+							<span class="arrow-line" aria-hidden="true"></span>
+						</div>
+					</div>
+				</div>
+
+				<div data-zoomable class={`card layer-${uiModel.layer}`}>
+					<p class="card-layer">{uiModel.layer}</p>
+					<Code code={uiModel.code} />
+				</div>
+			</div>
+
+			<!-- Where the mapper files live; the domain grows in on the last step -->
+			<div class="files">
+				<LayerTransitionDiagram feature=":featureD" before={mapperFiles} after={mapperFilesWithDomain} trigger="why-domain" />
+			</div>
+		</div>
+
+		<!-- The mapper code: one function without a domain, two with one. Both share one spot -->
+		<div class="mapper-code">
+			<div class="mapper-set solo">
+				<LayerCode snippet={singleMapper} />
+			</div>
+			<div class="mapper-set split">
+				{splitMappers.map((mapper) => <LayerCode snippet={mapper} />)}
+			</div>
+
+			<!-- Third and fourth steps: why mappers are not methods on the models, without and with a domain -->
+			<div class="mapper-set why fragment">
+				<CodeComparison comparison={separation} />
+			</div>
+			<div class="mapper-set why-domain fragment">
+				<CodeComparison comparison={separationWithDomain} />
+			</div>
+		</div>
+	</div>
+</Slide>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	.mappers-body {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: clamp(1rem, 2.2vh, 2.5rem);
+	}
+
+	/* Models */
+	/* Cards line up at the top so their layer tags sit in one row; arrows centre on the code */
+	.flow {
+		container-type: inline-size;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+	}
+
+	.card {
+		flex: none;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4em;
+		font-size: clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem); /* ~21px */
+	}
+
+	.card-layer {
+		align-self: flex-start;
+		padding: 0.1em 0.7em;
+		border: 2px solid var(--c-border);
+		border-radius: var(--radius-full);
+		color: var(--c-border);
+		font-weight: 700;
+	}
+
+	.card :global(.code-block) {
+		border-top: 4px solid var(--c-border);
+	}
+
+	.layer-data { --c-border: var(--c-data); }
+	.layer-domain { --c-border: var(--c-domain); }
+	.layer-presentation { --c-border: var(--c-presentation); }
+
+	/* Arrows carry the mapper's name and where it lives */
+	.arrow {
+		flex: none;
+		align-self: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.3em;
+		width: clamp(9rem, 12vw, 15rem);
+		padding: 0 0.6em;
+		font-size: clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem); /* ~21px */
+	}
+
+	.arrow-labels {
+		display: grid;
+	}
+
+	.arrow-label {
+		grid-area: 1 / 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.1em;
+		text-align: center;
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	.arrow-label code {
+		font-family: var(--font-mono);
+		font-weight: 700;
+		color: var(--color-text-main);
+	}
+
+	.arrow-label span {
+		font-size: 0.8em;
+		color: var(--color-text-muted);
+	}
+
+	.arrow-line {
+		position: relative;
+		width: 100%;
+		height: 3px;
+		background: var(--color-text-muted);
+	}
+
+	.arrow-line::after {
+		content: '';
+		position: absolute;
+		right: -2px;
+		top: 50%;
+		transform: translateY(-50%);
+		border-top: 9px solid transparent;
+		border-bottom: 9px solid transparent;
+		border-left: 12px solid var(--color-text-muted);
+	}
+
+	/*
+	 * The domain group grows from zero width, pushing the cards apart. Its content keeps
+	 * its size (no wrapping in code), so it is revealed rather than squashed.
+	 */
+	.flow .domain-group {
+		flex: none;
+		max-width: 0;
+		overflow: hidden;
+		transform: none;
+		transition: max-width 0.6s ease, opacity 0.4s ease 0.2s, visibility 0.6s;
+	}
+
+	.flow .domain-group.visible {
+		max-width: 70cqw;
+	}
+
+	.domain-inner {
+		display: flex;
+		align-items: flex-start;
+		width: max-content;
+	}
+
+	/*
+	 * Swaps that follow the steps: one mapper -> two mappers -> why a separate file
+	 * (presentation and data) -> the same with a domain
+	 */
+	:global(.slide:has(.domain-group.visible)) .solo,
+	:global(.slide:not(:has(.domain-group.visible))) .split,
+	:global(.slide:has(.mapper-set.why.visible)) .mapper-set.split,
+	:global(.slide:has(.mapper-set.why.visible)) .flow,
+	:global(.slide:not(:has(.mapper-set.why.visible))) .files,
+	:global(.slide:has(.mapper-set.why-domain.visible)) .mapper-set.why {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	/* The models and the files illustration share one spot */
+	.top {
+		display: grid;
+		align-items: center;
+	}
+
+	.flow,
+	.files {
+		grid-area: 1 / 1;
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	/* Mapper code below the models */
+	.mapper-code {
+		display: grid;
+	}
+
+	.mapper-set {
+		grid-area: 1 / 1;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		gap: clamp(1rem, 3vw, 3rem);
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	/* The last step's comparison fills the mapper spot (its styles live in CodeComparison) */
+	.mapper-set.why,
+	.mapper-set.why-domain {
+		transform: none;
+	}
+
+	@media (max-width: 800px) {
+		.flow,
+		.domain-inner,
+		.mapper-set {
+			flex-direction: column;
+		}
+
+		.arrow-line {
+			width: 3px;
+			height: 2.5rem;
+		}
+
+		.arrow-line::after {
+			right: auto;
+			left: 50%;
+			top: auto;
+			bottom: -2px;
+			transform: translateX(-50%);
+			border-left: 9px solid transparent;
+			border-right: 9px solid transparent;
+			border-top: 12px solid var(--color-text-muted);
+			border-bottom: none;
+		}
+
+		.flow .domain-group,
+		.flow .domain-group.visible {
+			max-width: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.flow .domain-group,
+		.arrow-label,
+		.mapper-set {
+			transition: none;
+		}
+	}
+</style>

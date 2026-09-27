@@ -1,0 +1,328 @@
+---
+import '../styles/global.css';
+import '../styles/presentation.css';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "FizCode Presentation" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+
+		<!-- Google Fonts -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+
+		<title>{title}</title>
+
+		<!-- Set the theme before first paint to avoid a flash: saved choice, else the system setting -->
+		<script is:inline>
+			(() => {
+				let theme = null;
+				try { theme = localStorage.getItem('presentation-theme'); } catch {}
+				if (theme !== 'light' && theme !== 'dark') {
+					theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+				}
+				document.documentElement.dataset.theme = theme;
+			})();
+		</script>
+	</head>
+	<body>
+		<div class="deck">
+			<slot />
+		</div>
+
+		<!-- Moves between a slide's revealed steps without leaving it; only shown on slides that have steps -->
+		<nav class="step-nav" aria-label="Step navigation" data-step-nav hidden>
+			<button class="nav-btn" data-step-prev aria-label="Previous step">‹</button>
+			<span class="counter" data-step-counter></span>
+			<button class="nav-btn" data-step-next aria-label="Next step">›</button>
+		</nav>
+
+		<nav class="deck-nav" aria-label="Slide navigation">
+			<button class="nav-btn" data-prev aria-label="Previous slide">←</button>
+			<span class="counter" data-counter></span>
+			<button class="nav-btn" data-next aria-label="Next slide">→</button>
+			<span class="nav-divider" aria-hidden="true"></span>
+			<button class="nav-btn theme-btn" data-theme-toggle aria-label="Switch to light mode">
+				<span class="icon-sun" aria-hidden="true">☀</span>
+				<span class="icon-moon" aria-hidden="true">☾</span>
+			</button>
+		</nav>
+
+		<script>
+			import { STEP_CHANGE, SLIDE_LEAVE, type StepChangeDetail } from '../components/presentation/slide-events';
+			import { initZoom } from '../components/presentation/zoom';
+
+			const slides = Array.from(document.querySelectorAll<HTMLElement>('.deck > .slide'));
+			const prevBtn = document.querySelector<HTMLButtonElement>('[data-prev]')!;
+			const nextBtn = document.querySelector<HTMLButtonElement>('[data-next]')!;
+			const counter = document.querySelector<HTMLElement>('[data-counter]')!;
+			const themeBtn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')!;
+
+			const applyTheme = (theme: string) => {
+				document.documentElement.dataset.theme = theme;
+				themeBtn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+			};
+
+			applyTheme(document.documentElement.dataset.theme ?? 'dark');
+			themeBtn.addEventListener('click', () => {
+				const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+				applyTheme(next);
+				try { localStorage.setItem('presentation-theme', next); } catch {}
+			});
+
+			// Slide number lives in the URL hash (#2) so a refresh or shared link keeps the position
+			const fromHash = () => {
+				const n = parseInt(location.hash.slice(1), 10);
+				return Number.isNaN(n) ? 0 : Math.min(Math.max(n - 1, 0), slides.length - 1);
+			};
+
+			let current = fromHash();
+			// How many of the current slide's .fragment elements are revealed
+			let step = 0;
+
+			const fragmentsOf = (index: number) => Array.from(slides[index].querySelectorAll<HTMLElement>('.fragment'));
+
+			const deck = document.querySelector<HTMLElement>('.deck')!;
+
+			const stepNav = document.querySelector<HTMLElement>('[data-step-nav]')!;
+			const stepPrev = document.querySelector<HTMLButtonElement>('[data-step-prev]')!;
+			const stepNext = document.querySelector<HTMLButtonElement>('[data-step-next]')!;
+			const stepCounter = document.querySelector<HTMLElement>('[data-step-counter]')!;
+
+			const updateControls = () => {
+				const total = fragmentsOf(current).length;
+				prevBtn.disabled = current === 0;
+				nextBtn.disabled = current === slides.length - 1;
+				// Signals that clicking the slide will reveal more
+				deck.classList.toggle('has-steps', step < total);
+				stepNav.hidden = total === 0;
+				stepPrev.disabled = step === 0;
+				stepNext.disabled = step === total;
+				stepCounter.textContent = `${step + 1} / ${total + 1}`;
+			};
+
+			// Tells the current slide its step, so it can update or reset its own interactive state
+			const stepChanged = () =>
+				slides[current].dispatchEvent(new CustomEvent<StepChangeDetail>(STEP_CHANGE, { detail: { step } }));
+
+			// Arrows and keys only move between slides; every slide starts with its fragments hidden
+			const show = (index: number) => {
+				const previous = slides[current];
+				current = Math.min(Math.max(index, 0), slides.length - 1);
+				if (previous !== slides[current]) previous?.dispatchEvent(new CustomEvent(SLIDE_LEAVE));
+				slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+				step = 0;
+				fragmentsOf(current).forEach((f) => f.classList.remove('visible'));
+				counter.textContent = `${current + 1} / ${slides.length}`;
+				updateControls();
+				stepChanged();
+				history.replaceState(null, '', `#${current + 1}`);
+			};
+
+			const reveal = () => {
+				const fragments = fragmentsOf(current);
+				if (step < fragments.length) {
+					fragments[step++].classList.add('visible');
+					updateControls();
+					stepChanged();
+				}
+			};
+
+			const unreveal = () => {
+				if (step > 0) {
+					fragmentsOf(current)[--step].classList.remove('visible');
+					updateControls();
+					stepChanged();
+				}
+			};
+
+			prevBtn.addEventListener('click', () => show(current - 1));
+			nextBtn.addEventListener('click', () => show(current + 1));
+			stepPrev.addEventListener('click', unreveal);
+			stepNext.addEventListener('click', reveal);
+
+			// Clicking anywhere on a slide reveals its next hidden step (the only way to reveal).
+			// It never changes slides, so a stray click can't jump away mid-talk.
+			deck.addEventListener('click', (e) => {
+				if ((e.target as HTMLElement).closest('button, a, input, select, textarea, label, summary')) return;
+				if (getSelection()?.toString()) return;
+				reveal();
+			});
+			window.addEventListener('hashchange', () => show(fromHash()));
+			document.addEventListener('keydown', (e) => {
+				// Let Space/Enter press a focused button (e.g. an interactive diagram) instead of changing slides
+				if (e.key === ' ' && (e.target as HTMLElement).closest('button:not(.nav-btn)')) return;
+				if (['ArrowRight', 'PageDown', ' '].includes(e.key)) {
+					e.preventDefault();
+					show(current + 1);
+				} else if (['ArrowLeft', 'PageUp'].includes(e.key)) {
+					e.preventDefault();
+					show(current - 1);
+				}
+			});
+
+			initZoom(slides);
+			show(current);
+		</script>
+	</body>
+</html>
+
+<style>
+	body {
+		height: 100vh;
+		overflow: hidden;
+	}
+
+	.deck {
+		position: relative;
+		height: 100vh;
+		/* Hidden slides wait 24px to the right; clip (unlike hidden) means focusing a button can't scroll the page sideways to them */
+		overflow: clip;
+	}
+
+	/* Slides are defined by the page; the layout only handles showing one at a time */
+	.deck > :global(.slide) {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		/* "safe" falls back to top alignment when a slide is taller than the screen (phones), so its top never gets cut off */
+		justify-content: safe center;
+		/* Scales down on smaller screens; the top always clears the navigation bar */
+		padding: clamp(4.75rem, 8.9vh, 6rem) clamp(1rem, 1.25vw, 1.5rem) clamp(1rem, 4.4vh, 3rem);
+		overflow-y: auto;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateX(24px);
+		transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	.deck > :global(.slide.active) {
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+	}
+
+	/*
+	 * Shared slide typography. Slide text scales with the screen like a real deck: min(vh, vw) keeps it proportional
+	 * on any display, and clamp() keeps a readable floor on phones.
+	 * Values in comments are at 1920x1080.
+	 */
+	.deck :global(.eyebrow) {
+		display: inline-block;
+		margin-bottom: 0.6em;
+		color: var(--color-primary);
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		font-size: clamp(0.85rem, min(2vh, 1.15vw), 2rem); /* ~22px */
+	}
+
+	.deck :global(h1) {
+		font-size: clamp(2.25rem, min(8vh, 4.5vw), 7rem); /* ~86px */
+		margin-bottom: 0.5em;
+	}
+
+	.deck :global(h2) {
+		font-size: clamp(1.75rem, min(6vh, 3.4vw), 5rem); /* ~65px */
+		margin-bottom: 0.8em;
+		text-align: center;
+	}
+
+	.deck :global(.lead) {
+		font-size: clamp(1rem, min(2.8vh, 1.6vw), 2.5rem); /* ~30px */
+		color: var(--color-text-muted);
+		max-width: 50ch;
+		margin-bottom: 0.8em;
+	}
+
+	.deck-nav {
+		right: clamp(1rem, 1.25vw, 1.5rem);
+	}
+
+	.step-nav {
+		left: clamp(1rem, 1.25vw, 1.5rem);
+	}
+
+	.step-nav[hidden] {
+		display: none;
+	}
+
+	.deck.has-steps {
+		cursor: pointer;
+	}
+
+	.deck-nav,
+	.step-nav {
+		position: fixed;
+		top: clamp(0.75rem, 2.2vh, 1.5rem);
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-sm);
+		padding: 0.4rem 0.6rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-full);
+	}
+
+	.nav-btn {
+		width: 2.5rem;
+		height: 2.5rem;
+		border: none;
+		border-radius: var(--radius-full);
+		background: var(--color-surface-hover);
+		color: var(--color-text-main);
+		font-size: 1.1rem;
+		cursor: pointer;
+		transition: background var(--transition-fast), color var(--transition-fast);
+	}
+
+	.nav-btn:hover:not(:disabled) {
+		background: var(--color-primary);
+		color: var(--color-bg);
+	}
+
+	.nav-btn:disabled {
+		opacity: 0.35;
+		cursor: default;
+	}
+
+	.nav-divider {
+		width: 1px;
+		height: 1.5rem;
+		background: var(--color-border);
+	}
+
+	/* Show the icon of the mode you would switch to */
+	.theme-btn .icon-sun,
+	:global(:root[data-theme='light']) .theme-btn .icon-moon {
+		display: inline;
+	}
+
+	.theme-btn .icon-moon,
+	:global(:root[data-theme='light']) .theme-btn .icon-sun {
+		display: none;
+	}
+
+	.counter {
+		min-width: 3.5rem;
+		text-align: center;
+		font-size: 0.9rem;
+		color: var(--color-text-muted);
+		font-variant-numeric: tabular-nums;
+	}
+</style>

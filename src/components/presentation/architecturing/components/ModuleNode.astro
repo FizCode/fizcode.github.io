@@ -1,0 +1,313 @@
+---
+import type { ModuleNode } from '../data/modules';
+
+interface Props {
+	node: ModuleNode;
+	/** Render only the box; its children are rendered elsewhere with `childrenOnly` */
+	detached?: boolean;
+	/** Render only the children, e.g. below a row of detached boxes */
+	childrenOnly?: boolean;
+}
+
+const { node, detached = false, childrenOnly = false } = Astro.props;
+const hasChildren = !!node.children?.length;
+const childrenId = `${node.name.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}-children`;
+---
+
+{childrenOnly ? (
+	<div class="node children-only" data-kind={node.kind} data-layout="tree" id={childrenId} hidden>
+		<ul class="children">
+			{node.children!.map((child) => (
+				<li><Astro.self node={child} /></li>
+			))}
+		</ul>
+	</div>
+) : (
+	<div class="node" data-kind={node.kind} data-layout={node.layout ?? 'tree'}>
+		<button
+			type="button"
+			class:list={['box', { optional: node.optional }]}
+			data-node
+			data-name={node.name}
+			data-description={node.description}
+			aria-expanded={hasChildren ? 'false' : undefined}
+			aria-controls={detached ? childrenId : undefined}
+		>
+			{node.name}
+			{hasChildren && <span class="toggle" aria-hidden="true"></span>}
+		</button>
+
+		{hasChildren && !detached && (
+			<ul class="children" hidden>
+				{node.children!.map((child) => (
+					<li><Astro.self node={child} /></li>
+				))}
+			</ul>
+		)}
+	</div>
+)}
+
+<style>
+	/* Colors come from --c-* variables set by the slide; values in comments are at 1920x1080 */
+	.node {
+		--rail: clamp(0.75rem, 2.2vh, 1.5rem);
+		--gap: clamp(0.4rem, 1.05vh, 0.75rem);
+		--line: var(--color-text-muted);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.box {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0.55em 0.8em;
+		background: var(--color-surface);
+		border: 2px solid var(--c-border, var(--color-border));
+		border-radius: var(--radius-sm);
+		color: var(--color-text-main);
+		font-family: var(--font-mono);
+		font-size: clamp(0.9rem, min(2.65vh, 1.5vw), 2.4rem); /* ~29px */
+		font-weight: 600;
+		white-space: nowrap;
+		cursor: pointer;
+		transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+	}
+
+	.box:hover {
+		background: var(--color-surface-hover);
+		transform: translateY(-2px);
+	}
+
+	.box:focus-visible {
+		outline: 3px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+
+	.box.selected {
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-border, var(--color-border)) 35%, transparent);
+	}
+
+	/* Packages are folders inside a module: plain sans text so they read as a lower level */
+	.node[data-kind='package'] > .box {
+		font-family: var(--font-sans);
+		font-size: clamp(0.85rem, min(2.35vh, 1.32vw), 2.1rem); /* ~25px */
+		font-weight: 500;
+		padding: 0.55em 0.65em;
+	}
+
+	.node[data-kind='app'] { --c-border: var(--c-app); }
+	.node[data-kind='feature'] { --c-border: var(--c-feature); }
+	.node[data-kind='core'],
+	.node[data-kind='shared'] { --c-border: var(--c-core); }
+	.node[data-kind='package'] { --c-border: var(--c-package); }
+
+	.box.optional {
+		border-style: dashed;
+		background: transparent;
+		color: var(--color-text-muted);
+	}
+
+	/* + / − indicator for boxes that open */
+	.toggle::before {
+		content: '+';
+		color: var(--color-text-muted);
+		font-family: var(--font-sans);
+	}
+
+	.box[aria-expanded='true'] .toggle::before {
+		content: '−';
+	}
+
+	.children {
+		list-style: none;
+		display: flex;
+		justify-content: center;
+	}
+
+	.children[hidden],
+	.node[hidden] {
+		display: none;
+	}
+
+	/* Detached children hang from their box elsewhere, so they skip the line up to a parent above */
+	.node.children-only[data-layout='tree'] > .children::before {
+		display: none;
+	}
+
+	/* Tree layout: parent line down to a horizontal rail, then a line down to each child */
+	.node[data-layout='tree'] > .children {
+		position: relative;
+		padding-top: var(--rail);
+		animation: reveal var(--transition-normal);
+	}
+
+	.node[data-layout='tree'] > .children::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: 2px;
+		height: var(--rail);
+		background: var(--line);
+	}
+
+	.node[data-layout='tree'] > .children > li {
+		position: relative;
+		padding: var(--rail) 0.25em 0;
+	}
+
+	.node[data-layout='tree'] > .children > li::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: 2px;
+		height: var(--rail);
+		background: var(--line);
+	}
+
+	.node[data-layout='tree'] > .children > li::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 2px;
+		background: var(--line);
+	}
+
+	.node[data-layout='tree'] > .children > li:first-child::after { left: 50%; }
+	.node[data-layout='tree'] > .children > li:last-child::after { right: 50%; }
+	.node[data-layout='tree'] > .children > li:only-child::after { display: none; }
+
+	/*
+	 * List layout: children stacked under the parent like a file tree, with a vertical trunk
+	 * and a short branch to each child's box. The trunk is drawn per child: a child's li covers
+	 * the gap above it and its whole height (so it passes any opened grandchildren), while the
+	 * last child's segment sits on its box and stops at the branch.
+	 * Offsets use --rail/--gap (not em) because boxes and list items have different font sizes.
+	 */
+	.node[data-layout='list'] {
+		align-items: flex-start;
+	}
+
+	.node[data-layout='list'] > .children {
+		align-self: stretch;
+		flex-direction: column;
+		align-items: stretch;
+		gap: var(--gap);
+		margin-top: var(--gap);
+		padding-left: calc(2 * var(--rail));
+		animation: reveal var(--transition-normal);
+	}
+
+	.node[data-layout='list'] > .children > li {
+		position: relative;
+	}
+
+	.node[data-layout='list'] > .children > li:not(:last-child)::before {
+		content: '';
+		position: absolute;
+		left: calc(-1 * var(--rail));
+		top: calc(-1 * var(--gap));
+		bottom: 0;
+		width: 2px;
+		background: var(--line);
+	}
+
+	/* Box pseudo-elements are placed from inside its 2px border, hence the extra 2px */
+	.node[data-layout='list'] > .children > li:last-child > .node > .box::before {
+		content: '';
+		position: absolute;
+		left: calc(-1 * var(--rail) - 2px);
+		top: calc(-1 * var(--gap) - 2px);
+		bottom: 50%;
+		width: 2px;
+		background: var(--line);
+	}
+
+	.node[data-layout='list'] > .children > li > .node > .box::after {
+		content: '';
+		position: absolute;
+		left: calc(-1 * var(--rail) - 2px);
+		top: 50%;
+		width: var(--rail);
+		height: 2px;
+		background: var(--line);
+	}
+
+	.node[data-layout='list'] > .children .box {
+		width: 100%;
+		justify-content: center;
+	}
+
+	@keyframes reveal {
+		from { opacity: 0; transform: translateY(-8px); }
+		to { opacity: 1; transform: none; }
+	}
+
+	/* Phones: trees switch to the same file-tree style as lists so nothing overflows sideways */
+	@media (max-width: 800px) {
+		.node {
+			align-items: stretch;
+		}
+
+		.node[data-layout='tree'] > .children {
+			flex-direction: column;
+			gap: var(--gap);
+			margin-top: var(--gap);
+			padding: 0 0 0 calc(2 * var(--rail));
+		}
+
+		.node[data-layout='tree'] > .children::before,
+		.node[data-layout='tree'] > .children > li:last-child::before,
+		.node[data-layout='tree'] > .children > li::after {
+			display: none;
+		}
+
+		.node[data-layout='tree'] > .children > li {
+			padding: 0;
+		}
+
+		.node[data-layout='tree'] > .children > li::before {
+			left: calc(-1 * var(--rail));
+			top: calc(-1 * var(--gap));
+			bottom: 0;
+			height: auto;
+		}
+
+		.node[data-layout='tree'] > .children > li:last-child > .node > .box::before {
+			content: '';
+			position: absolute;
+			left: calc(-1 * var(--rail) - 2px);
+			top: calc(-1 * var(--gap) - 2px);
+			bottom: 50%;
+			width: 2px;
+			background: var(--line);
+		}
+
+		.node[data-layout='tree'] > .children > li > .node > .box::after {
+			content: '';
+			position: absolute;
+			left: calc(-1 * var(--rail) - 2px);
+			top: 50%;
+			width: var(--rail);
+			height: 2px;
+			background: var(--line);
+		}
+
+		.box,
+		.node[data-layout='list'] > .children .box {
+			width: 100%;
+			justify-content: space-between;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.children { animation: none !important; }
+		.box { transition: none; }
+	}
+</style>

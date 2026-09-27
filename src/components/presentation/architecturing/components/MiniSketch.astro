@@ -1,0 +1,148 @@
+---
+import type { Sketch } from '../data/types';
+
+/**
+ * A tiny diagram for a card: boxes and arrows. Colours match the talk's diagrams
+ * (layers, features, shared modules), so a sketch is recognised at a glance.
+ */
+
+interface Props {
+	sketch: Sketch;
+}
+
+const { sketch } = Astro.props;
+
+interface Box { x: number; y: number; w: number; label: string; tone: string; dashed?: boolean }
+interface Arrow { d: string }
+
+const H = 30;
+const drawings: Record<Sketch, { boxes: Box[]; arrows: Arrow[] }> = {
+	// presentation -> domain <- data, the domain dashed (optional)
+	domain: {
+		boxes: [
+			{ x: 4, y: 30, w: 80, label: 'presentation', tone: 'presentation' },
+			{ x: 110, y: 30, w: 80, label: 'domain', tone: 'domain', dashed: true },
+			{ x: 216, y: 30, w: 80, label: 'data', tone: 'data' },
+		],
+		arrows: [{ d: 'M84,45 H108' }, { d: 'M216,45 H192' }],
+	},
+	// two features sharing one module instead of reaching into each other
+	module: {
+		boxes: [
+			{ x: 4, y: 8, w: 100, label: ':featureA', tone: 'feature' },
+			{ x: 4, y: 52, w: 100, label: ':featureB', tone: 'feature' },
+			{ x: 186, y: 30, w: 110, label: ':domain:payment', tone: 'core' },
+		],
+		arrows: [{ d: 'M104,23 L184,40' }, { d: 'M104,67 L184,50' }],
+	},
+	// the screen asks a use case, which asks the repository
+	usecase: {
+		boxes: [
+			{ x: 4, y: 30, w: 74, label: 'ViewModel', tone: 'presentation' },
+			{ x: 96, y: 30, w: 114, label: 'PlaceOrderUseCase', tone: 'domain' },
+			{ x: 228, y: 30, w: 68, label: 'Repository', tone: 'domain' },
+		],
+		arrows: [{ d: 'M78,45 H94' }, { d: 'M210,45 H226' }],
+	},
+	// each layer's model, bridged by mappers
+	mapper: {
+		boxes: [
+			{ x: 4, y: 30, w: 64, label: 'OrderDto', tone: 'data' },
+			{ x: 86, y: 30, w: 108, label: 'OrderDomainModel', tone: 'domain' },
+			{ x: 212, y: 30, w: 84, label: 'OrderUiModel', tone: 'presentation' },
+		],
+		arrows: [{ d: 'M68,45 H84' }, { d: 'M194,45 H210' }],
+	},
+	// two screens calling the one home of a business rule
+	dry: {
+		boxes: [
+			{ x: 4, y: 8, w: 100, label: 'CheckoutVM', tone: 'presentation' },
+			{ x: 4, y: 52, w: 100, label: 'BuyNowVM', tone: 'presentation' },
+			{ x: 166, y: 30, w: 130, label: 'PlaceOrderUseCase', tone: 'domain' },
+		],
+		arrows: [{ d: 'M104,23 L164,40' }, { d: 'M104,67 L164,50' }],
+	},
+	// a new implementation (dashed) joins the contract; nothing else changes
+	extend: {
+		boxes: [
+			{ x: 4, y: 8, w: 100, label: 'RepositoryImpl', tone: 'data' },
+			{ x: 4, y: 52, w: 100, label: 'FakeRepository', tone: 'data', dashed: true },
+			{ x: 186, y: 30, w: 110, label: 'Repository', tone: 'domain' },
+		],
+		arrows: [{ d: 'M104,23 L184,40' }, { d: 'M104,67 L184,50' }],
+	},
+	// the screen uses the contract; either implementation can stand behind it
+	substitute: {
+		boxes: [
+			{ x: 4, y: 30, w: 70, label: 'ViewModel', tone: 'presentation' },
+			{ x: 96, y: 30, w: 84, label: 'Repository', tone: 'domain' },
+			{ x: 216, y: 8, w: 80, label: 'Impl', tone: 'data' },
+			{ x: 216, y: 52, w: 80, label: 'Fake', tone: 'data', dashed: true },
+		],
+		arrows: [{ d: 'M74,45 H94' }, { d: 'M216,23 L182,40' }, { d: 'M216,67 L182,50' }],
+	},
+};
+
+const { boxes, arrows } = drawings[sketch];
+const uid = `sketch-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<svg class="sketch" viewBox="0 0 300 90" aria-hidden="true">
+	<defs>
+		<marker id={`${uid}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+			<path class="arrowhead" d="M0 0 10 5 0 10z" />
+		</marker>
+	</defs>
+	{arrows.map((a) => <path class="dep" d={a.d} marker-end={`url(#${uid}-arrow)`} />)}
+	{boxes.map((b) => (
+		<g class={`box tone-${b.tone}`}>
+			<rect x={b.x} y={b.y} width={b.w} height={H} rx="6" class:list={{ dashed: b.dashed }} />
+			<text x={b.x + b.w / 2} y={b.y + H / 2}>{b.label}</text>
+		</g>
+	))}
+</svg>
+
+<style>
+	/* Height follows the screen (not the card width), so four cards always fit */
+	.sketch {
+		display: block;
+		width: auto;
+		max-width: 100%;
+		height: clamp(3.5rem, 10vh, 8rem);
+	}
+
+	.tone-presentation { --c-sketch: var(--c-presentation); }
+	.tone-domain { --c-sketch: var(--c-domain); }
+	.tone-data { --c-sketch: var(--c-data); }
+	.tone-feature { --c-sketch: var(--c-feature); }
+	.tone-core { --c-sketch: var(--c-core); }
+
+	rect {
+		fill: var(--color-bg);
+		stroke: var(--c-sketch);
+		stroke-width: 2;
+	}
+
+	rect.dashed {
+		stroke-dasharray: 5 4;
+	}
+
+	text {
+		fill: var(--color-text-main);
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 700;
+		text-anchor: middle;
+		dominant-baseline: central;
+	}
+
+	.dep {
+		fill: none;
+		stroke: var(--color-text-muted);
+		stroke-width: 1.5;
+	}
+
+	.arrowhead {
+		fill: var(--color-text-muted);
+	}
+</style>

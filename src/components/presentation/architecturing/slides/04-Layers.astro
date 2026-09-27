@@ -1,0 +1,336 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import DependencyArrow from '../../DependencyArrow.astro';
+import { layers } from '../data/layers';
+---
+
+<Slide width={160} pinned>
+	<SlideHeader
+		title="Layers inside a feature"
+		subtitles={[
+			{ name: 'Layered architecture', text: 'presentation reads and writes through data' },
+			{ name: 'Domain as additional', text: 'add a domain when business rules need their own home' },
+		]}
+	/>
+
+	<div class="layers" data-layers>
+		{layers.map((layer) => (
+			<div class:list={['collapsible', { 'optional-layer': layer.optional, fragment: layer.optional }]} data-layer={layer.key}>
+				<div class="inner">
+					<div class="row">
+						<div class="box-cell">
+							<button
+								type="button"
+								class:list={['box', `box-${layer.key}`, { optional: layer.optional }]}
+								data-layer-btn={layer.key}
+								aria-pressed="false"
+							>
+								{layer.key}
+							</button>
+							<p class="back-hint">click again to go back</p>
+						</div>
+
+						<div class={`desc desc-${layer.key}`}>
+							<div class="overview">
+								<h3>
+									{layer.title}
+									{layer.optional && <span class="pill pill--dashed optional-tag">optional</span>}
+								</h3>
+								<p>{layer.text}</p>
+								<ul class="tags">{layer.tags.map((t) => <li class="pill">{t}</li>)}</ul>
+							</div>
+
+							<div class="boundaries">
+								<h3>What belongs in {layer.key}?</h3>
+								<div class="lists">
+									<div>
+										<p class="list-title yes">✓ Belongs here</p>
+										<ul>{layer.belongs.map((item) => <li>{item}</li>)}</ul>
+									</div>
+									<div>
+										<p class="list-title no">✕ Keep out</p>
+										<ul>{layer.keepOut.map((item) => <li>{item}</li>)}</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					{layer.arrowAfter && (
+						<div class="collapsible">
+							<div class="inner">
+								<div class="row">
+									<DependencyArrow direction={layer.arrowAfter} />
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+			</div>
+		))}
+	</div>
+
+	<p class="rule">When a domain exists, presentation and data both depend on it, and it depends on nothing.</p>
+</Slide>
+
+<script>
+	import { onSlideClick, onSlideReset } from '../../slide-events';
+
+	document.querySelectorAll<HTMLElement>('[data-layers]').forEach((layers) => {
+		const slide = layers.closest<HTMLElement>('.slide')!;
+		let focused: string | null = null;
+
+		// Focusing a layer hides the others and swaps its description for its boundaries
+		const setFocus = (key: string | null) => {
+			focused = key;
+			layers.classList.toggle('focusing', key !== null);
+			layers.querySelectorAll<HTMLElement>('[data-layer]').forEach((el) => el.classList.toggle('focus', el.dataset.layer === key));
+			layers.querySelectorAll<HTMLElement>('[data-layer-btn]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.layerBtn === key)));
+		};
+
+		onSlideClick<HTMLElement>(slide, '[data-layer-btn]', {
+			onItem: (box) => setFocus(focused === box.dataset.layerBtn ? null : box.dataset.layerBtn!),
+			onOutside: () => setFocus(null),
+			hasSelection: () => focused !== null,
+		});
+
+		// Adding or removing the domain, or leaving the slide, shows every layer again
+		onSlideReset(slide, () => setFocus(null));
+	});
+</script>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	.layers {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	/* The closing line only shows once the domain is added, and not while a layer is focused; it keeps its space */
+	:global(.slide:not(:has(.optional-layer.visible))) .rule,
+	:global(.slide:has(.focusing)) .rule {
+		visibility: hidden;
+	}
+
+	/*
+	 * Collapsible wrappers animate their height: the optional domain opens between
+	 * presentation and data, and focusing a layer folds away everything else.
+	 */
+	.layers .collapsible {
+		display: grid;
+		grid-template-rows: 1fr;
+		transition:
+			grid-template-rows 0.45s ease,
+			opacity 0.35s ease,
+			transform 0.35s ease,
+			visibility 0.45s;
+	}
+
+	.layers .collapsible > .inner {
+		min-height: 0;
+		overflow: hidden;
+	}
+
+	.layers .optional-layer:not(.visible),
+	.layers.focusing .collapsible:not(.focus) {
+		grid-template-rows: 0fr;
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	/* Each row: the layer on the left, its description on the right */
+	.row {
+		display: grid;
+		grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+		align-items: center;
+		gap: clamp(1rem, 3vw, 4rem);
+	}
+
+	.box-cell {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.4em;
+	}
+
+	.box {
+		width: min(100%, 9em);
+		padding: 0.65em 0.5em;
+		background: var(--color-surface);
+		border: 3px solid var(--c-border);
+		border-radius: var(--radius-md);
+		color: var(--color-text-main);
+		text-align: center;
+		font-family: var(--font-mono);
+		font-size: clamp(1rem, min(3.2vh, 1.8vw), 2.9rem); /* ~35px */
+		font-weight: 700;
+		cursor: pointer;
+		transition: background var(--transition-fast);
+	}
+
+	.box:hover {
+		background: var(--color-surface-hover);
+	}
+
+	.box:focus-visible {
+		outline: 3px solid var(--color-accent);
+		outline-offset: -6px;
+	}
+
+	.box.optional {
+		border-style: dashed;
+	}
+
+	.box[aria-pressed="true"] {
+		background: color-mix(
+			in srgb,
+			var(--c-border) 15%,
+			var(--color-surface)
+		);
+	}
+
+	.back-hint {
+		display: none;
+		color: var(--color-text-muted);
+		font-size: clamp(0.8rem, min(1.8vh, 1vw), 1.6rem); /* ~19px */
+	}
+
+	.focus .back-hint {
+		display: block;
+	}
+
+	.box-presentation,
+	.desc-presentation {
+		--c-border: var(--c-presentation);
+	}
+	.box-domain,
+	.desc-domain {
+		--c-border: var(--c-domain);
+	}
+	.box-data,
+	.desc-data {
+		--c-border: var(--c-data);
+	}
+
+	.desc {
+		padding-left: 1em;
+		border-left: 4px solid var(--c-border);
+		font-size: clamp(0.9rem, min(2.3vh, 1.3vw), 2.1rem); /* ~25px */
+	}
+
+	.desc h3 {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		font-size: 1.25em; /* ~31px */
+		color: var(--c-border);
+		margin-bottom: 0.15em;
+	}
+
+	.desc p {
+		color: var(--color-text-muted);
+		line-height: 1.4;
+	}
+
+	/* Shared .pill, sized to sit inside the heading */
+	.optional-tag {
+		padding: 0.05em 0.5em;
+		font-family: var(--font-sans);
+		font-size: 0.55em;
+		font-weight: 500;
+	}
+
+	.tags {
+		list-style: none;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4em;
+		margin-top: 0.5em;
+	}
+
+	.tags li {
+		font-size: 0.8em; /* ~20px */
+	}
+
+	/* A focused layer shows its boundaries instead of the overview */
+	.boundaries,
+	.focus .overview {
+		display: none;
+	}
+
+	.focus .boundaries {
+		display: block;
+		animation: fade-in 0.4s ease;
+	}
+
+	/* "Keep out" sits below "Belongs here" so each item gets the full width */
+	.lists {
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+		margin-top: 0.6em;
+	}
+
+	.list-title {
+		margin-bottom: 0.4em;
+		font-weight: 600;
+	}
+
+	.desc .list-title.yes {
+		color: var(--c-app);
+	}
+	.desc .list-title.no {
+		color: var(--c-bad);
+	}
+
+	.lists ul {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45em;
+		padding-left: 1.1em;
+		color: var(--color-text-main);
+		line-height: 1.35;
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+
+	.rule {
+		text-align: center;
+		font-size: clamp(0.95rem, min(2.4vh, 1.35vw), 2.2rem); /* ~26px */
+		color: var(--c-domain);
+		font-weight: 600;
+	}
+
+	@media (max-width: 800px) {
+		.row {
+			grid-template-columns: 1fr;
+		}
+
+		.desc {
+			margin-top: 0.75em;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.layers .collapsible {
+			transition: none;
+		}
+
+		.focus .boundaries {
+			animation: none;
+		}
+	}
+</style>

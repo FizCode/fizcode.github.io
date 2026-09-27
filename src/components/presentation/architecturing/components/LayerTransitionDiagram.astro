@@ -1,0 +1,324 @@
+---
+import type { DiagramLayer, LayerKey } from '../data/types';
+
+/**
+ * A feature diagram that animates from one arrangement of layers to another when a slide
+ * step is revealed (typically: the domain appears between presentation and data).
+ * Boxes slide to their new places, new boxes grow in, and each file moves to wherever it
+ * lives next: it travels between boxes, fades in if it is new, or fades out if it is gone.
+ *
+ * `trigger` is the class of the slide's fragment that switches to `after`.
+ */
+interface Props {
+	feature: string;
+	before: DiagramLayer[];
+	after: DiagramLayer[];
+	trigger: string;
+}
+
+const { feature, before, after, trigger } = Astro.props;
+
+const W = 250;
+const LINE = 26;
+const Y = 88;
+const maxFiles = Math.max(...[...before, ...after].map((l) => l.files.length));
+const H = 56 + LINE * maxFiles;
+const mid = Y + H / 2;
+const VIEW_W = 1000;
+const VIEW_H = Y + H + 50;
+
+// Two boxes spread wide so their single arrow has room; three sit evenly
+const xsFor = (count: number) => (count === 3 ? [30, 375, 720] : [130, 620]);
+
+// Text rows inside a box: the name, then its files, centred as a group
+const rowsFor = (fileCount: number) => {
+	const top = H / 2 - ((fileCount + 1) * LINE) / 2 + LINE / 2;
+	return { name: top, file: (i: number) => top + LINE * (i + 1) + 4 };
+};
+
+interface Placed { x: number; layer: DiagramLayer }
+const place = (layers: DiagramLayer[]) => {
+	const xs = xsFor(layers.length);
+	return new Map<LayerKey, Placed>(layers.map((layer, i) => [layer.key, { x: xs[i], layer }]));
+};
+const was = place(before);
+const will = place(after);
+
+// Every box that exists in either arrangement, in left-to-right order
+const keys: LayerKey[] = (['presentation', 'domain', 'data'] as const).filter((k) => was.has(k) || will.has(k));
+
+// Where a box and its name sit in one arrangement (falls back to the other if absent there)
+const boxAt = (key: LayerKey, map: Map<LayerKey, Placed>, other: Map<LayerKey, Placed>) => {
+	const placed = map.get(key) ?? other.get(key)!;
+	return { x: placed.x, nameY: rowsFor(placed.layer.files.length).name };
+};
+
+// Where each file sits: its box centre and row; absent files take their other position
+const fileAt = (name: string, map: Map<LayerKey, Placed>) => {
+	for (const { x, layer } of map.values()) {
+		const i = layer.files.findIndex((f) => f.name === name);
+		if (i >= 0) return { x: x + W / 2, y: Y + rowsFor(layer.files.length).file(i), key: layer.key };
+	}
+	return null;
+};
+const fileNames = [...new Set([...before, ...after].flatMap((l) => l.files.map((f) => f.name)))];
+const files = fileNames.map((name) => {
+	const from = fileAt(name, was);
+	const to = fileAt(name, will);
+	const highlight = [...before, ...after].some((l) => l.files.some((f) => f.name === name && f.highlight));
+	return { name, from: from ?? to!, to: to ?? from!, inBefore: !!from, inAfter: !!to, highlight };
+});
+
+// Arrows point at what is depended on: the domain when there is one, otherwise data
+const arrowsFor = (map: Map<LayerKey, Placed>) => {
+	const target = map.get('domain') ?? map.get('data')!;
+	const arrows = [{ from: map.get('presentation')!.x + W, to: target.x }];
+	if (map.has('domain')) arrows.push({ from: map.get('data')!.x, to: target.x + W });
+	return arrows;
+};
+
+const uid = `transition-${Math.random().toString(36).slice(2, 8)}`;
+const vars = (entries: Record<string, number>) =>
+	Object.entries(entries).map(([k, v]) => `--${k}: ${v}px`).join('; ');
+---
+
+<svg
+	class="layer-transition"
+	viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+	role="img"
+	aria-label={`Inside ${feature}: from ${before.map((l) => l.key).join(' and ')} to ${after.map((l) => l.key).join(', ')}`}
+	data-layer-transition
+	data-trigger={trigger}
+>
+	<defs>
+		<marker id={`${uid}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+			<path class="arrowhead" d="M0 0 10 5 0 10z" />
+		</marker>
+	</defs>
+
+	<rect class="frame" x="10" y="50" width={VIEW_W - 20} height={H + 80} rx="16" />
+	<rect class="tag" x="10" y="4" width="130" height="34" rx="8" />
+	<text class="tag-label" x="75" y="21">{feature}</text>
+
+	{[['arrows-before', was], ['arrows-after', will]].map(([cls, map]) => (
+		<g class={cls as string}>
+			{arrowsFor(map as Map<LayerKey, Placed>).map((a) => (
+				<>
+					<path class="dep" d={`M${a.from},${mid} H${a.to}`} marker-end={`url(#${uid}-arrow)`} />
+					<text class="dep-label" x={(a.from + a.to) / 2} y={mid - 20}>depends on</text>
+				</>
+			))}
+		</g>
+	))}
+
+	{keys.map((key) => {
+		const b = boxAt(key, was, will);
+		const a = boxAt(key, will, was);
+		return (
+			<g
+				class:list={['box', `box-${key}`, { appears: !was.has(key), disappears: !will.has(key) }]}
+				style={vars({ bx: b.x, ax: a.x, bn: b.nameY, an: a.nameY })}
+			>
+				<g class="box-shape">
+					<rect width={W} height={H} rx="12" />
+				</g>
+				<text class="name" x={W / 2}>{key}</text>
+			</g>
+		);
+	})}
+
+	<!-- Files are drawn on their own so they can travel between boxes -->
+	{files.map((f) => (
+		<text
+			class:list={['file', `file-in-${f.from.key}`, `file-to-${f.to.key}`, { highlight: f.highlight, 'is-new': !f.inBefore, 'is-gone': !f.inAfter }]}
+			style={vars({ fx: f.from.x, fy: f.from.y, tx: f.to.x, ty: f.to.y })}
+		>
+			{f.name}
+		</text>
+	))}
+</svg>
+
+<script>
+	import { toggleWithStep } from '../../slide-events';
+
+	// Each diagram shows its "after" arrangement while its trigger step is revealed
+	document.querySelectorAll<SVGSVGElement>('[data-layer-transition]').forEach((svg) => {
+		toggleWithStep(svg, svg.dataset.trigger!);
+	});
+</script>
+
+<style>
+	.layer-transition {
+		display: block;
+		width: var(--diagram-width, min(100%, 50vw, 105vh));
+		height: auto;
+		margin: 0 auto;
+		--move: 0.6s ease;
+	}
+
+	.frame {
+		fill: none;
+		stroke: var(--color-border);
+		stroke-width: 2;
+	}
+
+	.tag {
+		fill: var(--color-surface-hover);
+		stroke: var(--color-border);
+		stroke-width: 1.5;
+	}
+
+	text {
+		text-anchor: middle;
+		dominant-baseline: central;
+	}
+
+	.tag-label {
+		fill: var(--color-text-main);
+		font-family: var(--font-mono);
+		font-size: 17px;
+		font-weight: 700;
+	}
+
+	.box rect {
+		fill: var(--color-surface);
+		stroke: var(--c-border);
+		stroke-width: 3;
+	}
+
+	.box-presentation, .file-in-presentation { --c-border: var(--c-presentation); }
+	.box-domain, .file-in-domain { --c-border: var(--c-domain); }
+	.box-data, .file-in-data { --c-border: var(--c-data); }
+
+	.name {
+		fill: var(--color-text-main);
+		font-family: var(--font-mono);
+		font-size: 22px;
+		font-weight: 700;
+	}
+
+	.file {
+		fill: var(--c-border);
+		font-family: var(--font-mono);
+		font-size: 15px;
+		font-weight: 600;
+	}
+
+	.file.highlight {
+		fill: var(--color-primary);
+		font-weight: 800;
+		text-decoration: underline;
+	}
+
+	.dep {
+		fill: none;
+		stroke: var(--color-text-muted);
+		stroke-width: 2.5;
+	}
+
+	.dep-label {
+		fill: var(--color-text-muted);
+		font-family: var(--font-sans);
+		font-size: 15px;
+	}
+
+	.arrowhead {
+		fill: var(--color-text-muted);
+	}
+
+	/* ---------- Before ---------- */
+	.box {
+		transform: translate(var(--bx), 88px);
+		transition: transform var(--move), opacity 0.4s ease;
+	}
+
+	.name {
+		transform: translateY(var(--bn));
+		transition: transform var(--move);
+	}
+
+	.file {
+		transform: translate(var(--fx), var(--fy));
+		transition: transform var(--move), opacity 0.4s ease;
+	}
+
+	/* Boxes that only exist after grow in from their centre */
+	.box-shape {
+		transform-box: fill-box;
+		transform-origin: center;
+		transition: transform var(--move);
+	}
+
+	.box.appears,
+	.file.is-new {
+		opacity: 0;
+	}
+
+	.box.appears .box-shape {
+		transform: scale(0.85);
+	}
+
+	.arrows-before,
+	.arrows-after {
+		transition: opacity 0.3s ease, visibility 0.3s;
+	}
+
+	.arrows-after {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	/* ---------- After ---------- */
+	.after .box {
+		transform: translate(var(--ax), 88px);
+	}
+
+	.after .name {
+		transform: translateY(var(--an));
+	}
+
+	.after .file {
+		transform: translate(var(--tx), var(--ty));
+	}
+
+	.after .box.appears {
+		opacity: 1;
+		transition-delay: 0s, 0.15s;
+	}
+
+	.after .box.appears .box-shape {
+		transform: none;
+	}
+
+	.after .box.disappears,
+	.after .file.is-gone {
+		opacity: 0;
+	}
+
+	/* New files arrive last, once their box is in place */
+	.after .file.is-new {
+		opacity: 1;
+		transition-delay: 0s, 0.45s;
+	}
+
+	.after .file.file-to-domain { --c-border: var(--c-domain); }
+	.after .file.file-to-data { --c-border: var(--c-data); }
+	.after .file.file-to-presentation { --c-border: var(--c-presentation); }
+
+	.after .arrows-before {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.after .arrows-after {
+		opacity: 1;
+		visibility: visible;
+		transition-delay: 0.35s;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.layer-transition * {
+			transition: none !important;
+		}
+	}
+</style>

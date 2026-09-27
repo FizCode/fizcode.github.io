@@ -1,0 +1,278 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import { BOX_W, BOX_H, VIEWBOX, positions, linear, onion, inversion, type LayerKey } from '../data/direction';
+
+const layerKeys = Object.keys(positions) as LayerKey[];
+
+// Each box knows both of its positions; CSS moves it from one to the other
+const placement = (key: LayerKey) => {
+	const { linear: [lx, ly], onion: [ox, oy] } = positions[key];
+	return `--lx: ${lx}px; --ly: ${ly}px; --ox: ${ox}px; --oy: ${oy}px`;
+};
+---
+
+<Slide width={170} pinned>
+	<SlideHeader
+		title="Which way do dependencies point?"
+		subtitles={[
+			{ name: 'Layered (N-tier)', text: 'each layer depends on the one below it' },
+			{ name: 'Onion / Clean Architecture', text: 'the domain sits in the middle, everything depends on it' },
+		]}
+	/>
+
+	<div class="direction-body">
+		<svg class="diagram" viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} role="img" aria-labelledby="direction-title">
+			<title id="direction-title">Inside :featureA, layers first in a line, then arranged around the domain</title>
+			<defs>
+				{['muted', 'bad'].map((tone) => (
+					<marker id={`dir-arrow-${tone}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+						<path class={`arrowhead-${tone}`} d="M0 0 10 5 0 10z" />
+					</marker>
+				))}
+			</defs>
+
+			<!-- The feature module these layers live in -->
+			<rect class="frame" x="10" y="50" width="880" height="400" rx="16" />
+			<rect class="tag" x="10" y="4" width="130" height="34" rx="8" />
+			<text class="tag-label" x="75" y="21">:featureA</text>
+
+			<!-- Linear: presentation -> domain -> data; the rules depend on storage -->
+			<g class="arrows-linear">
+				<path class="dep" d="M250,250 H350" />
+				<text class="dep-label" x="300" y="228">depends on</text>
+				<path class="dep bad" d="M550,250 H650" />
+				<text class="warning" x="600" y="196">⚠</text>
+				<text class="dep-label bad" x="600" y="228">depends on</text>
+			</g>
+
+			<!-- Onion: both sides point at the domain. Revealing this is the slide's only step -->
+			<g class="arrows-onion fragment">
+				<!-- Up from each side, then into the domain's left and right edges -->
+				<path class="dep" d="M160,320 V162 Q160,140 182,140 H350" />
+				<text class="dep-label" x="260" y="122">depends on</text>
+				<path class="dep" d="M740,320 V162 Q740,140 718,140 H550" />
+				<text class="dep-label" x="640" y="122">depends on</text>
+			</g>
+
+			{layerKeys.map((key) => (
+				<g class={`layer layer-${key}`} style={placement(key)}>
+					<rect width={BOX_W} height={BOX_H} rx="12" />
+					<text x={BOX_W / 2} y={BOX_H / 2}>{key}</text>
+				</g>
+			))}
+		</svg>
+
+		<aside class="explain">
+			{[{ id: 'linear', ...linear }, { id: 'onion', ...onion }].map((block) => (
+				<div class={`explain-block explain-${block.id}`}>
+					<p class="explain-title">{block.title}</p>
+					<ul>{block.points.map((point) => <li>{point}</li>)}</ul>
+					{block.id === 'onion' && (
+						<p class="inversion"><strong>{inversion.name}</strong>: {inversion.text}</p>
+					)}
+				</div>
+			))}
+		</aside>
+	</div>
+</Slide>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	.direction-body {
+		flex: 1;
+		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+		align-items: center;
+		gap: clamp(1rem, 4vw, 5rem);
+	}
+
+	.diagram {
+		display: block;
+		width: 100%;
+		height: auto;
+		max-height: 62vh;
+	}
+
+	/* The feature frame */
+	.frame {
+		fill: none;
+		stroke: var(--color-border);
+		stroke-width: 2;
+	}
+
+	.tag {
+		fill: var(--color-surface-hover);
+		stroke: var(--color-border);
+		stroke-width: 1.5;
+	}
+
+	.tag-label,
+	.layer text,
+	.dep-label {
+		text-anchor: middle;
+		dominant-baseline: central;
+	}
+
+	.tag-label {
+		fill: var(--color-text-main);
+		font-family: var(--font-mono);
+		font-size: 17px;
+		font-weight: 700;
+	}
+
+	/* Layer boxes move from the line into the triangle when the step is revealed */
+	.layer {
+		transform: translate(var(--lx), var(--ly));
+		transition: transform 0.6s ease;
+	}
+
+	:global(.slide:has(.arrows-onion.visible)) .layer {
+		transform: translate(var(--ox), var(--oy));
+	}
+
+	.layer rect {
+		fill: var(--color-surface);
+		stroke: var(--c-border);
+		stroke-width: 3;
+	}
+
+	.layer text {
+		fill: var(--color-text-main);
+		font-family: var(--font-mono);
+		font-size: 22px;
+		font-weight: 700;
+	}
+
+	.layer-presentation { --c-border: var(--c-presentation); }
+	.layer-domain { --c-border: var(--c-domain); }
+	.layer-data { --c-border: var(--c-data); }
+
+	/* Optional while it only passes data along; the centre of everything once it's the onion's core */
+	.layer-domain rect {
+		stroke-dasharray: 9 7;
+	}
+
+	:global(.slide:has(.arrows-onion.visible)) .layer-domain rect {
+		stroke-dasharray: none;
+	}
+
+	/* Arrows: the head points at the dependency */
+	.dep {
+		fill: none;
+		stroke: var(--color-text-muted);
+		stroke-width: 2.5;
+		marker-end: url(#dir-arrow-muted);
+	}
+
+	.dep.bad {
+		stroke: var(--c-bad);
+		stroke-width: 3;
+		marker-end: url(#dir-arrow-bad);
+	}
+
+	.dep-label {
+		fill: var(--color-text-muted);
+		font-family: var(--font-sans);
+		font-size: 15px;
+	}
+
+	.dep-label.bad {
+		fill: var(--c-bad);
+		font-weight: 600;
+	}
+
+	.warning {
+		fill: var(--c-bad);
+		font-size: 26px;
+		text-anchor: middle;
+		dominant-baseline: central;
+	}
+
+	.arrowhead-muted { fill: var(--color-text-muted); }
+	.arrowhead-bad { fill: var(--c-bad); }
+
+	/* The linear arrows give way to the onion's */
+	.arrows-linear {
+		transition: opacity 0.3s ease, visibility 0.3s;
+	}
+
+	:global(.slide:has(.arrows-onion.visible)) .arrows-linear {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.diagram .arrows-onion.fragment {
+		transform: none;
+		transition: opacity 0.4s ease 0.35s, visibility 0.4s 0.35s;
+	}
+
+	/* Explanation: both blocks share one spot and swap with the step */
+	.explain {
+		display: grid;
+		font-size: clamp(0.95rem, min(2.4vh, 1.35vw), 2.2rem); /* ~26px */
+	}
+
+	.explain-block {
+		grid-area: 1 / 1;
+		padding: 0.8em 1em;
+		background: var(--color-surface);
+		border-left: 4px solid var(--c-accent-line);
+		border-radius: var(--radius-sm);
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	.explain-linear { --c-accent-line: var(--c-bad); }
+	.explain-onion { --c-accent-line: var(--c-app); }
+
+	:global(.slide:has(.arrows-onion.visible)) .explain-linear,
+	:global(.slide:not(:has(.arrows-onion.visible))) .explain-onion {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.explain-title {
+		margin-bottom: 0.5em;
+		color: var(--c-accent-line);
+		font-size: 0.75em;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.explain-block ul {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+		padding-left: 1.1em;
+		line-height: 1.4;
+	}
+
+	.inversion {
+		margin-top: 0.9em;
+		padding-top: 0.7em;
+		border-top: 1px solid var(--color-border);
+		color: var(--color-text-muted);
+		line-height: 1.4;
+	}
+
+	.inversion strong {
+		color: var(--color-text-main);
+	}
+
+	@media (max-width: 800px) {
+		.direction-body {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.layer,
+		.arrows-linear,
+		.diagram .arrows-onion.fragment,
+		.explain-block {
+			transition: none;
+		}
+	}
+</style>

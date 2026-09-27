@@ -1,0 +1,83 @@
+---
+import Code from '../../Code.astro';
+import type { Comparison } from '../data/types';
+
+interface Props {
+	comparison: Comparison;
+}
+
+/** Two pieces of code side by side (marked by tone), with the reasons underneath */
+const { comparison } = Astro.props;
+const marks = { bad: '✕ ', good: '✓ ', neutral: '' };
+const sides = [comparison.left, comparison.right];
+---
+
+<div class="comparison">
+	<div class="options">
+		{sides.map((side) => (
+			<div class={`option tone-${side.tone}`} data-zoomable>
+				<p class="option-label">{marks[side.tone]}{side.label}</p>
+				<Code code={side.code} />
+			</div>
+		))}
+	</div>
+	<ul class="reasons">
+		{comparison.reasons.map((reason) => <li>{reason}</li>)}
+	</ul>
+</div>
+
+<style>
+	/* Values in comments are at 1920x1080 */
+	.comparison {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
+		font-size: clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem); /* ~21px */
+	}
+
+	.options {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		gap: clamp(1rem, 3vw, 3rem);
+	}
+
+	.option {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35em;
+	}
+
+	.option-label {
+		font-weight: 700;
+	}
+
+	.tone-bad .option-label { color: var(--c-bad); }
+	.tone-good .option-label { color: var(--c-app); }
+	.tone-neutral .option-label { color: var(--color-text-muted); }
+
+	.tone-bad :global(.code-block) { border-color: color-mix(in srgb, var(--c-bad) 55%, var(--color-border)); }
+	.tone-good :global(.code-block) { border-color: color-mix(in srgb, var(--c-app) 55%, var(--color-border)); }
+
+	.reasons {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.5em 2em;
+		list-style: none;
+		color: var(--color-text-main);
+	}
+
+	.reasons li::before {
+		content: '✓ ';
+		color: var(--c-app);
+		font-weight: 700;
+	}
+
+	@media (max-width: 800px) {
+		.options {
+			flex-direction: column;
+		}
+	}
+</style>

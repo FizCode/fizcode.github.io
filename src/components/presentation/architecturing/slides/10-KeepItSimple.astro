@@ -1,0 +1,182 @@
+---
+import '../styles/palette.css';
+import Slide from '../../Slide.astro';
+import SlideHeader from '../../SlideHeader.astro';
+import CodeMorph from '../../CodeMorph.astro';
+import MiniSketch from '../components/MiniSketch.astro';
+import { kiss, yagni, recap, closing } from '../data/simplicity';
+
+const principles = [
+	{ principle: kiss, id: 'kiss', clean: 'kiss-clean' },
+	{ principle: yagni, id: 'yagni', clean: 'yagni-clean' },
+];
+---
+
+<Slide width={170} pinned>
+	<SlideHeader
+		title="Keep it simple"
+		subtitles={[
+			{ name: 'KISS', text: 'clear beats clever' },
+			{ name: 'KISS', text: 'clear beats clever' },
+			{ name: 'YAGNI', text: 'build for today, not for "maybe later"' },
+			{ name: 'YAGNI', text: 'build for today, not for "maybe later"' },
+			{ name: 'You already know them', text: 'every structure in this talk was added only when needed' },
+		]}
+	/>
+
+	<!-- Steps, in order: KISS turns clean, YAGNI appears, YAGNI turns clean, the recap appears -->
+	<div class="kiss-clean fragment" hidden></div>
+	<div class="yagni-step fragment" hidden></div>
+	<div class="yagni-clean fragment" hidden></div>
+	<div class="recap-step fragment" hidden></div>
+
+	<div class="simple-body">
+		{principles.map(({ principle, id, clean }) => (
+			<section class={`panel panel-${id}`}>
+				<p class="principle">
+					<strong>{principle.name}</strong>
+					<span>{principle.stands}</span>
+				</p>
+				<CodeMorph
+					before={principle.before}
+					after={principle.after}
+					trigger={clean}
+					beforeLabel={principle.beforeLabel}
+					afterLabel={principle.afterLabel}
+					beforeNote={principle.beforeNote}
+					afterNote={principle.afterNote}
+				/>
+			</section>
+		))}
+
+		<section class="panel panel-recap">
+			<ul class="recap">
+				{recap.map((item) => (
+					<li class="recap-card">
+						<MiniSketch sketch={item.sketch} />
+						<p class="start"><span>Start with</span> {item.start}</p>
+						<p class="add"><span>Add</span> {item.add} <span>when</span> {item.when}</p>
+					</li>
+				))}
+			</ul>
+			<p class="closing">{closing}</p>
+		</section>
+	</div>
+</Slide>
+
+<style>
+	/* Sizes scale with the screen; values in comments are at 1920x1080 */
+	/* Panels hang from the top, so a growing or shrinking code block never moves its label */
+	.simple-body {
+		flex: 1;
+		display: grid;
+		align-items: start;
+		justify-items: center;
+		padding-top: clamp(1rem, 5vh, 4.5rem);
+		/* One code block at a time, so it can be large */
+		--code-font: clamp(0.85rem, min(2.4vh, 1.35vw), 2rem); /* ~26px */
+		font-size: clamp(0.9rem, min(2.3vh, 1.3vw), 2.1rem); /* ~25px */
+	}
+
+	/* The panels share one spot; each step shows one of them */
+	.panel {
+		grid-area: 1 / 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
+	:global(.slide:has(.yagni-step.visible)) .panel-kiss,
+	:global(.slide:not(:has(.yagni-step.visible))) .panel-yagni,
+	:global(.slide:has(.recap-step.visible)) .panel-yagni,
+	:global(.slide:not(:has(.recap-step.visible))) .panel-recap {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.principle {
+		display: flex;
+		align-items: baseline;
+		gap: 0.6em;
+	}
+
+	.principle strong {
+		font-family: var(--font-display);
+		font-size: 1.6em; /* ~40px */
+		color: var(--color-primary);
+	}
+
+	.principle span {
+		color: var(--color-text-muted);
+		font-size: 1.05em;
+	}
+
+	/* Recap: where the talk already applied both */
+	/* Three per row, so all five cards fit on one screen */
+	.recap {
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1em;
+		max-width: 75em;
+	}
+
+	/* A mini picture of what the audience saw, then the rule it followed */
+	.recap-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4em;
+		padding: 0.9em 1.2em 1em;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		line-height: 1.35;
+	}
+
+	.recap-card :global(.sketch) {
+		margin-bottom: 0.4em;
+	}
+
+	.start {
+		color: var(--color-text-muted);
+	}
+
+	.start span {
+		font-size: 0.85em;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.add {
+		font-weight: 700;
+		color: var(--color-text-main);
+	}
+
+	/* The rule's keywords, in the talk's "good" colour */
+	.add span {
+		color: var(--color-primary);
+	}
+
+	.closing {
+		margin-top: 0.5em;
+		font-family: var(--font-display);
+		font-size: 1.4em;
+		font-weight: 700;
+		color: var(--color-text-main);
+		text-align: center;
+	}
+
+	@media (max-width: 800px) {
+		.recap {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.panel {
+			transition: none;
+		}
+	}
+</style>

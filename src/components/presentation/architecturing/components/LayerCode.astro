@@ -1,0 +1,58 @@
+---
+import Code from '../../Code.astro';
+import type { Snippet } from '../data/types';
+
+interface Props {
+	snippet: Snippet;
+}
+
+/** Code that lives in one layer: its title, which layer, its single job, and the code itself */
+const { snippet } = Astro.props;
+---
+
+<div data-zoomable class={`snippet lives-${snippet.lives}`}>
+	<p class="snippet-head">
+		<code>{snippet.title}</code>
+		<span class="pill pill--dashed lives">lives in {snippet.lives}</span>
+	</p>
+	<p class="note">{snippet.note}</p>
+	<Code code={snippet.code} />
+</div>
+
+<style>
+	/* Values in comments are at 1920x1080 */
+	.snippet {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35em;
+		font-size: clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem); /* ~21px */
+	}
+
+	.lives-data { --c-border: var(--c-data); }
+	.lives-domain { --c-border: var(--c-domain); }
+	.lives-presentation { --c-border: var(--c-presentation); }
+
+	.snippet-head {
+		display: flex;
+		align-items: center;
+		gap: 0.6em;
+	}
+
+	.snippet-head code {
+		font-family: var(--font-mono);
+		font-size: 1.15em;
+		font-weight: 700;
+	}
+
+	.lives {
+		color: var(--c-border);
+		font-size: 0.8em;
+		font-weight: 600;
+	}
+
+	.note {
+		max-width: 32em;
+		color: var(--color-text-muted);
+		line-height: 1.35;
+	}
+</style>

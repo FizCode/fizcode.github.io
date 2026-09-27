@@ -7,15 +7,18 @@ A high-performance, static portfolio website built for Android Developers. Desig
 
 ## 🚀 Features
 
-*   **Zero JavaScript Runtime**: Blazing fast load times by default using [Astro](https://astro.build).
+*   **Zero JavaScript Runtime**: Portfolio pages ship no JavaScript, for blazing fast load times with [Astro](https://astro.build).
 *   **Modern Dark UI**: A sleek, professional dark mode designed with Android green accents.
-*   **Respiratory Layout**: Fully responsive design that looks great on Mobile, Tablet, and Desktop.
-*   **SEO Optimized**: Built-in meta tags, sitemap generation, and semantic HTML.
+*   **Responsive Layout**: Fully responsive design that looks great on Mobile, Tablet, and Desktop.
+*   **SEO Optimized**: Built-in meta tags and semantic HTML.
+*   **Project Pages from Markdown**: Each project is a Markdown file with its own detail page, powered by Astro content collections.
+*   **Presentations**: Talks built as web slides, e.g. [`/presentation/architecturing`](https://fizcode.dev/presentation/architecturing).
 *   **GitHub Pages Ready**: Includes a pre-configured GitHub Actions workflow for automatic deployment.
 
 ## 🛠️ Tech Stack
 
-*   **Framework**: [Astro 5.0](https://astro.build)
+*   **Framework**: [Astro 7](https://astro.build)
+*   **Content**: Astro content collections (Markdown)
 *   **Styling**: Vanilla CSS (Variables, Flexbox, Grid)
 *   **Fonts**: Inter & Outfit (via Google Fonts)
 *   **Deployment**: GitHub Pages (via GitHub Actions)
@@ -24,15 +27,21 @@ A high-performance, static portfolio website built for Android Developers. Desig
 
 ```text
 /
-├── public/              # Static assets (favicons, images)
+├── public/                   # Static assets (favicon, CNAME)
 ├── src/
-│   ├── assets/          # Project images
-│   ├── components/      # Reusable UI components (Header, Footer, ProjectCard)
-│   ├── layouts/         # Main page layouts (Layout.astro)
-│   ├── pages/           # Website pages (index.astro)
-│   └── styles/          # Global CSS variables and resets
-├── astro.config.mjs     # Astro configuration
-└── package.json         # Project dependencies
+│   ├── components/           # Reusable UI components (Header, Footer, ProjectCard)
+│   │   └── presentation/     # Slide components and each talk's slides and content
+│   ├── content/
+│   │   └── projects/         # One Markdown file per project
+│   ├── layouts/              # Page layouts (Layout.astro, PresentationLayout.astro)
+│   ├── pages/
+│   │   ├── index.astro       # Home page
+│   │   ├── projects/         # Project detail pages ([...slug].astro)
+│   │   └── presentation/     # Presentations (architecturing.astro)
+│   ├── styles/               # Global CSS variables and resets, presentation styles
+│   └── content.config.ts     # Content collection schema
+├── astro.config.mjs          # Astro configuration
+└── package.json              # Project dependencies
 ```
 
 ## 🧞 Commands
@@ -62,15 +71,23 @@ This project comes configured for **GitHub Pages**.
 Edit `src/pages/index.astro` to update your bio, experience, and skills.
 
 ### Adding Projects
-Edit the `projects` section in `src/pages/index.astro` and use the `<ProjectCard />` component:
+Add a Markdown file to `src/content/projects/`. It appears on the home page and gets its own page at `/projects/<file-name>`:
 
-```astro
-<ProjectCard 
-  title="My Awesome App" 
-  description="What it does..." 
-  tags={['Kotlin', 'Compose']}
-/>
+```markdown
+---
+title: "My Awesome App"
+description: "What it does..."
+pubDate: 2024-01-01
+tags: ["Kotlin", "Compose"]
+priority: 5 # Higher number = shown first
+---
+
+## Overview
+
+Details about the project...
 ```
+
+Optional fields: `link` and `heroImage`. The full schema is in `src/content.config.ts`.
 
 ### Changing Colors
 Open `src/styles/global.css` and modify the `:root` variables:

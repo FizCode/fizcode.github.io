@@ -1,0 +1,163 @@
+/*
+ * Shared by every presentation page (loaded by PresentationLayout), never by the portfolio,
+ * so the portfolio keeps its dark palette. Dark reuses global.css; light overrides the tokens.
+ */
+:root {
+	--font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+	/* Code highlighting (Code.astro) */
+	--code-keyword: #c084fc;
+	--code-string: #86efac;
+	--code-type: #7dd3fc;
+	--code-nullable: #fb923c;
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+	color-scheme: light;
+	--color-bg: #f8fafc;
+	--color-surface: #ffffff;
+	--color-surface-hover: #eef2f7;
+	--color-primary: #15803d; /* darker green keeps text readable on white */
+	--color-primary-dim: #166534;
+	--color-accent: #2563eb;
+	--color-text-main: #0f172a;
+	--color-text-muted: #475569;
+	--color-border: #cbd5e1;
+	--code-keyword: #7c3aed;
+	--code-string: #15803d;
+	--code-type: #0369a1;
+	--code-nullable: #c2410c;
+}
+
+html {
+	transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Step-by-step reveal: clicking a slide shows its .fragment elements one at a time */
+.deck .fragment {
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(12px);
+	transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal);
+}
+
+.deck .fragment.visible {
+	opacity: 1;
+	visibility: visible;
+	transform: none;
+}
+
+/*
+ * Small rounded label (tags, module chips). Global so it also styles elements created
+ * by scripts; the size comes from the surrounding text.
+ */
+.pill {
+	padding: 0.15em 0.6em;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-full);
+	background: var(--color-surface);
+}
+
+.pill--code {
+	background: var(--color-bg);
+	font-family: var(--font-mono);
+	font-weight: 600;
+}
+
+.pill--dashed {
+	border: 1px dashed currentColor;
+	background: transparent;
+}
+
+/*
+ * Code blocks (Code.astro, CodeMorph.astro). Sizes scale with the screen;
+ * a slide can set --code-font around a block. Values in comments are at 1920x1080.
+ */
+.code-block {
+	margin: 0;
+	padding: 0.9em 1.1em;
+	overflow: hidden;
+	background: var(--color-bg);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	font-family: var(--font-mono);
+	font-size: var(--code-font, clamp(0.72rem, min(1.7vh, 0.95vw), 1.5rem)); /* ~18px */
+	line-height: 1.45;
+	color: var(--color-text-main);
+	white-space: pre;
+	text-align: left;
+}
+
+.tok-comment { color: var(--color-text-muted); font-style: italic; }
+.tok-string { color: var(--code-string); }
+.tok-keyword { color: var(--code-keyword); }
+.tok-type { color: var(--code-type); }
+.tok-nullable { color: var(--code-nullable); font-weight: 700; }
+
+/* Click-to-zoom (zoom.ts): mark an element with data-zoomable */
+[data-zoomable] {
+	cursor: zoom-in;
+}
+
+/* Not revealed yet: a click reveals it instead of zooming */
+[data-zoomable]:has(.fragment:not(.visible)) {
+	cursor: auto;
+}
+
+.zoom-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1.5rem;
+	/* Top clears the navigation bars; bottom clears the hint */
+	padding: clamp(4.75rem, 8.9vh, 6rem) 3vw clamp(2.75rem, 6vh, 4.5rem);
+	background: color-mix(in srgb, var(--color-bg) 97%, transparent);
+	backdrop-filter: blur(4px);
+	cursor: zoom-out;
+	opacity: 0;
+	transition: opacity var(--transition-normal);
+}
+
+.zoom-overlay[hidden] {
+	display: none;
+}
+
+.zoom-overlay.open {
+	opacity: 1;
+}
+
+/* Scaled around its centre, so it grows in place in the middle of the free space */
+.zoom-stage {
+	transform: scale(calc(var(--zoom, 1) * 0.92));
+	transition: transform var(--transition-normal);
+}
+
+.zoom-overlay.open .zoom-stage {
+	transform: scale(var(--zoom, 1));
+}
+
+.zoom-hint {
+	position: absolute;
+	bottom: 2vh;
+	color: var(--color-text-muted);
+	font-size: clamp(0.8rem, 1.6vh, 1.2rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.deck .fragment {
+		transform: none;
+		transition: none;
+	}
+
+	.zoom-overlay,
+	.zoom-stage {
+		transition: none;
+	}
+}
