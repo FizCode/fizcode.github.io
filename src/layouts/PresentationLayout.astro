@@ -65,7 +65,9 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 			import { STEP_CHANGE, SLIDE_LEAVE, type StepChangeDetail } from '../components/presentation/slide-events';
 			import { initZoom } from '../components/presentation/zoom';
 
-			const slides = Array.from(document.querySelectorAll<HTMLElement>('.deck > .slide'));
+			// Main slides, in arrow order; side slides (Slide `side`) are opened by a link to their #id instead
+			const slides = Array.from(document.querySelectorAll<HTMLElement>('.deck > .slide:not([data-side])'));
+			const sideSlides = Array.from(document.querySelectorAll<HTMLElement>('.deck > .slide[data-side]'));
 			const prevBtn = document.querySelector<HTMLButtonElement>('[data-prev]')!;
 			const nextBtn = document.querySelector<HTMLButtonElement>('[data-next]')!;
 			const counter = document.querySelector<HTMLElement>('[data-counter]')!;
@@ -83,17 +85,27 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 				try { localStorage.setItem('presentation-theme', next); } catch {}
 			});
 
-			// Slide number lives in the URL hash (#2) so a refresh or shared link keeps the position
-			const fromHash = () => {
-				const n = parseInt(location.hash.slice(1), 10);
-				return Number.isNaN(n) ? 0 : Math.min(Math.max(n - 1, 0), slides.length - 1);
+			// Position lives in the URL hash (#2, or a side slide's #id) so a refresh or shared link keeps it.
+			// A side slide belongs to the main slide that links to it: the arrows go back there.
+			const fromHash = (): [number, HTMLElement | null] => {
+				const id = decodeURIComponent(location.hash.slice(1));
+				const side = sideSlides.find((s) => s.id === id);
+				if (side) {
+					const origin = slides.findIndex((s) => s.querySelector(`a[href="#${CSS.escape(id)}"]`));
+					return [Math.max(origin, 0), side];
+				}
+				const n = parseInt(id, 10);
+				return [Number.isNaN(n) ? 0 : Math.min(Math.max(n - 1, 0), slides.length - 1), null];
 			};
 
-			let current = fromHash();
+			let [current, side] = fromHash();
 			// How many of the current slide's .fragment elements are revealed
 			let step = 0;
 
-			const fragmentsOf = (index: number) => Array.from(slides[index].querySelectorAll<HTMLElement>('.fragment'));
+			/** The slide on screen: the open side slide, else the current main slide */
+			const active = () => side ?? slides[current];
+
+			const fragmentsOf = (slide: HTMLElement) => Array.from(slide.querySelectorAll<HTMLElement>('.fragment'));
 
 			const deck = document.querySelector<HTMLElement>('.deck')!;
 
@@ -103,8 +115,8 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 			const stepCounter = document.querySelector<HTMLElement>('[data-step-counter]')!;
 
 			const updateControls = () => {
-				const total = fragmentsOf(current).length;
-				prevBtn.disabled = current === 0;
+				const total = fragmentsOf(active()).length;
+				prevBtn.disabled = !side && current === 0;
 				nextBtn.disabled = current === slides.length - 1;
 				// Signals that clicking the slide will reveal more
 				deck.classList.toggle('has-steps', step < total);
@@ -116,24 +128,31 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 
 			// Tells the current slide its step, so it can update or reset its own interactive state
 			const stepChanged = () =>
-				slides[current].dispatchEvent(new CustomEvent<StepChangeDetail>(STEP_CHANGE, { detail: { step } }));
+				active().dispatchEvent(new CustomEvent<StepChangeDetail>(STEP_CHANGE, { detail: { step } }));
 
-			// Arrows and keys only move between slides; every slide starts with its fragments hidden
-			const show = (index: number) => {
-				const previous = slides[current];
+			// Arrows and keys only move between slides; every slide starts with its fragments hidden.
+			// `sideSlide` opens that side slide on top of main slide `index`.
+			const show = (index: number, sideSlide: HTMLElement | null = null) => {
+				const previous = active();
 				current = Math.min(Math.max(index, 0), slides.length - 1);
-				if (previous !== slides[current]) previous?.dispatchEvent(new CustomEvent(SLIDE_LEAVE));
-				slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+				side = sideSlide;
+				if (previous !== active()) previous.dispatchEvent(new CustomEvent(SLIDE_LEAVE));
+				[...slides, ...sideSlides].forEach((slide) => slide.classList.toggle('active', slide === active()));
 				step = 0;
-				fragmentsOf(current).forEach((f) => f.classList.remove('visible'));
-				counter.textContent = `${current + 1} / ${slides.length}`;
+				fragmentsOf(active()).forEach((f) => f.classList.remove('visible'));
+				// On a side slide, the counter shows where "previous" goes back to
+				counter.textContent = side ? `↩ ${current + 1}` : `${current + 1} / ${slides.length}`;
 				updateControls();
 				stepChanged();
-				history.replaceState(null, '', `#${current + 1}`);
+				history.replaceState(null, '', `#${side ? side.id : current + 1}`);
 			};
 
+			// From a side slide, "previous" goes back to its main slide and "next" carries on after it
+			const previousSlide = () => show(side ? current : current - 1);
+			const nextSlide = () => show(current + 1);
+
 			const reveal = () => {
-				const fragments = fragmentsOf(current);
+				const fragments = fragmentsOf(active());
 				if (step < fragments.length) {
 					fragments[step++].classList.add('visible');
 					updateControls();
@@ -143,14 +162,14 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 
 			const unreveal = () => {
 				if (step > 0) {
-					fragmentsOf(current)[--step].classList.remove('visible');
+					fragmentsOf(active())[--step].classList.remove('visible');
 					updateControls();
 					stepChanged();
 				}
 			};
 
-			prevBtn.addEventListener('click', () => show(current - 1));
-			nextBtn.addEventListener('click', () => show(current + 1));
+			prevBtn.addEventListener('click', previousSlide);
+			nextBtn.addEventListener('click', nextSlide);
 			stepPrev.addEventListener('click', unreveal);
 			stepNext.addEventListener('click', reveal);
 
@@ -161,21 +180,21 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 				if (getSelection()?.toString()) return;
 				reveal();
 			});
-			window.addEventListener('hashchange', () => show(fromHash()));
+			window.addEventListener('hashchange', () => show(...fromHash()));
 			document.addEventListener('keydown', (e) => {
 				// Let Space/Enter press a focused button (e.g. an interactive diagram) instead of changing slides
 				if (e.key === ' ' && (e.target as HTMLElement).closest('button:not(.nav-btn)')) return;
 				if (['ArrowRight', 'PageDown', ' '].includes(e.key)) {
 					e.preventDefault();
-					show(current + 1);
+					nextSlide();
 				} else if (['ArrowLeft', 'PageUp'].includes(e.key)) {
 					e.preventDefault();
-					show(current - 1);
+					previousSlide();
 				}
 			});
 
-			initZoom(slides);
-			show(current);
+			initZoom([...slides, ...sideSlides]);
+			show(current, side);
 		</script>
 	</body>
 </html>

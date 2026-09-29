@@ -1,17 +1,20 @@
 ---
-import '../styles/palette.css';
-import Slide from '../../Slide.astro';
-import SlideHeader from '../../SlideHeader.astro';
-import DependencyArrow from '../../DependencyArrow.astro';
-import ModuleNode from '../components/ModuleNode.astro';
-import { app, features, core, shared, tour } from '../data/modules';
+import "../styles/palette.css";
+import Slide from "../../Slide.astro";
+import SlideHeader from "../../SlideHeader.astro";
+import DependencyArrow from "../../DependencyArrow.astro";
+import ModuleNode from "../components/ModuleNode.astro";
+import { app, features, core, shared, tour } from "../data/modules";
 ---
 
 <Slide width="full" gap="sm" pinned data-arch data-tour={JSON.stringify(tour)}>
-	<SlideHeader title="Module structure" subtitles={tour.map(({ name, text }) => ({ name, text }))} />
+	<SlideHeader
+		title="Module structure"
+		subtitles={tour.map(({ name, text }) => ({ name, text }))}
+	/>
 
 	<!-- One step per tour stop after the first (see `tour`) -->
-	{tour.slice(1).map(() => <div class="fragment" hidden></div>)}
+	{tour.slice(1).map(() => <div class="fragment" hidden />)}
 
 	<!-- The picture builds up: each part appears at the step in its data-from -->
 	<div class="board">
@@ -27,9 +30,19 @@ import { app, features, core, shared, tour } from '../data/modules';
 				<!-- Features sit in one row; the open feature's internals appear underneath the whole row -->
 				<div class="feature-group">
 					<ul class="feature-row">
-						{features.map((node) => <li><ModuleNode node={node} detached /></li>)}
+						{
+							features.map((node) => (
+								<li>
+									<ModuleNode node={node} detached />
+								</li>
+							))
+						}
 					</ul>
-					{features.map((node) => <ModuleNode node={node} childrenOnly />)}
+					{
+						features.map((node) => (
+							<ModuleNode node={node} childrenOnly />
+						))
+					}
 				</div>
 			</div>
 		</div>
@@ -44,30 +57,46 @@ import { app, features, core, shared, tour } from '../data/modules';
 			<div class="focus-note">
 				<strong class="focus-name" data-focus-name></strong>
 				<p class="focus-text" data-focus-text></p>
-				<p class="focus-hint">Click a box to go deeper · click anywhere else to go back</p>
+				<p class="focus-hint">
+					Click a box to go deeper · click anywhere else to go back
+				</p>
 			</div>
 		</div>
 	</div>
+
+	<!-- Side slides: this structure in a real project, and in ours -->
+	<nav class="asides" aria-label="Examples">
+		<a class="aside" href="#qita">Qita</a>
+		<a class="aside" href="#nia-modules"
+			>NiA<span aria-hidden="true">→</span></a
+		>
+	</nav>
 </Slide>
 
 <script>
-	import { onStepChange } from '../../slide-events';
-	import type { TourStep } from '../data/modules';
+	import { onStepChange } from "../../slide-events";
+	import type { TourStep } from "../data/modules";
 
 	// A detached box points at its children with aria-controls; otherwise they follow the box
 	const childrenOf = (box: HTMLElement) => {
-		const id = box.getAttribute('aria-controls');
-		return id ? document.getElementById(id) : box.parentElement!.querySelector<HTMLElement>(':scope > .children');
+		const id = box.getAttribute("aria-controls");
+		return id
+			? document.getElementById(id)
+			: box.parentElement!.querySelector<HTMLElement>(
+					":scope > .children",
+				);
 	};
 
 	const setOpen = (box: HTMLElement, open: boolean) => {
 		const children = childrenOf(box);
 		if (!children) return;
-		box.setAttribute('aria-expanded', String(open));
+		box.setAttribute("aria-expanded", String(open));
 		children.hidden = !open;
 		// Closing a module closes everything inside it too
 		if (!open) {
-			children.querySelectorAll<HTMLElement>('.box[aria-expanded="true"]').forEach((b) => setOpen(b, false));
+			children
+				.querySelectorAll<HTMLElement>('.box[aria-expanded="true"]')
+				.forEach((b) => setOpen(b, false));
 		}
 	};
 
@@ -75,68 +104,87 @@ import { app, features, core, shared, tour } from '../data/modules';
 	const branchOf = (box: HTMLElement) => {
 		const node = box.parentElement!.cloneNode(false) as HTMLElement;
 		const boxCopy = box.cloneNode(true) as HTMLElement;
-		boxCopy.removeAttribute('aria-controls');
+		boxCopy.removeAttribute("aria-controls");
 		node.append(boxCopy);
 
 		const children = childrenOf(box);
-		const list = children?.matches('.children') ? children : children?.querySelector<HTMLElement>(':scope > .children');
+		const list = children?.matches(".children")
+			? children
+			: children?.querySelector<HTMLElement>(":scope > .children");
 		if (list) {
 			const listCopy = list.cloneNode(true) as HTMLElement;
 			listCopy.hidden = false;
-			listCopy.querySelectorAll<HTMLElement>('.children').forEach((c) => (c.hidden = true));
-			listCopy.querySelectorAll('.box[aria-expanded]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
-			boxCopy.setAttribute('aria-expanded', 'true');
+			listCopy
+				.querySelectorAll<HTMLElement>(".children")
+				.forEach((c) => (c.hidden = true));
+			listCopy
+				.querySelectorAll(".box[aria-expanded]")
+				.forEach((b) => b.setAttribute("aria-expanded", "false"));
+			boxCopy.setAttribute("aria-expanded", "true");
 			node.append(listCopy);
 		}
 		return node;
 	};
 
-	document.querySelectorAll<HTMLElement>('[data-arch]').forEach((root) => {
-		const slide = root.closest<HTMLElement>('.slide')!;
-		const board = root.querySelector<HTMLElement>('.board')!;
-		const focusNode = root.querySelector<HTMLElement>('[data-focus-node]')!;
-		const focusName = root.querySelector<HTMLElement>('[data-focus-name]')!;
-		const focusText = root.querySelector<HTMLElement>('[data-focus-text]')!;
+	document.querySelectorAll<HTMLElement>("[data-arch]").forEach((root) => {
+		const slide = root.closest<HTMLElement>(".slide")!;
+		const board = root.querySelector<HTMLElement>(".board")!;
+		const focusNode = root.querySelector<HTMLElement>("[data-focus-node]")!;
+		const focusName = root.querySelector<HTMLElement>("[data-focus-name]")!;
+		const focusText = root.querySelector<HTMLElement>("[data-focus-text]")!;
 		const tour: TourStep[] = JSON.parse(root.dataset.tour!);
 
 		const focusOn = (box: HTMLElement) => {
 			focusNode.replaceChildren(branchOf(box));
-			focusName.textContent = box.dataset.name ?? '';
-			focusText.textContent = box.dataset.description ?? '';
-			board.classList.add('focusing');
+			focusName.textContent = box.dataset.name ?? "";
+			focusText.textContent = box.dataset.description ?? "";
+			board.classList.add("focusing");
 		};
 
-		const unfocus = () => board.classList.remove('focusing');
+		const unfocus = () => board.classList.remove("focusing");
 
 		// Each step shows the parts it has reached and opens its boxes; any focus closes
 		onStepChange(slide, (step) => {
 			const stop = tour[Math.min(step, tour.length - 1)];
 			unfocus();
-			board.querySelectorAll<HTMLElement>('.column .box[aria-expanded="true"]').forEach((b) => setOpen(b, false));
+			board
+				.querySelectorAll<HTMLElement>(
+					'.column .box[aria-expanded="true"]',
+				)
+				.forEach((b) => setOpen(b, false));
 			stop.open.forEach((name) => {
-				const box = board.querySelector<HTMLElement>(`.column .box[data-name="${name}"][aria-expanded]`);
+				const box = board.querySelector<HTMLElement>(
+					`.column .box[data-name="${name}"][aria-expanded]`,
+				);
 				if (box) setOpen(box, true);
 			});
-			board.querySelectorAll<HTMLElement>('[data-from]').forEach((part) => {
-				part.classList.toggle('shown', step >= Number(part.dataset.from));
-			});
+			board
+				.querySelectorAll<HTMLElement>("[data-from]")
+				.forEach((part) => {
+					part.classList.toggle(
+						"shown",
+						step >= Number(part.dataset.from),
+					);
+				});
 		});
 
 		// A box (on the board, or inside the focus view) takes the focus; a click elsewhere while
 		// focused goes back. Neither reveals the next step.
-		slide.addEventListener('click', (e) => {
-			const box = (e.target as HTMLElement).closest<HTMLElement>('[data-node]');
+		slide.addEventListener("click", (e) => {
+			const box = (e.target as HTMLElement).closest<HTMLElement>(
+				"[data-node]",
+			);
 			if (box) {
 				e.stopPropagation();
 				focusOn(box);
-			} else if (board.classList.contains('focusing')) {
+			} else if (board.classList.contains("focusing")) {
 				e.stopPropagation();
 				unfocus();
 			}
 		});
 
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape') unfocus();
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") unfocus();
 		});
 	});
 </script>
@@ -153,8 +201,12 @@ import { app, features, core, shared, tour } from '../data/modules';
 		gap: clamp(0.75rem, 1.2vw, 2rem);
 	}
 
-	.column-shared { justify-self: end; }
-	.column-core { justify-self: start; }
+	.column-shared {
+		justify-self: end;
+	}
+	.column-core {
+		justify-self: start;
+	}
 
 	.column {
 		display: flex;
@@ -212,7 +264,7 @@ import { app, features, core, shared, tour } from '../data/modules';
 	}
 
 	.feature-row > li::before {
-		content: '';
+		content: "";
 		position: absolute;
 		top: 0;
 		left: calc(50% - 1.5px);
@@ -222,7 +274,7 @@ import { app, features, core, shared, tour } from '../data/modules';
 	}
 
 	.feature-row > li::after {
-		content: '';
+		content: "";
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -231,11 +283,15 @@ import { app, features, core, shared, tour } from '../data/modules';
 		background: var(--color-text-muted);
 	}
 
-	.feature-row > li:first-child::after { left: 50%; }
-	.feature-row > li:last-child::after { right: 50%; }
+	.feature-row > li:first-child::after {
+		left: 50%;
+	}
+	.feature-row > li:last-child::after {
+		right: 50%;
+	}
 
 	.feature-row > li > :global(.node)::before {
-		content: '';
+		content: "";
 		position: absolute;
 		left: 50%;
 		top: calc(var(--rail) - var(--head));
@@ -246,8 +302,8 @@ import { app, features, core, shared, tour } from '../data/modules';
 	}
 
 	/* Line from the open feature down to its internals' rail (+2px clears the box border) */
-	.feature-row :global(.box[aria-expanded='true'])::after {
-		content: '';
+	.feature-row :global(.box[aria-expanded="true"])::after {
+		content: "";
 		position: absolute;
 		left: calc(50% - 1px);
 		top: calc(100% + 2px);
@@ -258,7 +314,10 @@ import { app, features, core, shared, tour } from '../data/modules';
 
 	/* Build-up: a part waits, invisible but holding its place, until its step arrives */
 	[data-from] {
-		transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal);
+		transition:
+			opacity var(--transition-normal),
+			transform var(--transition-normal),
+			visibility var(--transition-normal);
 	}
 
 	[data-from]:not(.shown) {
@@ -267,8 +326,12 @@ import { app, features, core, shared, tour } from '../data/modules';
 		transform: translateY(12px);
 	}
 
-	.column-shared[data-from]:not(.shown) { transform: translateX(-24px); }
-	.column-core[data-from]:not(.shown) { transform: translateX(24px); }
+	.column-shared[data-from]:not(.shown) {
+		transform: translateX(-24px);
+	}
+	.column-core[data-from]:not(.shown) {
+		transform: translateX(24px);
+	}
 
 	/* The :app -> features line and the feature row appear together */
 	.features {
@@ -281,7 +344,9 @@ import { app, features, core, shared, tour } from '../data/modules';
 	/* ---------- Focus ---------- */
 	/* The board steps back; the focused box and its note take its place */
 	.column {
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		transition:
+			opacity var(--transition-normal),
+			visibility var(--transition-normal);
 	}
 
 	.board.focusing > .column {
@@ -299,7 +364,9 @@ import { app, features, core, shared, tour } from '../data/modules';
 		padding-bottom: 8vh;
 		opacity: 0;
 		visibility: hidden;
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		transition:
+			opacity var(--transition-normal),
+			visibility var(--transition-normal);
 	}
 
 	.board.focusing .focus {
@@ -335,6 +402,34 @@ import { app, features, core, shared, tour } from '../data/modules';
 		color: var(--color-text-muted);
 	}
 
+	/* ---------- Side slide links, in the bottom corners ---------- */
+	.asides {
+		display: flex;
+		justify-content: space-between;
+		gap: 1em;
+		font-size: clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem); /* ~21px */
+	}
+
+	.aside {
+		padding: 0.45em 0.9em;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-sm);
+		color: var(--color-text-muted);
+		font-weight: 600;
+		transition:
+			color var(--transition-fast),
+			border-color var(--transition-fast),
+			transform var(--transition-fast);
+	}
+
+	.aside:hover,
+	.aside:focus-visible {
+		color: var(--color-primary);
+		border-color: var(--color-primary);
+		transform: translateY(-2px);
+	}
+
 	/* Narrow screens: stack the columns, main tree first */
 	@media (max-width: 800px) {
 		.board {
@@ -356,9 +451,11 @@ import { app, features, core, shared, tour } from '../data/modules';
 			align-items: stretch;
 		}
 
-		.column-main { order: -1; }
+		.column-main {
+			order: -1;
+		}
 
-		.feature-row :global(.box[aria-expanded='true'])::after {
+		.feature-row :global(.box[aria-expanded="true"])::after {
 			display: none;
 		}
 

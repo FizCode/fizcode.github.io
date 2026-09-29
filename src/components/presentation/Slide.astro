@@ -13,14 +13,19 @@ interface Props {
 	pinned?: boolean;
 	/** Stack children in a column with `gap` (default); off for free-flowing text */
 	stack?: boolean;
+	/**
+	 * Makes this a side slide, opened by a link to `#id` from a main slide rather than by the arrows.
+	 * It is left out of the slide count; the arrows return to the slide that links to it.
+	 */
+	side?: string;
 	[attr: `data-${string}`]: unknown;
 }
 
-const { width = 150, gap = 'md', pinned = false, stack = true, ...attrs } = Astro.props;
+const { width = 150, gap = 'md', pinned = false, stack = true, side, ...attrs } = Astro.props;
 const maxWidth = width === 'full' ? 'none' : `min(100%, ${width}vh)`;
 ---
 
-<section class="slide">
+<section class="slide" id={side} data-side={side ? '' : undefined}>
 	<div class:list={['slide-content', `gap-${gap}`, { pinned, 'slide-stack': stack }]} style={`--slide-max-width: ${maxWidth}`} {...attrs}>
 		<slot />
 	</div>
