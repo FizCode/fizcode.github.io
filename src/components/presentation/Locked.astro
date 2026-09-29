@@ -1,0 +1,236 @@
+---
+/**
+ * Content that only shows after the right password is typed. The slot is rendered at build
+ * time and encrypted, so the page holds only ciphertext: neither the content nor the password
+ * can be found with Inspect Element or View Source. The right password decrypts it in the browser.
+ *
+ * Once the content is in the page, an `unlock` event bubbles from it, so a slide's script can
+ * set the content up then. Without a password at build time, the content stays unavailable.
+ *
+ * The lock screen is styled after the DOLLARS login in Durarara!! (drrr.com): a black page,
+ * an emblem, a pill-shaped field and an ENTER button.
+ */
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import { PBKDF2_ITERATIONS, protectPassword, seal } from './protect';
+
+interface Props {
+	/** Shown above the password field; a light image on a transparent background suits the black screen */
+	image?: ImageMetadata;
+	/** Describes the image; leave empty when it is decoration */
+	alt?: string;
+}
+
+const { image, alt = '' } = Astro.props;
+const password = protectPassword();
+const html = password && Astro.slots.has('default') ? await Astro.slots.render('default') : '';
+const sealed = html ? JSON.stringify(seal(html, password!)) : '';
+
+---
+
+<div class="locked" data-locked={sealed || undefined} data-iterations={PBKDF2_ITERATIONS}>
+	<form class="lock" data-lock>
+		{image && <Image class="emblem" src={image} alt={alt} widths={[400, 750]} sizes="45vh" loading="eager" />}
+
+		{sealed ? (
+			<>
+				<div class="lock-row">
+					<label class="lock-label" for="lock-password">Password:</label>
+					<input
+						id="lock-password"
+						class="lock-input"
+						type="password"
+						autocomplete="off"
+						spellcheck="false"
+						required
+					/>
+				</div>
+				<button class="lock-enter" type="submit">Enter</button>
+				<p class="lock-error" data-lock-error aria-live="polite"></p>
+			</>
+		) : (
+			<p class="lock-error">This slide isn’t available in this build.</p>
+		)}
+	</form>
+	<div class="unlocked" data-unlocked hidden></div>
+</div>
+
+<script>
+	const bytes = (base64: string) => Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+
+	const decrypt = async (sealed: { salt: string; iv: string; data: string }, password: string, iterations: number) => {
+		const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+		const key = await crypto.subtle.deriveKey(
+			{ name: 'PBKDF2', salt: bytes(sealed.salt), iterations, hash: 'SHA-256' },
+			material,
+			{ name: 'AES-GCM', length: 256 },
+			false,
+			['decrypt'],
+		);
+		const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(sealed.iv) }, key, bytes(sealed.data));
+		return new TextDecoder().decode(plain);
+	};
+
+	document.querySelectorAll<HTMLElement>('[data-locked]').forEach((root) => {
+		const form = root.querySelector<HTMLFormElement>('[data-lock]')!;
+		const input = form.querySelector('input')!;
+		const button = form.querySelector('button')!;
+		const error = form.querySelector<HTMLElement>('[data-lock-error]')!;
+		const content = root.querySelector<HTMLElement>('[data-unlocked]')!;
+
+		// Typing here must not change slides or reveal steps
+		input.addEventListener('keydown', (e) => e.stopPropagation());
+		form.addEventListener('click', (e) => e.stopPropagation());
+
+		input.addEventListener('input', () => (error.textContent = ''));
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			button.disabled = true;
+			error.textContent = '';
+			try {
+				content.innerHTML = await decrypt(JSON.parse(root.dataset.locked!), input.value, Number(root.dataset.iterations));
+			} catch {
+				error.textContent = 'Wrong password';
+				form.classList.remove('shake');
+				void form.offsetWidth; // restart the animation
+				form.classList.add('shake');
+				input.select();
+				return;
+			} finally {
+				button.disabled = false;
+			}
+			// The ciphertext is no longer needed, and the password is not kept
+			input.value = '';
+			form.remove();
+			content.hidden = false;
+			content.dispatchEvent(new CustomEvent('unlock', { bubbles: true }));
+		});
+	});
+</script>
+
+<style>
+	.locked,
+	.unlocked {
+		display: contents;
+	}
+
+	.unlocked[hidden] {
+		display: none;
+	}
+
+	/*
+	 * Black whatever the theme, like the DOLLARS login in the anime. Everything is sized from the
+	 * emblem, in the reference's proportions: there the emblem is 305px across and --u is 1 of its px.
+	 */
+	.lock {
+		--emblem: min(45vh, 70vw);
+		--u: calc(var(--emblem) / 305);
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2em 1em;
+		background: #000;
+		border-radius: var(--radius-md);
+		color: #fff;
+		font-family: Helvetica, Arial, sans-serif;
+		font-size: calc(11 * var(--u)); /* ~17px at 1080p */
+	}
+
+	/* ---------- Emblem: stays still; only the field and button react ---------- */
+	.emblem {
+		width: var(--emblem);
+		height: auto;
+		aspect-ratio: 1;
+		user-select: none;
+		pointer-events: none;
+	}
+
+	/* ---------- "PASSWORD:" and a glowing white field, then ENTER below ---------- */
+	.lock-row {
+		display: flex;
+		align-items: center;
+		gap: calc(14 * var(--u));
+		margin-top: calc(43 * var(--u));
+	}
+
+	.lock-label {
+		color: #fff;
+		font-size: calc(11.5 * var(--u));
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.lock-input {
+		box-sizing: border-box;
+		width: calc(154 * var(--u));
+		height: calc(17 * var(--u));
+		padding: 0 calc(8 * var(--u));
+		background: #fff;
+		border: 0;
+		border-radius: 999px;
+		outline: 0;
+		color: #000;
+		font: inherit;
+	}
+
+	.lock-enter {
+		box-sizing: border-box;
+		width: calc(159 * var(--u));
+		height: calc(23 * var(--u));
+		margin-top: calc(33 * var(--u));
+		padding: 0;
+		background: none;
+		border: max(1px, calc(1.5 * var(--u))) solid #fff;
+		border-radius: 999px;
+		color: #ddd;
+		font: inherit;
+		/* "ENTER" is ~35px wide in the reference's 159px button */
+		font-size: calc(10 * var(--u));
+		line-height: 1;
+		text-transform: uppercase;
+		cursor: pointer;
+		appearance: none;
+	}
+
+	.lock-enter:focus-visible {
+		outline: 1px solid #fff;
+		outline-offset: 3px;
+	}
+
+	.lock-enter:disabled {
+		color: #777;
+		border-color: #444;
+		cursor: progress;
+	}
+
+	.lock-error {
+		min-height: 1.4em;
+		margin-top: calc(12 * var(--u));
+		color: #999;
+	}
+
+	/* A wrong password shakes the form */
+	.lock.shake .lock-input {
+		animation: shake 0.4s ease;
+	}
+
+	@keyframes shake {
+		20%,
+		60% {
+			transform: translateX(-8px);
+		}
+		40%,
+		80% {
+			transform: translateX(8px);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.lock.shake .lock-input {
+			animation: none;
+		}
+	}
+</style>

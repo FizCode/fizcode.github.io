@@ -1,8 +1,49 @@
 ---
-import '../styles/palette.css';
 import Slide from '../../Slide.astro';
+import Locked from '../../Locked.astro';
+import dollars from '../assets/dollars.png';
+import QitaBoard from '../components/QitaBoard.astro';
+import { loadQita } from '../data/qita';
+
+// Private: the data is decrypted at build time and the rendered slide encrypted again (see Locked)
+const qita = loadQita();
 ---
 
-<!-- Side slide, opened from "Module structure". Content to come. -->
-<Slide side="qita" width="full" pinned data-qita>
+<!-- Side slide, opened from "Module structure": the same idea in our own app -->
+<Slide side="qita" width="full" gap="sm" pinned data-qita>
+	<Locked image={dollars} alt="DOLLARS">
+		{qita && <QitaBoard qita={qita} />}
+	</Locked>
 </Slide>
+
+<script>
+	import { onSlideClick, onSlideReset } from '../../slide-events';
+
+	// The slide's content only exists once the password has decrypted it
+	const setUp = (root: HTMLElement) => {
+		const slide = root.closest<HTMLElement>('.slide')!;
+		const name = root.querySelector<HTMLElement>('[data-note-name]')!;
+		const text = root.querySelector<HTMLElement>('[data-note-text]')!;
+		const hint = text.textContent;
+		let selected: HTMLElement | null = null;
+
+		const select = (box: HTMLElement | null) => {
+			selected?.classList.remove('selected');
+			selected = box;
+			box?.classList.add('selected');
+			name.textContent = box?.dataset.name ?? '';
+			text.textContent = box?.dataset.description ?? hint;
+		};
+
+		onSlideClick<HTMLElement>(slide, '[data-node]', {
+			onItem: select,
+			onOutside: () => select(null),
+			hasSelection: () => !!selected,
+		});
+		onSlideReset(slide, () => select(null));
+	};
+
+	document.querySelectorAll<HTMLElement>('[data-qita]').forEach((root) => {
+		root.addEventListener('unlock', () => setUp(root), { once: true });
+	});
+</script>
