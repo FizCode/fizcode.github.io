@@ -21,6 +21,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Install, build, and upload your site
         uses: withastro/action@v2
+        env:
+          # Unlocks the private slide data at build time; the page itself only ever holds ciphertext
+          QITA_PASSWORD: ${{ secrets.QITA_PASSWORD }}
         with:
           # path: . # The root location of your Astro project inside the repository. (optional)
           node-version: 22 # Astro 7 needs Node 22.12 or newer; the action defaults to 20

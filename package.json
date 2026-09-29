@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "seal:qita": "node scripts/seal-qita.ts"
   },
   "dependencies": {
     "astro": "^7.3.5"

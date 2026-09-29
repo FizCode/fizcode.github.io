@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# private slide content: only its encrypted copy (*.sealed.json) is committed
+*.private.ts
