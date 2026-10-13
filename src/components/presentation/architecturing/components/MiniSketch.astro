@@ -44,12 +44,12 @@ const drawings: Record<Sketch, { boxes: Box[]; arrows: Arrow[] }> = {
 		],
 		arrows: [{ d: 'M78,45 H94' }, { d: 'M210,45 H226' }],
 	},
-	// each layer's model, bridged by mappers
+	// each layer's model, bridged by mappers; the UI model dashed (optional)
 	mapper: {
 		boxes: [
 			{ x: 4, y: 30, w: 64, label: 'OrderDto', tone: 'data' },
 			{ x: 86, y: 30, w: 108, label: 'OrderDomainModel', tone: 'domain' },
-			{ x: 212, y: 30, w: 84, label: 'OrderUiModel', tone: 'presentation' },
+			{ x: 212, y: 30, w: 84, label: 'OrderUiModel', tone: 'presentation', dashed: true },
 		],
 		arrows: [{ d: 'M68,45 H84' }, { d: 'M194,45 H210' }],
 	},

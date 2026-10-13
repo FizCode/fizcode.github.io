@@ -30,7 +30,7 @@ A high-performance, static portfolio website built for Android Developers. Desig
 ├── public/                   # Static assets (favicon, CNAME)
 ├── src/
 │   ├── components/           # Reusable UI components (Header, Footer, ProjectCard)
-│   │   └── presentation/     # Slide components and each talk's slides and content
+│   │   └── presentation/     # Slide components, each talk's slides and content, password protection
 │   ├── content/
 │   │   └── projects/         # One Markdown file per project
 │   ├── layouts/              # Page layouts (Layout.astro, PresentationLayout.astro)
@@ -55,6 +55,21 @@ All commands are run from the root of the project, from a terminal:
 | `npm run build`           | Build your production site to `./dist/`          |
 | `npm run preview`         | Preview your build locally, before deploying     |
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `npm run seal:qita`       | Encrypts the private Qita slide data (see below) |
+
+## 🔒 Password-protected slides
+
+Some slides hold private content (e.g. the Qita slide in the Architecturing talk). The repository only contains an encrypted copy of it (`*.sealed.json`). The build decrypts it with a password, then encrypts the rendered slide again, so the published page only holds ciphertext and the right password unlocks it in the browser.
+
+Create a `.env` file in the project root (it is git-ignored) with the password:
+
+```sh
+QITA_PASSWORD=your-password
+```
+
+Restart `npm run dev` after adding it. Without it, the site still builds, but those slides show *"This slide isn't available in this build."*
+
+To change the private content, edit `src/components/presentation/architecturing/data/qita.private.ts` (git-ignored, so keep your own copy), then run `npm run seal:qita` and commit the updated `qita.sealed.json`.
 
 ## 🚀 Deployment
 
@@ -63,7 +78,8 @@ This project comes configured for **GitHub Pages**.
 1.  Push your code to a GitHub repository.
 2.  Go to **Settings > Pages** in your repository.
 3.  Set **Source** to **GitHub Actions**.
-4.  The included `.github/workflows/deploy.yml` will automatically build and deploy your site on every push to `main`.
+4.  Add the password for protected slides as a repository secret named `QITA_PASSWORD` under **Settings > Secrets and variables > Actions**.
+5.  The included `.github/workflows/deploy.yml` will automatically build and deploy your site on every push to `main`.
 
 ## 🎨 Customization
 

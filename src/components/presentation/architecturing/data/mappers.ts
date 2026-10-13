@@ -4,6 +4,8 @@ import type { Comparison, DiagramLayer, Snippet } from './types';
 
 export interface ModelCard {
 	layer: 'data' | 'domain' | 'presentation';
+	/** Drawn dashed: only add it when it is needed */
+	optional?: boolean;
 	code: string;
 }
 
@@ -18,6 +20,19 @@ data class OrderDto(
 )`,
 };
 
+/** Without a domain: data hands presentation this, never the DTO */
+export const dataModel: ModelCard = {
+	layer: 'data',
+	code: `
+data class OrderDataModel(
+    val id: String,
+    val total: Money,
+    val status: OrderStatus,
+    val note: String,
+)`,
+};
+
+/** With a domain: data maps straight to this instead of a data model */
 export const domainModel: ModelCard = {
 	layer: 'domain',
 	code: `
@@ -31,6 +46,7 @@ data class OrderDomainModel(
 
 export const uiModel: ModelCard = {
 	layer: 'presentation',
+	optional: true,
 	code: `
 internal data class OrderUiModel(
     val total: String,
@@ -39,30 +55,47 @@ internal data class OrderUiModel(
 )`,
 };
 
-/** Without a domain: one function handles missing data and formatting */
-export const singleMapper: Snippet = {
-	lives: 'presentation',
-	title: 'toUiModel()',
-	note: 'Does two jobs at once: decides what missing data means, and formats it for display',
-	code: `
-// presentation/mapper/OrderUiMapper.kt
-internal fun OrderDto.toUiModel(): OrderUiModel = OrderUiModel(
-    total = totalPriceCents?.let(::formatRupiah) ?: "Price unavailable",
-    statusLabel = when (status) {
-        "P" -> "Waiting for payment"
-        "D" -> "Paid"
-        else -> "Unknown"
-    },
-    note = note ?: "—",
-)`,
-};
+const optionalUi = 'Optional: only when the screen needs its own shape; otherwise it shows the model as is';
 
-/** With a domain: the same work split into two single-purpose functions */
-export const splitMappers: Snippet[] = [
+/** Without a domain: data makes the DTO valid; presentation may format it */
+export const dataMappers: Snippet[] = [
+	{
+		lives: 'data',
+		title: 'toDataModel()',
+		note: 'Makes it valid: decides what "missing" means, so the DTO never leaves data',
+		code: `
+// data/mapper/OrderMapper.kt
+internal fun OrderDto.toDataModel(): OrderDataModel? {
+    val id = id ?: return null
+    val cents = totalPriceCents ?: return null
+    return OrderDataModel(
+        id = id,
+        total = Money(cents),
+        status = status.toOrderStatus(),
+        note = note.orEmpty(),
+    )
+}`,
+	},
+	{
+		lives: 'presentation',
+		title: 'toUiModel()',
+		note: optionalUi,
+		code: `
+// presentation/mapper/OrderUiMapper.kt
+internal fun OrderDataModel.toUiModel() = OrderUiModel(
+    total = total.format(),
+    statusLabel = status.label(),
+    note = note.ifEmpty { "—" },
+)`,
+	},
+];
+
+/** With a domain: the same two jobs, but data maps straight to the domain model */
+export const domainMappers: Snippet[] = [
 	{
 		lives: 'data',
 		title: 'toDomain()',
-		note: 'Makes it valid: decides what "missing" means',
+		note: 'Same job, new target: the domain model takes the data model’s place',
 		code: `
 // data/mapper/OrderMapper.kt
 internal fun OrderDto.toDomain(): OrderDomainModel? {
@@ -79,7 +112,7 @@ internal fun OrderDto.toDomain(): OrderDomainModel? {
 	{
 		lives: 'presentation',
 		title: 'toUiModel()',
-		note: 'Makes it readable: only formats',
+		note: optionalUi,
 		code: `
 // presentation/mapper/OrderUiMapper.kt
 internal fun OrderDomainModel.toUiModel() = OrderUiModel(
@@ -96,18 +129,21 @@ export const separation: Comparison = {
 		tone: 'bad',
 		label: 'Inside the model',
 		code: `
-// data/model/OrderDto.kt
-internal data class OrderDto(val id: String?, ...) {
+// data/model/OrderDataModel.kt
+internal data class OrderDataModel(val id: String, ...) {
     // data now imports a presentation class
     fun toUiModel(): OrderUiModel = ...
 }`,
 	},
 	right: {
 		tone: 'good',
-		label: 'Separate file',
+		label: 'Separate files',
 		code: `
+// data/mapper/OrderMapper.kt
+internal fun OrderDto.toDataModel(): OrderDataModel? = ...
+
 // presentation/mapper/OrderUiMapper.kt
-internal fun OrderDto.toUiModel(): OrderUiModel = ...`,
+internal fun OrderDataModel.toUiModel(): OrderUiModel = ...`,
 	},
 	reasons: [
 		'Data never imports presentation, so dependencies point one way',
@@ -122,7 +158,7 @@ export const separationWithDomain: Comparison = {
 		tone: 'bad',
 		label: 'Inside the model',
 		code: `
-// domain/OrderDomainModel.kt
+// domain/model/OrderDomainModel.kt
 internal data class OrderDomainModel(val id: String, ...) {
     companion object {
         // the domain now imports a data class
@@ -147,10 +183,10 @@ internal fun OrderDomainModel.toUiModel(): OrderUiModel = ...`,
 	],
 };
 
-/** Where the mapper files live, without and with a domain */
+/** Where the mapper files live, without and with a domain; the data model gives way to the domain model */
 export const mapperFiles: DiagramLayer[] = [
 	{ key: 'presentation', files: [{ name: 'OrderUiMapper.kt' }] },
-	{ key: 'data', files: [{ name: 'OrderDto.kt' }] },
+	{ key: 'data', files: [{ name: 'OrderDto.kt' }, { name: 'OrderDataModel.kt' }, { name: 'OrderMapper.kt' }] },
 ];
 
 export const mapperFilesWithDomain: DiagramLayer[] = [

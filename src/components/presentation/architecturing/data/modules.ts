@@ -30,7 +30,7 @@ const featureLayers: ModuleNode[] = [
 		description: 'What the user sees: screens, views and UI state. Asks the domain when there is one; otherwise asks the data repository directly.',
 		children: [
 			{ name: 'component', kind: 'package', description: 'UI pieces reused within this feature.' },
-			{ name: 'model', kind: 'package', description: 'UI state shaped for display, e.g. formatted prices and labels.' },
+			{ name: 'model', kind: 'package', optional: true, description: 'UI models shaped for display, e.g. formatted prices and labels. Optional: only when the screen needs a shape of its own; otherwise it shows the data or domain model as is.' },
 		],
 	},
 	{
@@ -51,7 +51,8 @@ const featureLayers: ModuleNode[] = [
 		description: 'Talks to the outside world: APIs, databases, caches. Implements the repository contract, which lives in the domain if there is one, otherwise here in data.',
 		children: [
 			{ name: 'repository', kind: 'package', description: 'The implementation, combining remote and local sources. Without a domain, the contract lives here too.' },
-			{ name: 'model', kind: 'package', description: 'DTOs and database records. Mapped to domain models, or straight to UI models when there is no domain.' },
+			{ name: 'model', kind: 'package', description: 'Clean data models mapped from the DTOs: what presentation reads when there is no domain. With a domain, data maps to domain models instead.' },
+			{ name: 'dto', kind: 'package', description: 'API responses and database records, shaped like their source. Never leave the data layer: mapped to data models, or to domain models when there is a domain.' },
 		],
 	},
 	{
@@ -81,6 +82,10 @@ export const features: ModuleNode[] = [
 		':featureC',
 		'A third capability, e.g. profile. Features share code only through :core or the shared modules, never by importing each other.'
 	),
+	makeFeature(
+		':featureD',
+		'A fourth capability, e.g. reports. Adding a feature means adding a module beside the others, without touching them.'
+	),
 ];
 
 export const core: ModuleNode = {
@@ -93,14 +98,14 @@ export const core: ModuleNode = {
 		{ name: ':designsystem', kind: 'core', description: 'Theme, tokens and shared UI components, so every feature looks consistent.' },
 		{ name: ':network', kind: 'core', description: 'HTTP client, authentication and error handling in one place.' },
 		{ name: ':navigation', kind: 'core', description: 'Route contracts that let features open each other without depending on each other.' },
-		{ name: ':database', kind: 'core', optional: true, description: 'Local storage setup. Optional: only when the product stores data locally.' },
-		{ name: ':analytics', kind: 'core', optional: true, description: 'One module per integration (analytics, payments, maps…), so a vendor can be swapped in one place.' },
+		{ name: ':room', kind: 'core', optional: true, description: 'Local database setup (Room). Optional: only when the product stores data locally.' },
+		{ name: ':nameoftechnology', kind: 'core', optional: true, description: 'One module per technology or integration (analytics, payments, printer…), named after it, so it can be swapped in one place.' },
 	],
 };
 
 export const shared: ModuleNode[] = [
 	{
-		name: ':domain:category',
+		name: ':domain:feature',
 		kind: 'shared',
 		layout: 'list',
 		optional: true,
@@ -113,13 +118,14 @@ export const shared: ModuleNode[] = [
 		],
 	},
 	{
-		name: ':data:category',
+		name: ':data:feature',
 		kind: 'shared',
 		layout: 'list',
 		description: 'Data access used by several features, e.g. a product catalog read by both checkout and search.',
 		children: [
 			{ name: 'repository', kind: 'package', description: 'The shared implementation.' },
-			{ name: 'model', kind: 'package', description: 'Shared DTOs and database records. Mapped to domain models, or straight to UI models when there is no domain.' },
+			{ name: 'model', kind: 'package', description: 'Models the sharing features read, mapped from the DTOs. Mapped on to domain models when there is a shared domain.' },
+			{ name: 'dto', kind: 'package', description: 'Shared API responses and database records, shaped like their source.' },
 		],
 	},
 ];

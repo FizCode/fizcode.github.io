@@ -23,11 +23,12 @@ export const withoutDomain: { snippets: Snippet[] } = {
 			note: "Swap the real one for a fake: the ViewModel doesn't change",
 			code: `
 // data/repository/OrderRepository.kt
-interface OrderRepository { suspend fun getOrders(): List<OrderDto> }
+interface OrderRepository { suspend fun getOrders(): List<OrderDataModel> }
 
 // data/repository/OrderRepositoryImpl.kt
 internal class OrderRepositoryImpl(private val api: OrderApi) : OrderRepository {
-    override suspend fun getOrders() = api.getOrders()
+    override suspend fun getOrders() =
+        api.getOrders().mapNotNull { it.toDataModel() }
 }
 
 // test/FakeOrderRepository.kt
@@ -45,7 +46,7 @@ internal class OrderViewModel(
     private val repository: OrderRepository,
 ) : ViewModel() {
     suspend fun load() = repository.getOrders()
-        .map { it.toUiModel() }
+        .map { it.toUiModel() } // optional
 }`,
 		},
 	],
