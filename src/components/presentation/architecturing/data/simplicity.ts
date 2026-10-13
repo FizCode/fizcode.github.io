@@ -70,7 +70,7 @@ export const recap: RecapItem[] = [
 	{ sketch: 'domain', start: 'presentation + data', add: 'a domain', when: 'business rules grow' },
 	{ sketch: 'module', start: 'code inside one feature', add: 'a shared module', when: 'a second feature needs it' },
 	{ sketch: 'usecase', start: 'ViewModel → repository', add: 'a use case', when: 'the logic gets complex' },
-	{ sketch: 'mapper', start: 'one mapper', add: 'a second mapper', when: 'a domain arrives' },
+	{ sketch: 'mapper', start: 'one data mapper', add: 'a UI model', when: 'the screen needs its own shape' },
 	{ sketch: 'dry', start: 'a copy, if it only looks alike', add: 'one home', when: "it's the same business rule" },
 ];
 

@@ -7,19 +7,20 @@ import LayerCode from '../components/LayerCode.astro';
 import LayerTransitionDiagram from '../components/LayerTransitionDiagram.astro';
 import CodeComparison from '../components/CodeComparison.astro';
 import {
-	dto, domainModel, uiModel, singleMapper, splitMappers,
+	dto, dataModel, domainModel, uiModel, dataMappers, domainMappers,
 	separation, separationWithDomain, mapperFiles, mapperFilesWithDomain,
 } from '../data/mappers';
 
-const [toDomain, toUi] = splitMappers;
+const [toData, toUi] = dataMappers;
+const [toDomain] = domainMappers;
 ---
 
 <Slide width={170} pinned>
 	<SlideHeader
 		title="Mappers: each layer speaks its own model"
 		subtitles={[
-			{ name: 'One mapper', text: 'turns the API response straight into what the screen shows' },
-			{ name: 'What about a domain layer?', text: 'the mapper splits in two, each with one job' },
+			{ name: 'Data maps first', text: 'the API response becomes a clean data model; a UI model only when the screen needs one' },
+			{ name: 'What about a domain layer?', text: 'data maps straight to the domain model instead' },
 			{ name: 'Why a separate file?', text: 'the mapper belongs to neither model' },
 			{ name: 'And with a domain?', text: 'the same rule keeps DTOs out of the domain' },
 		]}
@@ -35,37 +36,42 @@ const [toDomain, toUi] = splitMappers;
 					<Code code={dto.code} />
 				</div>
 
-				<!-- Without a domain this arrow is toUiModel(); with one, it becomes toDomain() -->
+				<!-- Without a domain this arrow is toDataModel(); with one, it becomes toDomain() -->
 				<div class="arrow">
 					<div class="arrow-labels">
-						<p class="arrow-label solo"><code>{singleMapper.title}</code><span>lives in {singleMapper.lives}</span></p>
-						<p class="arrow-label split"><code>{toDomain.title}</code><span>lives in {toDomain.lives}</span></p>
+						<p class="arrow-label no-domain"><code>{toData.title}</code><span>lives in {toData.lives}</span></p>
+						<p class="arrow-label with-domain"><code>{toDomain.title}</code><span>lives in {toDomain.lives}</span></p>
 					</div>
 					<span class="arrow-line" aria-hidden="true"></span>
 				</div>
 
-				<!-- Revealed by clicking the slide: the domain model and its mapper open up in the middle -->
-				<div class="domain-group fragment">
-					<div class="domain-inner">
-						<div data-zoomable class={`card layer-${domainModel.layer}`}>
-							<p class="card-layer">{domainModel.layer}</p>
-							<Code code={domainModel.code} />
-						</div>
-
-						<div class="arrow">
-							<div class="arrow-labels">
-								<p class="arrow-label"><code>{toUi.title}</code><span>lives in {toUi.lives}</span></p>
-							</div>
-							<span class="arrow-line" aria-hidden="true"></span>
-						</div>
+				<!-- What presentation reads: the data model, replaced by the domain model once there is a domain -->
+				<div class="swap">
+					<div data-zoomable class={`card no-domain layer-${dataModel.layer}`}>
+						<p class="card-layer">{dataModel.layer}</p>
+						<Code code={dataModel.code} />
+					</div>
+					<div data-zoomable class={`card with-domain layer-${domainModel.layer}`}>
+						<p class="card-layer">{domainModel.layer}</p>
+						<Code code={domainModel.code} />
 					</div>
 				</div>
 
-				<div data-zoomable class={`card layer-${uiModel.layer}`}>
-					<p class="card-layer">{uiModel.layer}</p>
+				<div class="arrow optional">
+					<div class="arrow-labels">
+						<p class="arrow-label"><code>{toUi.title}</code><span>lives in {toUi.lives} · optional</span></p>
+					</div>
+					<span class="arrow-line" aria-hidden="true"></span>
+				</div>
+
+				<div data-zoomable class:list={['card', `layer-${uiModel.layer}`, { optional: uiModel.optional }]}>
+					<p class="card-layer">{uiModel.layer}{uiModel.optional && ' · optional'}</p>
 					<Code code={uiModel.code} />
 				</div>
 			</div>
+
+			<!-- The slide's first step: the domain arrives -->
+			<div class="domain-step fragment" hidden></div>
 
 			<!-- Where the mapper files live; the domain grows in on the last step -->
 			<div class="files">
@@ -73,13 +79,13 @@ const [toDomain, toUi] = splitMappers;
 			</div>
 		</div>
 
-		<!-- The mapper code: one function without a domain, two with one. Both share one spot -->
+		<!-- The mapper code, without and then with a domain. Both share one spot -->
 		<div class="mapper-code">
-			<div class="mapper-set solo">
-				<LayerCode snippet={singleMapper} />
+			<div class="mapper-set no-domain">
+				{dataMappers.map((mapper) => <LayerCode snippet={mapper} />)}
 			</div>
-			<div class="mapper-set split">
-				{splitMappers.map((mapper) => <LayerCode snippet={mapper} />)}
+			<div class="mapper-set with-domain">
+				{domainMappers.map((mapper) => <LayerCode snippet={mapper} />)}
 			</div>
 
 			<!-- Third and fourth steps: why mappers are not methods on the models, without and with a domain -->
@@ -106,7 +112,6 @@ const [toDomain, toUi] = splitMappers;
 	/* Models */
 	/* Cards line up at the top so their layer tags sit in one row; arrows centre on the code */
 	.flow {
-		container-type: inline-size;
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
@@ -193,35 +198,36 @@ const [toDomain, toUi] = splitMappers;
 		border-left: 12px solid var(--color-text-muted);
 	}
 
+	/* The UI model and its mapper are optional: drawn dashed */
+	.card.optional .card-layer {
+		border-style: dashed;
+	}
+
+	.card.optional :global(.code-block) {
+		border-top-style: dashed;
+	}
+
+	.arrow.optional .arrow-line {
+		background: repeating-linear-gradient(90deg, var(--color-text-muted) 0 8px, transparent 8px 14px);
+	}
+
+	/* The data model and the domain model share one spot; the domain step swaps them */
+	.swap {
+		display: grid;
+	}
+
+	.swap > .card {
+		grid-area: 1 / 1;
+		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+	}
+
 	/*
-	 * The domain group grows from zero width, pushing the cards apart. Its content keeps
-	 * its size (no wrapping in code), so it is revealed rather than squashed.
-	 */
-	.flow .domain-group {
-		flex: none;
-		max-width: 0;
-		overflow: hidden;
-		transform: none;
-		transition: max-width 0.6s ease, opacity 0.4s ease 0.2s, visibility 0.6s;
-	}
-
-	.flow .domain-group.visible {
-		max-width: 70cqw;
-	}
-
-	.domain-inner {
-		display: flex;
-		align-items: flex-start;
-		width: max-content;
-	}
-
-	/*
-	 * Swaps that follow the steps: one mapper -> two mappers -> why a separate file
+	 * Swaps that follow the steps: without a domain -> with a domain -> why a separate file
 	 * (presentation and data) -> the same with a domain
 	 */
-	:global(.slide:has(.domain-group.visible)) .solo,
-	:global(.slide:not(:has(.domain-group.visible))) .split,
-	:global(.slide:has(.mapper-set.why.visible)) .mapper-set.split,
+	:global(.slide:has(.domain-step.visible)) .no-domain,
+	:global(.slide:not(:has(.domain-step.visible))) .with-domain,
+	:global(.slide:has(.mapper-set.why.visible)) .mapper-set.with-domain,
 	:global(.slide:has(.mapper-set.why.visible)) .flow,
 	:global(.slide:not(:has(.mapper-set.why.visible))) .files,
 	:global(.slide:has(.mapper-set.why-domain.visible)) .mapper-set.why {
@@ -263,7 +269,6 @@ const [toDomain, toUi] = splitMappers;
 
 	@media (max-width: 800px) {
 		.flow,
-		.domain-inner,
 		.mapper-set {
 			flex-direction: column;
 		}
@@ -285,14 +290,13 @@ const [toDomain, toUi] = splitMappers;
 			border-bottom: none;
 		}
 
-		.flow .domain-group,
-		.flow .domain-group.visible {
-			max-width: none;
+		.arrow.optional .arrow-line {
+			background: repeating-linear-gradient(180deg, var(--color-text-muted) 0 8px, transparent 8px 14px);
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.flow .domain-group,
+		.swap > .card,
 		.arrow-label,
 		.mapper-set {
 			transition: none;

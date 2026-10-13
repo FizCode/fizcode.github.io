@@ -89,11 +89,33 @@ import { app, features, core, shared, tour } from "../data/modules";
 				);
 	};
 
+	/**
+	 * A detached box's children are centred under its whole row, so the box can sit past either
+	 * end of their rail. This sets where the rail should reach so it also passes under the box.
+	 */
+	const linkToRail = (box: HTMLElement) => {
+		const children = childrenOf(box);
+		const list = children?.querySelector<HTMLElement>(":scope > .children");
+		if (!children || !list || children.hidden) return;
+		const origin = list.getBoundingClientRect().left;
+		const centre = (el: Element) => {
+			const r = el.getBoundingClientRect();
+			return r.left + r.width / 2 - origin;
+		};
+		const items = list.querySelectorAll(":scope > li");
+		// ±1px covers the full width of the 2px line dropping from the box
+		const start = Math.min(centre(box) - 1, centre(items[0]));
+		const end = Math.max(centre(box) + 1, centre(items[items.length - 1]));
+		children.style.setProperty("--link-left", `${start}px`);
+		children.style.setProperty("--link-width", `${end - start}px`);
+	};
+
 	const setOpen = (box: HTMLElement, open: boolean) => {
 		const children = childrenOf(box);
 		if (!children) return;
 		box.setAttribute("aria-expanded", String(open));
 		children.hidden = !open;
+		if (open && box.hasAttribute("aria-controls")) linkToRail(box);
 		// Closing a module closes everything inside it too
 		if (!open) {
 			children
@@ -188,6 +210,14 @@ import { app, features, core, shared, tour } from "../data/modules";
 		document.addEventListener("keydown", (e) => {
 			if (e.key === "Escape") unfocus();
 		});
+
+		// Box positions change with the screen size and once the fonts load
+		const relink = () =>
+			board
+				.querySelectorAll<HTMLElement>('.box[aria-controls][aria-expanded="true"]')
+				.forEach(linkToRail);
+		addEventListener("resize", relink);
+		document.fonts.ready.then(relink);
 	});
 </script>
 
@@ -201,6 +231,15 @@ import { app, features, core, shared, tour } from "../data/modules";
 		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 		align-items: start;
 		gap: clamp(0.75rem, 1.2vw, 2rem);
+	}
+
+	/* Four features need the three columns a bit smaller than ModuleNode's default */
+	.board :global(.box) {
+		font-size: clamp(0.85rem, min(2.4vh, 1.3vw), 2.1rem); /* ~25px */
+	}
+
+	.board :global(.node[data-kind="package"] > .box) {
+		font-size: clamp(0.8rem, min(2.1vh, 1.15vw), 1.9rem); /* ~22px */
 	}
 
 	.column-shared {
@@ -303,14 +342,28 @@ import { app, features, core, shared, tour } from "../data/modules";
 		border-top: var(--head) solid var(--color-text-muted);
 	}
 
-	/* Line from the open feature down to its internals' rail (+2px clears the box border) */
+	/*
+	 * Line from the open feature down to its internals' rail (+2px clears the box border).
+	 * It runs 2px on, through the rail, so rounding can never leave a gap where they meet.
+	 */
 	.feature-row :global(.box[aria-expanded="true"])::after {
 		content: "";
 		position: absolute;
 		left: calc(50% - 1px);
 		top: calc(100% + 2px);
 		width: 2px;
-		height: var(--rail);
+		height: calc(var(--rail) + 2px);
+		background: var(--color-text-muted);
+	}
+
+	/* The open feature's internals' rail, stretched to pass under the feature (see linkToRail) */
+	.feature-group > :global(.children-only > .children)::after {
+		content: "";
+		position: absolute;
+		top: var(--rail);
+		left: var(--link-left, 0);
+		width: var(--link-width, 0);
+		height: 2px;
 		background: var(--color-text-muted);
 	}
 
@@ -457,20 +510,21 @@ import { app, features, core, shared, tour } from "../data/modules";
 			order: -1;
 		}
 
-		.feature-row :global(.box[aria-expanded="true"])::after {
+		.feature-row :global(.box[aria-expanded="true"])::after,
+		.feature-group > :global(.children-only > .children)::after {
 			display: none;
 		}
 
-		/* Three features side by side on a phone need smaller boxes */
+		/* Four features side by side on a phone need smaller boxes */
 		.feature-row > li {
 			min-width: 0;
 			padding-inline: 0.15em;
 		}
 
 		.feature-row :global(.box) {
-			gap: 0.3em;
-			padding-inline: 0.5em;
-			font-size: 0.8rem;
+			gap: 0.2em;
+			padding-inline: 0.35em;
+			font-size: 0.7rem;
 		}
 	}
 </style>
