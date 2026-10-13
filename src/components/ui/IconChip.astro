@@ -1,0 +1,31 @@
+---
+import type { IconName } from '@/data/icons';
+import Icon from './Icon.astro';
+
+interface Props {
+  icon: IconName;
+  tone?: 'primary' | 'secondary' | 'tertiary' | 'surface';
+}
+
+const { icon, tone = 'primary' } = Astro.props;
+---
+
+<span class:list={['chip', tone]} aria-hidden="true">
+  <Icon name={icon} size="md" />
+</span>
+
+<style>
+  .chip {
+    width: var(--icon-chip-size);
+    height: var(--icon-chip-size);
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--icon-chip-radius);
+  }
+  .primary { background: var(--color-primary-container); color: var(--color-on-primary-container); }
+  .secondary { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+  .tertiary { background: var(--color-tertiary-container); color: var(--color-on-surface); }
+  .surface { background: var(--color-surface); color: var(--color-primary); }
+</style>

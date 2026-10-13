@@ -1,0 +1,76 @@
+---
+import { render } from 'astro:content';
+import Layout from '@/layouts/Layout.astro';
+import { getFollowingProject, getProjects, type IndexedProject } from '@/lib/projects';
+import '@/styles/prose.css';
+import AmbientShapes from '@/components/layout/AmbientShapes.astro';
+import ContactSection from '@/components/layout/ContactSection.astro';
+import FeatureCards from '@/components/project/FeatureCards.astro';
+import HighlightList from '@/components/project/HighlightList.astro';
+import NextProject from '@/components/project/NextProject.astro';
+import ProjectHero from '@/components/project/ProjectHero.astro';
+import ProjectScreens from '@/components/project/ProjectScreens.astro';
+import TableOfContents, { type TocEntry } from '@/components/project/TableOfContents.astro';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project, projects } }));
+}
+
+interface Props {
+  project: IndexedProject;
+  projects: IndexedProject[];
+}
+
+const { project, projects } = Astro.props;
+const { title, summary, screens, features, highlights, next } = project.data;
+const { Content, headings } = await render(project);
+const following = getFollowingProject(projects, project);
+const action = following && { href: `/projects/${following.id}/`, label: `Next project: ${following.data.title}` };
+const nextProject = next ? projects.find((p) => p.id === next.id) : undefined;
+
+// "On this page": the body's ## headings, then the fixed sections that exist
+const toc: TocEntry[] = [
+  ...headings.filter((h) => h.depth === 2).map((h) => ({ id: h.slug, label: h.text })),
+  ...(features.length ? [{ id: 'features', label: 'Key features' }] : []),
+  ...(highlights.length ? [{ id: 'highlights', label: 'Technical highlights' }] : []),
+  ...(nextProject ? [{ id: 'next', label: 'Next project' }] : []),
+];
+---
+
+<Layout title={`${title} — fizcode`} description={summary} current="work" action={action}>
+  <AmbientShapes single />
+  <ProjectHero project={project} />
+  {screens.length > 0 && <ProjectScreens project={project} />}
+
+  <div class="container layout">
+    <TableOfContents entries={toc} />
+    <article>
+      <div class="prose"><Content /></div>
+      {features.length > 0 && <FeatureCards features={features} />}
+      {highlights.length > 0 && <HighlightList highlights={highlights} />}
+      {nextProject && <NextProject project={nextProject} />}
+    </article>
+  </div>
+
+  <ContactSection />
+</Layout>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: var(--space-72);
+    align-items: start;
+  }
+  article {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-96);
+    padding-bottom: var(--space-96);
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+</style>

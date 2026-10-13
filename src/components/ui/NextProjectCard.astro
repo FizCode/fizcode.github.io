@@ -1,0 +1,53 @@
+---
+import ArrowButton from './ArrowButton.astro';
+import TechTag from './TechTag.astro';
+
+interface Props {
+  href: string;
+  index: string;
+  tags: readonly string[];
+  title: string;
+}
+
+const { href, index, tags, title } = Astro.props;
+---
+
+<a href={href} class="card next">
+  <span class="text">
+    <TechTag index={index} items={tags} />
+    <span class="title">{title}</span>
+    <span class="type-body-sm desc"><slot /></span>
+  </span>
+  <ArrowButton tone="primary" size="lg" />
+</a>
+
+<style>
+  .next {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-24);
+    padding: var(--space-36);
+    border-radius: var(--shape-4xl);
+    background: var(--color-surface);
+    border: 1px solid var(--color-outline-variant);
+    color: var(--color-on-surface);
+    text-decoration: none;
+    transition:
+      border-radius var(--duration-long) var(--ease-spring),
+      transform var(--duration-long) var(--ease-spring);
+  }
+  .next:hover { border-radius: var(--shape-xl); transform: var(--lift-hover); }
+  .next:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; }
+  .text { display: flex; flex-direction: column; gap: var(--space-12); min-width: 0; }
+  .title { font: var(--weight-extrabold) clamp(32px, 4vw, 52px)/1 var(--font-display); letter-spacing: -0.03em; }
+  .desc { color: var(--color-on-surface-variant); }
+
+  @media (max-width: 640px) {
+    .next { padding: var(--space-24); border-radius: var(--shape-2xl); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .next { transition: none; }
+  }
+</style>

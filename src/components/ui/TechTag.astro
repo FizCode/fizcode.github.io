@@ -1,0 +1,17 @@
+---
+interface Props {
+  index?: string;
+  items: readonly string[];
+  tone?: 'primary' | 'inherit';
+}
+
+const { index, items, tone = 'primary' } = Astro.props;
+const text = [index, ...items].filter(Boolean).join(' · ');
+---
+
+<span class:list={['type-tag', tone]}>{text}</span>
+
+<style>
+  .primary { color: var(--color-primary); }
+  .inherit { color: inherit; }
+</style>

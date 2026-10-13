@@ -1,0 +1,52 @@
+---
+interface Props {
+  label: string;
+  pressed?: boolean;
+  [attribute: string]: unknown;
+}
+
+const { label, pressed, ...rest } = Astro.props;
+---
+
+<button
+  type="button"
+  class="icon-btn"
+  aria-label={label}
+  aria-pressed={pressed === undefined ? undefined : String(pressed)}
+  {...rest}
+>
+  <slot />
+</button>
+
+<style>
+  .icon-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--touch-target);
+    height: var(--touch-target);
+    padding: 0 12px;
+    border: none;
+    border-radius: var(--shape-full);
+    background: transparent;
+    color: var(--color-on-surface);
+    cursor: pointer;
+    transition: background var(--duration-medium) var(--ease-spring);
+  }
+  .icon-btn[aria-pressed='true'] {
+    background: var(--color-secondary-container);
+    color: var(--color-on-secondary-container);
+  }
+  .icon-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--duration-short);
+  }
+  .icon-btn:hover::after { opacity: var(--state-hover); }
+  .icon-btn:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+</style>

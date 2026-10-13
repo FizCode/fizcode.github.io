@@ -1,0 +1,71 @@
+---
+export interface TocEntry {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  entries: TocEntry[];
+}
+
+const { entries } = Astro.props;
+---
+
+<aside class="toc">
+  <p class="type-tag muted">On this page</p>
+  <nav aria-label="On this page">
+    {
+      entries.map((entry, i) => (
+        <a href={`#${entry.id}`} aria-current={i === 0 ? 'true' : undefined} data-toc-link>
+          {entry.label}
+        </a>
+      ))
+    }
+  </nav>
+</aside>
+
+<script>
+  import { spySections } from '@/scripts/scroll-spy';
+
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+  spySections(links, (active) =>
+    links.forEach((link) => {
+      if (link === active) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    }),
+  );
+</script>
+
+<style>
+  .toc {
+    position: sticky;
+    top: 112px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  p { margin: 0 0 0 14px; }
+  nav { display: flex; flex-direction: column; gap: var(--space-4); }
+  a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: var(--shape-full);
+    text-decoration: none;
+    font: 500 var(--type-label-md)/1.2 var(--font-body);
+    color: var(--color-on-surface-variant);
+    transition: all var(--duration-medium) var(--ease-spring);
+  }
+  a:hover { color: var(--color-on-surface); }
+  a[aria-current='true'] {
+    font-weight: var(--weight-bold);
+    background: var(--color-secondary-container);
+    color: var(--color-on-secondary-container);
+  }
+  a:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+
+  @media (max-width: 900px) {
+    .toc { display: none; }
+  }
+</style>

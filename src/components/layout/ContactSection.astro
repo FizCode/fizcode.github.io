@@ -1,0 +1,29 @@
+---
+import { site } from '@/data/site';
+import TextLink from '@/components/ui/TextLink.astro';
+---
+
+<section id="contact" class="container contact reveal">
+  <p class="type-eyebrow muted">Have an app in mind?</p>
+  <a href={`mailto:${site.email}`} class="type-display-md cta">Let’s talk <span class="arrow">→</span></a>
+  <div class="links">
+    {site.socials.map((social) => <TextLink href={social.href}>{social.label}</TextLink>)}
+  </div>
+</section>
+
+<style>
+  .contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-28);
+    padding-block: var(--space-96) var(--space-72);
+    /* Blank space below, so the sections above can scroll all the way up to the top of the screen.
+       The bottom navigation takes ~90px under this section, so the page ends with the heading near the top. */
+    min-height: calc(100svh - 168px);
+  }
+  p { margin: 0; }
+  .cta { text-decoration: none; }
+  .cta:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; border-radius: 8px; }
+  .arrow { color: var(--color-primary); }
+  .links { display: flex; flex-wrap: wrap; gap: var(--space-24); }
+</style>

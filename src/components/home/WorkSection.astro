@@ -1,0 +1,81 @@
+---
+import type { IndexedProject } from "@/lib/projects";
+import ProjectCard from "@/components/ui/ProjectCard.astro";
+import SectionHeader from "@/components/ui/SectionHeader.astro";
+import FeaturedCase from "./FeaturedCase.astro";
+
+interface Props {
+  projects: IndexedProject[];
+}
+
+const { projects } = Astro.props;
+const featured = projects.find((project) => project.data.featured);
+const others = projects.filter((project) => project !== featured);
+const href = (project: IndexedProject) => `/projects/${project.id}/`;
+---
+
+<section id="work" class="container work">
+  <SectionHeader
+    title="Selected work"
+    meta={`${String(projects.length).padStart(2, "0")} projects`}
+  />
+
+  {
+    featured && (
+      <div class="reveal">
+        <FeaturedCase
+          href={href(featured)}
+          badge={featured.data.badge}
+          index={featured.index}
+          tags={featured.data.tags}
+          title={featured.data.title}
+          chip={featured.data.statChip}
+          screen={featured.data.screens[0]}
+        >
+          {featured.data.summary}
+        </FeaturedCase>
+      </div>
+    )
+  }
+
+  <div class="card-grid">
+    {
+      others.map((project, position) => (
+        <div class="reveal">
+          <ProjectCard
+            href={href(project)}
+            index={project.index}
+            tags={project.data.tags}
+            icon={project.data.icon}
+            iconTone={project.data.iconTone}
+            title={project.data.title}
+            variant={position === 0 ? "filled" : "outlined"}
+            cta="Read the case study"
+          >
+            {project.data.summary}
+          </ProjectCard>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .work {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-40);
+    padding-block: var(--space-40) var(--space-96);
+  }
+  .card-grid {
+    display: grid;
+    gap: var(--space-24);
+    grid-template-columns: repeat(auto-fit, minmax(var(--grid-card-min), 1fr));
+  }
+  .card-grid > :global(div) {
+    display: flex;
+  }
+  .card-grid :global(.card) {
+    flex: 1;
+  }
+</style>

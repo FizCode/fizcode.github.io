@@ -1,0 +1,40 @@
+---
+interface Props {
+  /** Adds a green availability dot */
+  status?: boolean;
+  /** Smaller chip with a shadow, for sitting on top of artwork */
+  floating?: boolean;
+}
+
+const { status = false, floating = false } = Astro.props;
+---
+
+<span class:list={['chip', { floating }]}>
+  {status && <span class="dot" aria-hidden="true" />}
+  <slot />
+</span>
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: var(--shape-lg);
+    background: var(--glass-fill);
+    border: 1px solid var(--glass-edge);
+    backdrop-filter: blur(var(--blur-md)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--blur-md)) saturate(var(--glass-saturate));
+    font: var(--weight-semibold) var(--type-label-sm)/1 var(--font-body);
+  }
+  .floating {
+    padding: 12px 18px;
+    border-radius: var(--shape-md);
+    box-shadow: var(--elevation-glass);
+    backdrop-filter: blur(var(--blur-sm)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--blur-sm)) saturate(var(--glass-saturate));
+    font-size: 13px;
+    font-weight: var(--weight-bold);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); }
+</style>

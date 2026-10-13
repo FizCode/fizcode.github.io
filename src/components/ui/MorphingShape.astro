@@ -1,0 +1,35 @@
+---
+import { lobedPath, LOADER_SEQUENCE } from '@/lib/shapes';
+
+interface Props {
+  /** Width in px; the shape is centred in its (positioned) parent */
+  size: number;
+}
+
+const { size } = Astro.props;
+---
+
+<!-- Drifts slowly through the shape sequence while turning (see scripts/shape-morph.ts) -->
+<svg class="shape" style={`--size: ${size}px`} viewBox="0 0 100 100" aria-hidden="true">
+  <path data-shape-morph d={lobedPath(LOADER_SEQUENCE[0])} />
+</svg>
+
+<script>
+  import { startShapeMorph } from '@/scripts/shape-morph';
+
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<SVGPathElement>('[data-shape-morph]').forEach(startShapeMorph);
+  }
+</script>
+
+<style>
+  .shape {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--size);
+    max-width: 110%;
+    transform: translate(-50%, -50%);
+    fill: var(--color-primary-container);
+  }
+</style>

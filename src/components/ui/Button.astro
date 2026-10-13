@@ -1,0 +1,64 @@
+---
+import type { IconName } from '@/data/icons';
+import Icon from './Icon.astro';
+
+interface Props {
+  href?: string;
+  size?: 'md' | 'lg';
+  variant?: 'filled' | 'tonal';
+  /** Leading icon */
+  icon?: IconName;
+  disabled?: boolean;
+  class?: string;
+}
+
+const { href, size = 'lg', variant = 'filled', icon, disabled = false, class: className } = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  class:list={['btn', size, variant, { 'with-icon': icon }, className]}
+  href={href}
+  type={href ? undefined : 'button'}
+  disabled={href ? undefined : disabled}
+>
+  {icon && <Icon name={icon} size="sm" bold />}
+  <slot />
+</Tag>
+
+<style>
+  .btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+    border: none;
+    border-radius: var(--shape-full);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .filled { background: var(--color-primary); color: var(--color-on-primary); }
+  .tonal { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+
+  .lg { padding: 18px 30px; font: var(--weight-bold) var(--type-label-lg)/1 var(--font-body); }
+  .md { padding: 13px 22px; font: var(--weight-bold) var(--type-label-md)/1 var(--font-body); }
+  .with-icon { height: var(--touch-target); padding: 0 20px 0 14px; }
+
+  /* state layer */
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--duration-short) var(--ease-standard);
+  }
+  .btn:hover::after { opacity: var(--state-hover); }
+  .btn:active::after { opacity: var(--state-pressed); }
+  .btn:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+  .btn:disabled { opacity: 0.38; cursor: not-allowed; }
+  .btn:disabled::after { opacity: 0; }
+</style>
