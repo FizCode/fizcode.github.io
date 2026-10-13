@@ -1,0 +1,61 @@
+---
+import { SEEDS } from '@/lib/theme';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import IconButton from '@/components/ui/IconButton.astro';
+import SeedSwatch from '@/components/ui/SeedSwatch.astro';
+import { site } from '@/data/site';
+---
+
+<header class="header">
+  <div class="bar">
+    <a href="/" class="type-title-md logo">{site.name}</a>
+    <div class="controls">
+      <div role="group" aria-label="Theme color" class="seeds">
+        {SEEDS.map(({ seed, lobes }, i) => <SeedSwatch seed={seed} lobes={lobes} pressed={i === 0} />)}
+      </div>
+      <span class="divider" aria-hidden="true"></span>
+      <IconButton label="Toggle dark mode" pressed={false} data-dark-toggle>
+        <Icon name="moon" size="sm" />
+      </IconButton>
+    </div>
+    <Button href="#contact" size="md" class="hire">Hire me</Button>
+  </div>
+</header>
+
+<script>
+  import '@/scripts/theme-controls';
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: var(--space-16);
+    z-index: 5;
+    max-width: var(--container-max);
+    margin: var(--space-16) auto 0;
+    padding: 0 var(--space-16);
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-12);
+    padding: 10px 10px 10px 22px;
+    border-radius: var(--shape-full);
+    background: var(--glass-fill);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--elevation-glass);
+    backdrop-filter: blur(var(--blur-lg)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(var(--glass-saturate));
+  }
+  .logo { color: inherit; text-decoration: none; }
+  .controls { display: flex; align-items: center; gap: 10px; }
+  .seeds { display: flex; align-items: center; gap: 6px; }
+  .divider { width: 1px; height: 24px; background: var(--color-outline-variant); }
+
+  @media (max-width: 640px) {
+    :global(.hire) { display: none; }
+  }
+</style>

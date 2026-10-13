@@ -1,0 +1,36 @@
+---
+import { icons, type IconName } from '@/data/icons';
+
+interface Props {
+  name: IconName;
+  size?: 'sm' | 'md' | 'lg';
+  bold?: boolean;
+  /** Accessible name; icons without one are hidden from screen readers */
+  label?: string;
+}
+
+const { name, size = 'md', bold = false, label } = Astro.props;
+---
+
+<svg
+  class="icon"
+  style={`--s: var(--icon-size-${size}); --w: var(${bold ? '--icon-stroke-bold' : '--icon-stroke'})`}
+  viewBox="0 0 24 24"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  set:html={icons[name]}
+/>
+
+<style>
+  .icon {
+    width: var(--s);
+    height: var(--s);
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--w);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>

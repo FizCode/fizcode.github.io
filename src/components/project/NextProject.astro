@@ -1,0 +1,27 @@
+---
+import type { IndexedProject } from '@/lib/projects';
+import NextProjectCard from '@/components/ui/NextProjectCard.astro';
+
+interface Props {
+  project: IndexedProject;
+}
+
+const { project } = Astro.props;
+---
+
+<section id="next" class="next reveal">
+  <h2 class="type-eyebrow muted">Next project</h2>
+  <NextProjectCard
+    href={`/projects/${project.id}/`}
+    index={project.index}
+    tags={project.data.tags}
+    title={project.data.title}
+  >
+    {project.data.summary}
+  </NextProjectCard>
+</section>
+
+<style>
+  .next { display: flex; flex-direction: column; gap: var(--space-20); scroll-margin-top: 112px; }
+  h2 { margin: 0; }
+</style>

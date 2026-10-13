@@ -1,22 +1,39 @@
 ---
-title: "Presensi App"
-description: "Biometric and location-based attendance system for STMIK Jayakarta students."
-pubDate: 2023-08-20
-tags: ["Kotlin", "Jetpack Compose", "Dagger/Hilt", "Room", "Retrofit", "Coroutines", "MVVM", "Biometric Authentication", "Location Tracking"]
-priority: 3
-heroImage: "/placeholder-hero.jpg"
+title: Presensi
+order: 4
+summary: Biometric and location-based attendance system for STMIK Jayakarta students.
+platform: Android
+year: 2023
+
+# homepage card
+tags: [Compose, Hilt, Biometric]
+icon: fingerprint
+iconTone: secondary
+
+stack: [Kotlin, Jetpack Compose, Dagger/Hilt, Room, Retrofit, Coroutines, MVVM, Biometric Authentication, Location]
+
+features:
+  - icon: map-pin
+    title: Geofencing
+    text: Attendance can only be clocked inside the campus radius.
+  - icon: fingerprint
+    title: Biometric login
+    text: Fingerprint or face unlock verifies the student's identity.
+  - icon: receipt
+    title: History log
+    text: Students can view their complete attendance history.
+
+highlights:
+  - title: Precise geofencing
+    text: Android's Location Services decide whether the device is on campus.
+  - title: BiometricPrompt API
+    text: Identity is verified with the system's own biometric prompt.
+  - title: Dagger/Hilt
+    text: Dependency injection keeps the codebase modular and testable.
+
+next: mediq
 ---
 
 ## Overview
 
-**Presensi App** is a secure attendance solution built for STMIK Jayakarta. It eliminates proxy attendance by enforcing two-factor verification: physical location (Geofencing) and biometric identity.
-
-## Key Features
-
-*   **Geofencing**: Attendance can only be clocked when the device is physically within the campus radius.
-*   **Biometric Login**: Uses fingerprint or face unlock to verify the student's identity.
-*   **History Log**: Students can view their complete attendance history.
-
-## Technical Highlights
-
-This app leverages Android's **Location Services** for precise geofencing. Security is handled via **BiometricPrompt API**. We used **Dagger/Hilt** for dependency injection to keep the codebase modular and testable.
+**Presensi** is a secure attendance solution built for STMIK Jayakarta. It ends proxy attendance with two checks: where the student is (geofencing) and who they are (biometrics).

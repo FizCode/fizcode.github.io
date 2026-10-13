@@ -1,0 +1,54 @@
+---
+interface Props {
+  highlights: { title: string; text: string }[];
+}
+
+const { highlights } = Astro.props;
+---
+
+<section id="highlights" class="highlights reveal">
+  <h2 class="type-title-lg">Technical highlights</h2>
+  <ol>
+    {
+      highlights.map((highlight, i) => (
+        <li>
+          <span class="num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="text">
+            <h3>{highlight.title}</h3>
+            <p class="type-body-sm">{highlight.text}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .highlights { display: flex; flex-direction: column; gap: var(--space-28); scroll-margin-top: 112px; }
+  h2 { margin: 0; }
+  ol { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: var(--space-20);
+    padding-block: var(--space-28);
+    border-top: 1px solid var(--color-outline-variant);
+  }
+  li:last-child { border-bottom: 1px solid var(--color-outline-variant); }
+  .num {
+    padding-top: var(--space-8);
+    font: var(--weight-regular) var(--type-eyebrow)/1.4 var(--font-mono);
+    color: var(--color-primary);
+  }
+  .text { display: flex; flex-direction: column; gap: 10px; }
+  h3 {
+    margin: 0;
+    font: var(--weight-extrabold) clamp(22px, 2.4vw, 28px)/1.15 var(--font-display);
+    letter-spacing: -0.015em;
+  }
+  p { margin: 0; max-width: 620px; line-height: 1.7; color: var(--color-on-surface-variant); }
+
+  @media (max-width: 640px) {
+    li { grid-template-columns: 1fr; gap: var(--space-8); }
+  }
+</style>

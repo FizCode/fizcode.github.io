@@ -1,0 +1,69 @@
+---
+import { Image } from 'astro:assets';
+import type { IndexedProject } from '@/lib/projects';
+import GlassChip from '@/components/ui/GlassChip.astro';
+import MorphingShape from '@/components/ui/MorphingShape.astro';
+
+interface Props {
+  project: IndexedProject;
+}
+
+const { screens, statChip } = Astro.props.project.data;
+
+// First screen is the hero (centre); the next ones flank it
+const [main, left, right] = screens;
+const phones = [left, main, right].filter((screen) => screen !== undefined);
+---
+
+<section class="container screens" aria-label="Screens">
+  <div class="panel reveal">
+    <MorphingShape size={560} />
+    {
+      phones.map((screen) => (
+        <div class:list={['phone', { side: screen !== main }]}>
+          <Image src={screen.src} alt={screen.alt} width={420} />
+        </div>
+      ))
+    }
+    {
+      statChip && (
+        <div class="stat">
+          <GlassChip floating status>{statChip}</GlassChip>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .screens { padding-bottom: var(--space-96); }
+  .panel {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-28);
+    padding: 64px 32px;
+    border-radius: var(--shape-5xl);
+    background: var(--color-surface-container);
+  }
+  .phone {
+    position: relative;
+    width: 210px;
+    overflow: hidden;
+    border-radius: 38px;
+    border: 8px solid var(--color-on-surface);
+    background: var(--color-surface);
+  }
+  .phone.side { width: 190px; border-radius: var(--shape-3xl); transform: translateY(28px); }
+  /* The screenshot sets the phone's height, so none of it (status bar to navigation bar) is cropped */
+  .phone :global(img) { width: 100%; height: auto; }
+  .stat { position: absolute; left: 6%; bottom: 40px; }
+
+  @media (max-width: 640px) {
+    .panel { padding: 24px 12px; gap: var(--space-12); border-radius: var(--shape-3xl); }
+    .phone { width: 160px; border-width: 6px; border-radius: 28px; }
+    .phone.side { display: none; }
+  }
+</style>

@@ -1,0 +1,45 @@
+---
+import { lobedPath, SHAPES } from '@/lib/shapes';
+
+interface Props {
+  /** Skip the small second shape (used on pages with less hero room) */
+  single?: boolean;
+}
+
+const { single = false } = Astro.props;
+---
+
+<div class="shape big" aria-hidden="true">
+  <svg class="spin" viewBox="0 0 100 100"><path d={lobedPath(SHAPES.cookie)} /></svg>
+</div>
+{
+  !single && (
+    <div class="shape small" aria-hidden="true">
+      <svg class="spin-back" viewBox="0 0 100 100"><path d={lobedPath(SHAPES.sunny)} /></svg>
+    </div>
+  )
+}
+
+<style>
+  .shape {
+    position: absolute;
+    pointer-events: none;
+  }
+  .shape svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .big { top: -140px; right: -160px; width: 720px; height: 720px; }
+  .big path { fill: var(--color-primary-container); }
+  .small { top: 440px; right: 380px; width: 200px; height: 200px; }
+  .small path { fill: var(--color-tertiary-container); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spin-back { to { transform: rotate(-360deg); } }
+  @media (prefers-reduced-motion: no-preference) {
+    .spin { animation: spin var(--duration-ambient) linear infinite; }
+    .spin-back { animation: spin-back var(--duration-ambient-alt) linear infinite; }
+  }
+
+  @media (max-width: 640px) {
+    .big { top: -60px; right: -200px; width: 420px; height: 420px; }
+    .small { display: none; }
+  }
+</style>

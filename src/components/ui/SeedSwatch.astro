@@ -1,0 +1,64 @@
+---
+import { lobedPath } from '@/lib/shapes';
+import type { Seed } from '@/lib/theme';
+
+interface Props {
+  seed: Seed;
+  lobes?: number;
+  pressed?: boolean;
+}
+
+const { seed, lobes = 8, pressed = false } = Astro.props;
+
+const shape = lobedPath([lobes, 0.07, 0], 40, 120);
+const label = `${seed[0].toUpperCase()}${seed.slice(1)} theme`;
+---
+
+<button
+  type="button"
+  class="swatch"
+  data-seed-pick={seed}
+  aria-label={label}
+  aria-pressed={String(pressed)}
+  style={`--seed: var(--seed-${seed})`}
+>
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <circle class="dot" cx="50" cy="50" r="40" />
+    <path class="shape" d={shape} />
+  </svg>
+</button>
+
+<style>
+  .swatch {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    border-radius: var(--shape-full);
+    background: transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  svg { width: 40px; height: 40px; overflow: visible; }
+  .dot,
+  .shape {
+    fill: var(--seed);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform var(--duration-swatch) var(--ease-spring),
+      opacity var(--duration-short);
+  }
+  .shape {
+    opacity: 0;
+    transform: scale(0.6) rotate(-45deg);
+    stroke: var(--color-on-surface);
+    stroke-width: 7;
+    stroke-linejoin: round;
+  }
+  .swatch[aria-pressed='true'] .dot { opacity: 0; transform: scale(0.6); }
+  .swatch[aria-pressed='true'] .shape { opacity: 1; transform: none; }
+  .swatch:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+</style>

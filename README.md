@@ -7,41 +7,42 @@ A high-performance, static portfolio website built for Android Developers. Desig
 
 ## 🚀 Features
 
-*   **Zero JavaScript Runtime**: Portfolio pages ship no JavaScript, for blazing fast load times with [Astro](https://astro.build).
-*   **Modern Dark UI**: A sleek, professional dark mode designed with Android green accents.
-*   **Responsive Layout**: Fully responsive design that looks great on Mobile, Tablet, and Desktop.
-*   **SEO Optimized**: Built-in meta tags and semantic HTML.
-*   **Project Pages from Markdown**: Each project is a Markdown file with its own detail page, powered by Astro content collections.
-*   **Presentations**: Talks built as web slides, e.g. [`/presentation/architecturing`](https://fizcode.dev/presentation/architecturing).
-*   **GitHub Pages Ready**: Includes a pre-configured GitHub Actions workflow for automatic deployment.
+*   **Minimal Expressive + Glass design**: big soft shapes, frosted-glass header and navigation, springy hover motion.
+*   **Five color themes, light and dark**: switched by two attributes on `<html>`; the choice is saved and applied before first paint.
+*   **One Markdown file per project**: structured parts live in frontmatter, the story in the body.
+*   **Static and fast**: built with [Astro](https://astro.build); the portfolio's only client scripts are theme switching, scroll tracking and one shape animation.
+*   **Presentations**: talks built as web slides, e.g. [`/presentation/architecturing`](https://fizcode.dev/presentation/architecturing).
+*   **GitHub Pages ready**: includes a GitHub Actions workflow for automatic deployment.
 
 ## 🛠️ Tech Stack
 
-*   **Framework**: [Astro 7](https://astro.build)
-*   **Content**: Astro content collections (Markdown)
-*   **Styling**: Vanilla CSS (Variables, Flexbox, Grid)
-*   **Fonts**: Inter & Outfit (via Google Fonts)
+*   **Framework**: [Astro 7](https://astro.build) with a content collection
+*   **Styling**: Vanilla CSS driven by design tokens (`src/styles/tokens.css`)
+*   **Fonts**: Plus Jakarta Sans, Roboto Flex & JetBrains Mono (via Google Fonts)
 *   **Deployment**: GitHub Pages (via GitHub Actions)
 
 ## 📂 Project Structure
 
 ```text
 /
-├── public/                   # Static assets (favicon, CNAME)
+├── public/                    # Static assets (favicon, CNAME)
 ├── src/
-│   ├── components/           # Reusable UI components (Header, Footer, ProjectCard)
-│   │   └── presentation/     # Slide components, each talk's slides and content, password protection
-│   ├── content/
-│   │   └── projects/         # One Markdown file per project
-│   ├── layouts/              # Page layouts (Layout.astro, PresentationLayout.astro)
-│   ├── pages/
-│   │   ├── index.astro       # Home page
-│   │   ├── projects/         # Project detail pages ([...slug].astro)
-│   │   └── presentation/     # Presentations (architecturing.astro)
-│   ├── styles/               # Global CSS variables and resets, presentation styles
-│   └── content.config.ts     # Content collection schema
-├── astro.config.mjs          # Astro configuration
-└── package.json              # Project dependencies
+│   ├── components/
+│   │   ├── ui/                # Small reusable pieces (Button, Icon, ProjectCard, …)
+│   │   ├── layout/            # Header, bottom navigation, ambient shapes, contact
+│   │   ├── home/              # Sections of the homepage
+│   │   ├── project/           # Sections of a project page
+│   │   └── presentation/      # Slide components and each talk's slides and content
+│   ├── content/projects/      # One Markdown file per project
+│   ├── content.config.ts      # Schema of the projects collection
+│   ├── data/                  # Site info and the icon set
+│   ├── layouts/               # Layout.astro, PresentationLayout.astro
+│   ├── lib/                   # Project queries, theme and shape helpers
+│   ├── pages/                 # index.astro, projects/[slug].astro, presentation/
+│   ├── scripts/               # Client scripts (theme, scroll spy, shape morph)
+│   └── styles/                # tokens.css, base.css, prose.css, presentation styles
+├── astro.config.mjs
+└── package.json
 ```
 
 ## 🧞 Commands
@@ -83,36 +84,36 @@ This project comes configured for **GitHub Pages**.
 
 ## 🎨 Customization
 
-### Changing content
-Edit `src/pages/index.astro` to update your bio, experience, and skills.
+### Adding a project
+Create `src/content/projects/<slug>.md`. The frontmatter is checked at build time (see `src/content.config.ts`), so a missing field or an unknown icon name fails the build.
 
-### Adding Projects
-Add a Markdown file to `src/content/projects/`. It appears on the home page and gets its own page at `/projects/<file-name>`:
-
-```markdown
+```md
 ---
-title: "My Awesome App"
-description: "What it does..."
-pubDate: 2024-01-01
-tags: ["Kotlin", "Compose"]
-priority: 5 # Higher number = shown first
+title: My App
+order: 7                 # position on the homepage; the 01, 02, … numbers follow it
+summary: One or two sentences.
+tags: [Compose, MVVM]    # tech line on the homepage card
+icon: grid               # any name in src/data/icons.ts
+stack: [Kotlin, Jetpack Compose]
+features:
+  - { icon: gauge, title: Dashboard, text: What it does. }
+highlights:
+  - { title: Clean Architecture, text: Why it matters. }
+next: cashier            # optional: slug of another project
 ---
 
 ## Overview
 
-Details about the project...
+The story. Each `##` heading appears in "On this page".
 ```
 
-Optional fields: `link` and `heroImage`. The full schema is in `src/content.config.ts`.
+Optional fields: `featured`, `badge`, `statChip`, `role`, `year`, `team`, `emphasis` (the bold end of the title) and `screens` (up to three images, placed next to the file).
 
-### Changing Colors
-Open `src/styles/global.css` and modify the `:root` variables:
+### Changing colors and type
+Edit `src/styles/tokens.css`. Every component reads from these variables.
 
-```css
-:root {
-  --color-primary: #3ddc84; /* Change this to your brand color */
-}
-```
+### Changing text and links
+Name, email, social links and skills are in `src/data/site.ts`. The hero and about copy are in `src/components/home/`.
 
 ## 📄 License
 

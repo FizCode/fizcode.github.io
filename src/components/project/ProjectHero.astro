@@ -1,0 +1,64 @@
+---
+import type { IndexedProject } from '@/lib/projects';
+import Button from '@/components/ui/Button.astro';
+import MetaTile from '@/components/ui/MetaTile.astro';
+import StackList from '@/components/ui/StackList.astro';
+
+interface Props {
+  project: IndexedProject;
+}
+
+const { project } = Astro.props;
+const { title, emphasis, summary, platform, stack, role, year, team } = project.data;
+
+// The emphasised part of the title is set bold, the rest light
+const [lead, strong] = emphasis && title.endsWith(emphasis) ? [title.slice(0, -emphasis.length), emphasis] : ['', title];
+
+const meta = [
+  { label: 'Role', value: role },
+  { label: 'Year', value: year },
+  { label: 'Platform', value: platform },
+  { label: 'Team', value: team },
+].filter((tile): tile is { label: string; value: string } => Boolean(tile.value));
+---
+
+<section id="top" class="container hero">
+  <Button href="/#work" size="md" variant="tonal" icon="arrow-left" class="back">All projects</Button>
+
+  <div class="heading">
+    <p class="type-eyebrow muted">{project.index} · Case study · {platform}</p>
+    <h1 class="type-display-lg title">{lead}<strong>{strong}</strong></h1>
+    <p class="type-body-lg muted summary">{summary}</p>
+  </div>
+
+  <StackList items={stack} />
+
+  {
+    meta.length > 0 && (
+      <dl class="meta">
+        {meta.map((tile) => <MetaTile label={tile.label} value={tile.value} />)}
+      </dl>
+    )
+  }
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-block: 64px 56px;
+  }
+  .hero :global(.back) { align-self: flex-start; }
+  .heading { display: flex; flex-direction: column; gap: var(--space-20); }
+  p, h1 { margin: 0; }
+  .title { font-size: clamp(52px, 8.4vw, 120px); line-height: 0.94; letter-spacing: -0.045em; }
+  .summary { max-width: 600px; }
+  .meta {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-12);
+  }
+</style>

@@ -1,22 +1,38 @@
 ---
-title: "MediQ App"
-description: "Hospital queue management system to reduce patient wait times."
-pubDate: 2023-05-10
-tags: ["Kotlin", "Jetpack Compose", "Dagger/Hilt", "Room", "Retrofit", "Coroutines", "Material 3", "MVVM"]
-priority: 2
-heroImage: "/placeholder-hero.jpg"
+title: MediQ
+order: 5
+summary: Hospital queue management system that reduces patient wait times.
+platform: Android
+role: Design & development
+year: 2023
+
+# homepage card
+tags: [Compose, Hilt, Material 3]
+icon: medical
+iconTone: tertiary
+
+stack: [Kotlin, Jetpack Compose, Dagger/Hilt, Room, Retrofit, Coroutines, Material 3, MVVM]
+
+features:
+  - icon: user
+    title: Remote queuing
+    text: Get a queue number without being at the hospital.
+  - icon: gauge
+    title: Real-time updates
+    text: Live notification of the current queue status.
+  - icon: medical
+    title: Doctor schedule
+    text: See which doctors are available and when.
+
+highlights:
+  - title: Material 3
+    text: Built on the latest Material 3 guidelines for a modern interface.
+  - title: Live queue status
+    text: Retrofit keeps the queue in sync with the backend, using polling or web sockets (simulated).
+
+next: secondhand
 ---
 
 ## Overview
 
-**MediQ** was developed to streamline the chaotic process of hospital queuing. It allows patients to book queue numbers from home and track the current serving number in real-time, significantly expanding the "waiting room" to anywhere the patient is.
-
-## Key Features
-
-*   **Remote Queuing**: Get a queue number without physically being at the hospital.
-*   **Real-time Updates**: Live notification of the current queue status.
-*   **Doctor Schedule**: View available doctors and their schedules.
-
-## Technical Highlights
-
-Built with the latest **Material 3** design guidelines for a beautiful, modern UI. The app communicates with a backend via **Retrofit** to sync queue status instantly using polling or web sockets (simulated).
+**MediQ** streamlines the chaotic process of hospital queuing. Patients book a queue number from home and follow the number being served in real time, so the waiting room can be anywhere.

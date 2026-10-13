@@ -1,0 +1,43 @@
+---
+import type { IconName } from '@/data/icons';
+import IconChip from './IconChip.astro';
+
+interface Props {
+  icon: IconName;
+  title: string;
+  /** The first card of a grid is filled; the rest are outlined */
+  filled?: boolean;
+  tone?: 'primary' | 'secondary' | 'tertiary';
+}
+
+const { icon, title, filled = false, tone = 'primary' } = Astro.props;
+---
+
+<div class:list={['feature', filled ? 'filled' : 'outlined']}>
+  <IconChip icon={icon} tone={filled ? 'surface' : tone} />
+  <h3>{title}</h3>
+  <p class="type-body-sm"><slot /></p>
+</div>
+
+<style>
+  .feature {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding: 32px;
+    border-radius: var(--shape-4xl);
+  }
+  .filled { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+  .outlined { background: var(--color-surface); border: 1px solid var(--color-outline-variant); }
+  h3 {
+    margin: 0;
+    font: var(--weight-extrabold) 24px/1.2 var(--font-display);
+    letter-spacing: -0.015em;
+  }
+  p { margin: 0; color: var(--color-on-surface-variant); }
+  .filled p { color: inherit; opacity: 0.85; }
+
+  @media (max-width: 640px) {
+    .feature { padding: var(--space-24); border-radius: var(--shape-2xl); }
+  }
+</style>

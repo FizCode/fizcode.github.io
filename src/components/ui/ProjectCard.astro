@@ -1,0 +1,70 @@
+---
+import type { IconName } from '@/data/icons';
+import ArrowButton from './ArrowButton.astro';
+import IconChip from './IconChip.astro';
+import TechTag from './TechTag.astro';
+
+interface Props {
+  href: string;
+  index: string;
+  tags: readonly string[];
+  title: string;
+  icon: IconName;
+  iconTone?: 'primary' | 'secondary' | 'tertiary';
+  cta?: string;
+  variant?: 'outlined' | 'filled';
+}
+
+const { href, index, tags, title, icon, iconTone = 'primary', cta = 'View project', variant = 'outlined' } = Astro.props;
+const filled = variant === 'filled';
+---
+
+<a href={href} class:list={['card', variant]}>
+  <div class="top">
+    <TechTag index={index} items={tags} tone={filled ? 'inherit' : 'primary'} />
+    <IconChip icon={icon} tone={filled ? 'surface' : iconTone} />
+  </div>
+  <h3 class="type-headline-md">{title}</h3>
+  <p class="type-body-sm desc"><slot /></p>
+  <div class="bottom">
+    <span class="type-label-md cta">{cta}</span>
+    <ArrowButton tone={filled ? 'primary' : 'secondary'} />
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 340px;
+    padding: var(--space-36);
+    border-radius: var(--shape-4xl);
+    text-decoration: none;
+    color: var(--color-on-surface);
+    transition:
+      border-radius var(--duration-long) var(--ease-spring),
+      transform var(--duration-long) var(--ease-spring);
+  }
+  .card:hover { border-radius: var(--shape-xl); transform: var(--lift-hover); }
+  .card:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; }
+
+  .outlined { background: var(--color-surface); border: 1px solid var(--color-outline-variant); }
+  .filled { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+
+  .top,
+  .bottom { display: flex; justify-content: space-between; gap: var(--space-16); }
+  .top { align-items: flex-start; }
+  .bottom { margin-top: auto; align-items: center; }
+  h3 { margin: 0; }
+  .desc { margin: 0; max-width: 440px; color: var(--color-on-surface-variant); }
+  .filled .desc { color: inherit; opacity: 0.85; }
+  .outlined .cta { color: var(--color-primary); }
+
+  @media (max-width: 640px) {
+    .card { padding: var(--space-24); border-radius: var(--shape-2xl); min-height: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card { transition: none; }
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+interface Props {
+  title: string;
+  meta?: string;
+}
+
+const { title, meta } = Astro.props;
+---
+
+<div class="section-header">
+  <h2 class="type-title-lg">{title}</h2>
+  {meta && <span class="meta">{meta}</span>}
+</div>
+
+<style>
+  .section-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-16);
+  }
+  h2 { margin: 0; }
+  .meta {
+    font: var(--weight-regular) var(--type-eyebrow)/1.4 var(--font-mono);
+    color: var(--color-on-surface-variant);
+  }
+</style>

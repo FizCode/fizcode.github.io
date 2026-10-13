@@ -1,0 +1,30 @@
+---
+interface Props {
+  items: readonly string[];
+  label?: string;
+}
+
+const { items, label = 'Tech stack' } = Astro.props;
+---
+
+<ul class="stack" aria-label={label}>
+  {items.map((item) => <li class="type-tag pill">{item}</li>)}
+</ul>
+
+<style>
+  .stack {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+  }
+  .pill {
+    padding: 9px 14px;
+    border-radius: var(--shape-full);
+    border: 1px solid var(--color-outline-variant);
+    background: var(--glass-fill);
+    letter-spacing: 0.04em;
+  }
+</style>

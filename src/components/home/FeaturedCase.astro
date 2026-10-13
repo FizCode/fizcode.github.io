@@ -1,0 +1,86 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Badge from '@/components/ui/Badge.astro';
+import GlassChip from '@/components/ui/GlassChip.astro';
+import MorphingShape from '@/components/ui/MorphingShape.astro';
+import TechTag from '@/components/ui/TechTag.astro';
+
+interface Props {
+  href: string;
+  badge?: string;
+  index: string;
+  tags: readonly string[];
+  title: string;
+  chip?: string;
+  screen?: { src: ImageMetadata; alt: string };
+}
+
+const { href, badge, index, tags, title, chip, screen } = Astro.props;
+---
+
+<a href={href} class="featured">
+  <div class="text">
+    <div class="meta">
+      {badge && <Badge>{badge}</Badge>}
+      <TechTag index={index} items={tags} />
+    </div>
+    <h3 class="type-headline-lg">{title}</h3>
+    <p class="type-body-md desc"><slot /></p>
+    <span class="type-label-md cta">Read the case study →</span>
+  </div>
+  <div class="visual">
+    <MorphingShape size={380} />
+    <div class="phone">
+      {screen && <Image src={screen.src} alt={screen.alt} width={380} />}
+    </div>
+    {chip && <div class="chip"><GlassChip floating>{chip}</GlassChip></div>}
+  </div>
+</a>
+
+<style>
+  .featured {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-40);
+    align-items: center;
+    padding: var(--space-40);
+    border-radius: var(--shape-5xl);
+    background: var(--color-surface-container);
+    color: var(--color-on-surface);
+    text-decoration: none;
+  }
+  .featured:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; }
+  .text { flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: var(--space-16); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  h3, p { margin: 0; }
+  .desc { max-width: 460px; color: var(--color-on-surface-variant); }
+  .cta { color: var(--color-primary); }
+
+  .visual {
+    flex: 1 1 420px;
+    min-width: 0;
+    height: 420px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .phone {
+    position: relative;
+    width: 180px;
+    min-height: 380px; /* keeps the frame's size when there is no screenshot yet */
+    overflow: hidden;
+    border-radius: 34px;
+    border: 8px solid var(--color-on-surface);
+    background: var(--color-surface);
+  }
+  /* The screenshot sets the phone's height, so none of it (status bar to navigation bar) is cropped */
+  .phone :global(img) { width: 100%; height: auto; }
+  .chip { position: absolute; left: 12%; bottom: 44px; }
+
+  @media (max-width: 640px) {
+    .featured { padding: var(--space-24); gap: var(--space-24); border-radius: var(--shape-3xl); }
+    .visual { height: 420px; }
+  }
+</style>

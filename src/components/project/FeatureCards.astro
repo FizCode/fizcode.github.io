@@ -1,0 +1,30 @@
+---
+import type { IconName } from '@/data/icons';
+import FeatureCard from '@/components/ui/FeatureCard.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+
+interface Props {
+  features: { icon: IconName; title: string; text: string }[];
+}
+
+const { features } = Astro.props;
+const tones = ['primary', 'tertiary', 'secondary'] as const;
+---
+
+<section id="features" class="features reveal">
+  <SectionHeader title="Key features" meta={`${String(features.length).padStart(2, '0')} features`} />
+  <div class="grid">
+    {
+      features.map((feature, i) => (
+        <FeatureCard icon={feature.icon} title={feature.title} filled={i === 0} tone={tones[(i - 1) % tones.length]}>
+          {feature.text}
+        </FeatureCard>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .features { display: flex; flex-direction: column; gap: var(--space-28); scroll-margin-top: 112px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-20); }
+</style>

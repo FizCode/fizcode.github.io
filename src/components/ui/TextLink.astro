@@ -1,0 +1,23 @@
+---
+interface Props {
+  href: string;
+}
+
+const { href } = Astro.props;
+const external = href.startsWith('http');
+---
+
+<a href={href} class="link" target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
+  <slot />
+</a>
+
+<style>
+  .link {
+    font: var(--weight-semibold) var(--type-label-md)/1.4 var(--font-body);
+    color: var(--color-on-surface-variant);
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+  .link:hover { color: var(--color-on-surface); text-decoration: underline; }
+  .link:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; border-radius: 4px; }
+</style>

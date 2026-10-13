@@ -1,0 +1,46 @@
+---
+import type { IconName } from '@/data/icons';
+import Icon from './Icon.astro';
+
+interface Props {
+  href: string;
+  icon: IconName;
+  label: string;
+  active?: boolean;
+}
+
+const { href, icon, label, active = false } = Astro.props;
+---
+
+<a href={href} class="nav-item" aria-label={label} aria-current={active ? 'true' : undefined} data-nav-item>
+  <Icon name={icon} size="sm" />
+  <span>{label}</span>
+</a>
+
+<style>
+  .nav-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+    height: var(--touch-target);
+    min-width: var(--touch-target);
+    padding: 0 12px;
+    border-radius: var(--shape-full);
+    text-decoration: none;
+    font: var(--weight-bold) var(--type-label-sm)/1 var(--font-body);
+    color: var(--color-on-surface);
+    background: transparent;
+    transition: all var(--duration-medium) var(--ease-spring);
+  }
+  .nav-item span { display: none; }
+
+  .nav-item[aria-current='true'] {
+    padding: 0 18px;
+    background: var(--color-secondary-container);
+    color: var(--color-on-secondary-container);
+  }
+  .nav-item[aria-current='true'] span { display: inline; }
+
+  .nav-item:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+</style>

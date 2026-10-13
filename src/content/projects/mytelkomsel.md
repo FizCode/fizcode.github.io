@@ -1,23 +1,45 @@
 ---
-title: "MyTelkomsel App"
-description: "Official mobile app for Indonesia's largest telecom operator, featuring account management and video streaming."
-pubDate: 2023-11-15
-tags: ["Kotlin", "Jetpack Compose", "Room", "Koin", "MVVM", "Retrofit", "Coroutines", "ExoPlayer", "Location Tracking", "Push Notification", "Firebase"]
-priority: 4
-heroImage: "/placeholder-hero.jpg"
+title: MyTelkomsel
+emphasis: Telkomsel
+order: 3
+summary: The official app of Indonesia's largest telecom operator. Account management and video streaming in one place.
+role: Development
+platform: Android
+year: 2023 - 2024
+
+# homepage card
+tags: [Compose, ExoPlayer, MVVM]
+icon: play
+iconTone: tertiary
+
+stack: [Kotlin, Jetpack Compose, MVVM, Koin, Room, Retrofit, Coroutines, ExoPlayer, Firebase, Location, Push notifications]
+statChip: Used by millions of customers
+
+features:
+  - icon: gauge
+    title: Account dashboard
+    text: Balance, data quota and validity periods, updated in real time.
+  - icon: cart
+    title: Package purchases
+    text: Buy data, voice and SMS packages without leaving the app.
+  - icon: play
+    title: Video streaming
+    text: Live TV and movies, played through ExoPlayer.
+  - icon: map-pin
+    title: GraPARI finder
+    text: Location services that point to the nearest GraPARI service center.
+
+highlights:
+  - title: Clean Architecture with MVVM
+    text: Layers kept separate, so features can be changed and tested on their own.
+  - title: Adaptive streaming on ExoPlayer
+    text: A customized player that adjusts quality to the connection, for live TV and movies.
+  - title: Firebase for push and analytics
+    text: Push notifications and usage analytics handled through Firebase.
+
+next: presensi
 ---
 
 ## Overview
 
-A comprehensive self-service hub for **Telkomsel**, Indonesia's largest telecommunications provider. This app allows millions of users to manage their accounts, buy packages, and access entertainment services.
-
-## Key Features
-
-*   **Account Dashboard**: Real-time checking of credit balance, data quotas, and validity periods.
-*   **Package Purchase**: Browse and buy data, voice, and SMS packages.
-*   **Video Streaming**: Integrated **ExoPlayer** for streaming live TV and movies directly within the app.
-*   **Location Services**: Find nearest GraPARI centers.
-
-## Technical Highlights
-
-The app handles massive scale and requires high reliability. We used **Clean Architecture (MVVM)** to separate concerns. **ExoPlayer** integration was customized for adaptive streaming. **Firebase** is used heavily for push notifications and analytics.
+A self-service hub for Telkomsel, used by **millions of customers** to manage their accounts, buy packages and watch entertainment.
