@@ -12,6 +12,8 @@ interface Props {
 
 const { title, description = site.description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Plus+Jakarta+Sans:wght@300..800&family=Roboto+Flex:wght@400..700&display=swap';
 ---
 
 <!doctype html>
@@ -29,12 +31,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
 
+    <!--
+      Fonts load without blocking the first paint (text shows in a fallback font, then swaps).
+      Only the weights the site uses are requested: Roboto Flex's width and optical-size axes alone
+      cost about 150 KB and nothing uses them.
+    -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,300..1000&family=Plus+Jakarta+Sans:wght@200..800&family=JetBrains+Mono:wght@400;500&display=swap"
-    />
+    <link rel="preload" as="style" href={fontsHref} onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href={fontsHref} /></noscript>
 
     <!-- Applies the saved (or system) theme before first paint, so the page never flashes the wrong colors -->
     <script is:inline define:vars={{ storageKey: THEME_STORAGE_KEY }}>
