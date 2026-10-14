@@ -1,32 +1,23 @@
 ---
-import { navItems, type DockAction, type NavId } from '@/data/site';
+import { navItems, type DockAction } from '@/data/site';
 import Icon from '@/components/ui/Icon.astro';
 import NavItem from '@/components/ui/NavItem.astro';
 
 interface Props {
-  current: NavId;
-  /** Follow the reader through the page's sections instead of staying on `current` */
-  scrollSpy?: boolean;
-  /** Where the round button leads; without one the button shrinks away */
-  action?: DockAction;
+  /** The round button: where it leads, and its accessible name */
+  action: DockAction;
 }
 
-const { current, scrollSpy = false, action } = Astro.props;
+const { action } = Astro.props;
 ---
 
 <div class="dock" data-dock>
-  <nav aria-label="Quick navigation" class="bar" data-scroll-spy={scrollSpy ? '' : undefined}>
-    {navItems.map((item) => (
-      <NavItem href={`/#${item.target}`} icon={item.icon} label={item.label} active={item.id === current} />
+  <nav aria-label="Quick navigation" class="bar" data-scroll-spy>
+    {navItems.map((item, i) => (
+      <NavItem href={`#${item.target}`} icon={item.icon} label={item.label} active={i === 0} />
     ))}
   </nav>
-  <a
-    href={action?.href}
-    class:list={['fab', { gone: !action }]}
-    aria-label={action?.label}
-    aria-hidden={action ? undefined : 'true'}
-    tabindex={action ? undefined : -1}
-  >
+  <a href={action.href} class="fab" aria-label={action.label}>
     <Icon name="arrow-right" size="lg" bold />
   </a>
 </div>
@@ -62,9 +53,9 @@ const { current, scrollSpy = false, action } = Astro.props;
     pointer-events: none;
     transform-origin: 50% 100%;
   }
+  .dock[data-compact] { transform: scale(var(--dock-scale-compact)); }
   @media (prefers-reduced-motion: no-preference) {
     .dock { transition: transform var(--duration-medium) var(--ease-spring); }
-    .dock[data-compact] { transform: scale(0.9); }
   }
   .bar,
   .fab { pointer-events: auto; }
@@ -91,27 +82,20 @@ const { current, scrollSpy = false, action } = Astro.props;
     box-shadow: var(--elevation-glass);
     margin-left: var(--space-12);
   }
-  .fab:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
-
-  /* No next project: the button shrinks away and the navigation slides back to the middle */
-  @keyframes shrink-away {
-    to {
-      width: 0;
-      margin-left: 0;
-      opacity: 0;
-      transform: scale(0);
-    }
-  }
-  .gone {
-    pointer-events: none;
-    visibility: hidden;
-  }
+  /* Same morph as the arrow on the project cards */
   @media (prefers-reduced-motion: no-preference) {
-    .gone {
-      visibility: visible;
-      animation: shrink-away var(--duration-long) var(--ease-spring) 400ms forwards;
+    .fab {
+      transition:
+        border-radius var(--duration-long) var(--ease-spring),
+        transform var(--duration-long) var(--ease-spring);
     }
   }
+  .fab:hover,
+  .fab:focus-visible {
+    border-radius: var(--fab-radius-hover);
+    transform: rotate(-45deg);
+  }
+  .fab:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
 
   @media (max-width: 640px) {
     .dock { padding: 0 var(--space-8) var(--space-16); }

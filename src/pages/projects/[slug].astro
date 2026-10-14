@@ -1,10 +1,12 @@
 ---
 import { render } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
-import { getFollowingProject, getProjects, type IndexedProject } from '@/lib/projects';
+import { getProjects, type IndexedProject } from '@/lib/projects';
+import { projectSchema } from '@/lib/seo';
 import '@/styles/prose.css';
 import AmbientShapes from '@/components/layout/AmbientShapes.astro';
 import ContactSection from '@/components/layout/ContactSection.astro';
+import ProjectDock from '@/components/layout/ProjectDock.astro';
 import FeatureCards from '@/components/project/FeatureCards.astro';
 import HighlightList from '@/components/project/HighlightList.astro';
 import NextProject from '@/components/project/NextProject.astro';
@@ -23,10 +25,8 @@ interface Props {
 }
 
 const { project, projects } = Astro.props;
-const { title, summary, screens, features, highlights, next } = project.data;
+const { title, summary, description, screens, features, highlights, next } = project.data;
 const { Content, headings } = await render(project);
-const following = getFollowingProject(projects, project);
-const action = following && { href: `/projects/${following.id}/`, label: `Next project: ${following.data.title}` };
 const nextProject = next ? projects.find((p) => p.id === next.id) : undefined;
 
 // "On this page": the body's ## headings, then the fixed sections that exist
@@ -38,7 +38,11 @@ const toc: TocEntry[] = [
 ];
 ---
 
-<Layout title={`${title} — fizcode`} description={summary} current="work" action={action}>
+<Layout
+  title={`${title} — Android case study | fizcode`}
+  description={description ?? summary}
+  jsonLd={projectSchema(project)}
+>
   <AmbientShapes single />
   <ProjectHero project={project} />
   {screens.length > 0 && <ProjectScreens project={project} />}
@@ -54,6 +58,11 @@ const toc: TocEntry[] = [
   </div>
 
   <ContactSection tight />
+  <ProjectDock
+    slot="dock"
+    title={title}
+    next={nextProject && { href: `/projects/${nextProject.id}/`, title: nextProject.data.title }}
+  />
 </Layout>
 
 <style>

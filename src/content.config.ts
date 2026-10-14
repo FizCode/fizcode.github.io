@@ -13,6 +13,8 @@ const projects = defineCollection({
       /** Position on the homepage; also numbers the projects */
       order: z.number(),
       summary: z.string(),
+      /** Shown in search results; defaults to `summary`. Keep it under 160 characters. */
+      description: z.string().max(160).optional(),
       platform: z.string().default('Android'),
       role: z.string().optional(),
       // YAML reads `year: 2022` as a number, so accept numbers too

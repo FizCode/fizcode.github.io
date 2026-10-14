@@ -11,7 +11,7 @@ const [first] = SEEDS;
 const currentShape = lobedPath([first.lobes, 0.07, 0], 40, 120);
 ---
 
-<header class="header">
+<header class="header" data-header>
   <div class="bar">
     <a href="/" class="type-title-md logo">{site.name}</a>
     <div class="controls">
@@ -42,6 +42,10 @@ const currentShape = lobedPath([first.lobes, 0.07, 0], 40, 120);
 
 <script>
   import '@/scripts/theme-controls';
+  import { watchHeader } from '@/scripts/header-hide';
+
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  if (header) watchHeader(header);
 </script>
 
 <style>
@@ -52,6 +56,16 @@ const currentShape = lobedPath([first.lobes, 0.07, 0], 40, 120);
     max-width: var(--container-max);
     margin: var(--space-16) auto 0;
     padding: 0 var(--space-16);
+  }
+  /* Slides up out of sight and shrinks a little; focusing anything inside brings it back */
+  .header {
+    transform-origin: 50% 0;
+  }
+  .header[data-hidden]:not(:focus-within) {
+    transform: translateY(calc(-100% - 64px)) scale(var(--header-hide-scale));
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .header { transition: transform var(--duration-header) var(--ease-emphasized); }
   }
   .bar {
     display: flex;
@@ -99,7 +113,7 @@ const currentShape = lobedPath([first.lobes, 0.07, 0], 40, 120);
     }
     .seed-toggle svg { width: 40px; height: 40px; overflow: visible; }
     .seed-toggle path {
-      fill: var(--color-primary);
+      fill: var(--seed-current);
       stroke: var(--color-on-surface);
       stroke-width: 7;
       stroke-linejoin: round;

@@ -1,5 +1,7 @@
 export const site = {
   name: 'fizcode',
+  author: 'Fiz',
+  jobTitle: 'Android Developer',
   url: 'https://fizcode.dev',
   email: 'fizcode.dev@gmail.com',
   description: 'Android developer and former UI/UX designer building apps with Kotlin and Jetpack Compose.',

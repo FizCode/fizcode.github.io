@@ -1,15 +1,21 @@
 ---
-import { site } from '@/data/site';
+import { site } from "@/data/site";
 ---
 
 <section id="about" class="container about reveal">
   <h2 class="type-title-lg">About</h2>
   <div class="body">
     <p class="type-headline-sm">
-      I started in UI/UX, handing off designs. Now I’m the developer who builds them, and the one who catches the{' '}
-      <strong>3dp misalignment</strong> in code review.
+      I came to Android through design, and it shows. I turn an idea into an app
+      that <strong>looks right, feels right and holds up</strong>, from the
+      first sketch to launch day.
     </p>
-    <p class="type-body-sm skills muted">{site.skills.join(' · ')}</p>
+    <p class="type-body-md proof muted">
+      I’ve built apps used by <strong>millions of people</strong> at MyTelkomsel and
+      Qita. I’m the developer who catches the <strong>2dp misalignment</strong> in
+      code review, and who explains the trade-offs to you in plain words.
+    </p>
+    <p class="type-body-sm skills muted">{site.skills.join(" · ")}</p>
   </div>
 </section>
 
@@ -20,8 +26,29 @@ import { site } from '@/data/site';
     gap: var(--space-48);
     padding-block: 80px;
   }
-  h2, p { margin: 0; }
-  h2 { flex: 1 1 240px; }
-  .body { flex: 3 1 520px; min-width: 0; display: flex; flex-direction: column; gap: var(--space-28); }
-  .skills { line-height: 1.7; }
+  h2,
+  p {
+    margin: 0;
+  }
+  h2 {
+    flex: 1 1 240px;
+  }
+  .body {
+    flex: 3 1 520px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-28);
+  }
+  .proof {
+    max-width: 680px;
+    line-height: 1.7;
+  }
+  .proof strong {
+    color: var(--color-on-surface);
+    font-weight: var(--weight-bold);
+  }
+  .skills {
+    line-height: 1.7;
+  }
 </style>

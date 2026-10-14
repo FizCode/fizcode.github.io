@@ -1,0 +1,191 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+
+interface Props {
+  title: string;
+  /** The project after this one; leave out on the last project and the "Next" line and button go away */
+  next?: { href: string; title: string };
+}
+
+const { title, next } = Astro.props;
+---
+
+<div class="dock" data-dock>
+  <nav aria-label="Project navigation" class="bar">
+    <a href="/" class="home" aria-label="Home"><Icon name="home" size="sm" /></a>
+    <span class="divider" aria-hidden="true"></span>
+    <a href="#top" class="info" data-dock-info aria-label={`${title}, 0% read. Back to top`}>
+      <span class="title">{title}</span>
+      {next && <span class="next">Next · {next.title}</span>}
+      <span class="track" aria-hidden="true"><span class="fill" data-progress></span></span>
+    </a>
+  </nav>
+  <a
+    href={next?.href}
+    class:list={['fab', { gone: !next }]}
+    aria-label={next ? `Next project: ${next.title} case study` : undefined}
+    aria-hidden={next ? undefined : 'true'}
+    tabindex={next ? undefined : -1}
+  >
+    <Icon name="arrow-right" size="lg" bold />
+  </a>
+</div>
+
+<script>
+  import { watchDock } from '@/scripts/dock-compact';
+  import { watchReadProgress } from '@/scripts/read-progress';
+
+  const dock = document.querySelector<HTMLElement>('[data-dock]');
+  if (dock) watchDock(dock);
+
+  const info = document.querySelector<HTMLAnchorElement>('[data-dock-info]');
+  const fill = document.querySelector<HTMLElement>('[data-progress]');
+  if (info && fill) watchReadProgress(info, fill);
+</script>
+
+<style>
+  .dock {
+    position: sticky;
+    bottom: var(--space-24);
+    z-index: 6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 var(--space-16) var(--space-24);
+    pointer-events: none;
+    transform-origin: 50% 100%;
+  }
+  .dock[data-compact] { transform: scale(var(--dock-scale-compact)); }
+  @media (prefers-reduced-motion: no-preference) {
+    .dock { transition: transform var(--duration-medium) var(--ease-spring); }
+  }
+  .bar,
+  .fab { pointer-events: auto; }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-8);
+    border-radius: var(--shape-full);
+    background: var(--glass-fill);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--elevation-glass);
+    backdrop-filter: blur(var(--blur-xl)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--blur-xl)) saturate(var(--glass-saturate));
+  }
+  .home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--touch-target);
+    height: var(--touch-target);
+    padding: 0 12px;
+    border-radius: var(--shape-full);
+    color: var(--color-on-surface);
+  }
+  .divider { width: 1px; height: 28px; background: var(--color-outline-variant); }
+  .info {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0; /* title and "Next" read as one unit */
+    min-width: 0;
+    height: var(--touch-target);
+    box-sizing: border-box;
+    padding: 0 18px 9px 12px; /* the bottom 9px leaves room for the progress bar */
+    border-radius: var(--shape-full);
+    color: var(--color-on-surface);
+    text-decoration: none;
+  }
+  .title,
+  .next {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Line height 1.25 so descenders (the "y" in MyTelkomsel) aren't clipped by overflow: hidden */
+  .title { font: var(--weight-extrabold) 16px/1.25 var(--font-display); letter-spacing: -0.01em; }
+  .next {
+    font: 11.5px var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant);
+  }
+  /* Reading progress */
+  .track {
+    position: absolute;
+    left: 12px;
+    right: 18px;
+    bottom: 5px;
+    height: 3px;
+    border-radius: var(--shape-full);
+    background: var(--color-outline-variant);
+    overflow: hidden;
+  }
+  .fill {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-primary);
+    transition: width 0.2s linear;
+  }
+  .home:focus-visible,
+  .info:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+
+  .fab {
+    width: var(--fab-size);
+    height: var(--fab-size);
+    margin-left: var(--space-12);
+    border-radius: var(--fab-radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary-container);
+    color: var(--color-on-primary-container);
+    box-shadow: var(--elevation-glass);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .fab {
+      transition:
+        border-radius var(--duration-long) var(--ease-spring),
+        transform var(--duration-long) var(--ease-spring);
+    }
+  }
+  .fab:hover,
+  .fab:focus-visible {
+    border-radius: var(--fab-radius-hover);
+    transform: rotate(-45deg);
+  }
+  .fab:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+
+  /* Last project: the button shrinks away and the bar slides back to the middle */
+  @keyframes shrink-away {
+    to {
+      width: 0;
+      margin-left: 0;
+      opacity: 0;
+      transform: scale(0);
+    }
+  }
+  .gone {
+    pointer-events: none;
+    visibility: hidden;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .gone {
+      visibility: visible;
+      animation: shrink-away var(--duration-long) var(--ease-spring) 400ms forwards;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .dock { padding: 0 var(--space-8) var(--space-16); }
+    .bar { padding: 6px; }
+    .info { max-width: 46vw; padding: 0 12px 9px 8px; }
+    .title { font-size: 15px; }
+    .fab { margin-left: var(--space-8); }
+  }
+</style>

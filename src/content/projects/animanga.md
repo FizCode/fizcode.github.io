@@ -2,6 +2,7 @@
 title: AniManga Info
 order: 1
 summary: Seasonal anime, rankings, search, detailed anime & manga pages and bookmarks, powered by AniList and MyAnimeList. A modular Jetpack Compose app with Material 3 dynamic color, which I designed and built end to end.
+description: My own Android app for seasonal anime, rankings, search and bookmarks, built with Jetpack Compose and Material 3.
 platform: Android
 role: Design & development
 
