@@ -1,0 +1,160 @@
+/*
+ * Portfolio theme ("Design ⇄ Code"): warm paper, ink text, a red spec accent and a blue code accent.
+ * Loaded only by Layout.astro and scoped to html.portfolio, so the presentations keep the
+ * global.css tokens they are built on.
+ */
+html.portfolio {
+	--color-bg: #f3f1ea;
+	--color-surface: #ffffff;
+	--color-surface-hover: #ece9df;
+	--color-primary: #2e6b4f;
+	--color-primary-dim: #24563f;
+	--color-accent: #2f5bea;
+	--color-text-main: #16181d;
+	--color-text-muted: #4a4d55;
+	--color-border: #ddd9cc;
+
+	--color-ink: #16181d;
+	--color-paper: #f3f1ea;
+	--color-track: #e4e1d7;
+	--color-spec: #d93a3f;
+	--color-spec-text: #b4232a;
+	--color-code: #2f5bea;
+	--color-code-text: #1f45c4;
+
+	/* Body copy, a step softer than headings */
+	--color-text-body: #3a3d44;
+	--color-border-strong: #c9c5b8;
+	--color-ink-hover: #2a2d35;
+	/* Always-dark blocks (featured card, contact, code panel) and the text on them */
+	--color-panel: #16181d;
+	--color-panel-border: #16181d;
+	--color-on-panel: #f3f1ea;
+	--color-phone-frame: #16181d;
+
+	/* Hero backgrounds: a red redline grid for Design, a blue layout grid for Code */
+	--hero-design-bg: #f3f1ea;
+	--hero-design-line: rgba(217, 58, 63, 0.07);
+	--hero-design-border: #e4dccf;
+	--hero-code-bg: #eceff7;
+	--hero-code-line: rgba(47, 91, 234, 0.06);
+	--hero-code-border: #d5dcee;
+
+	--font-sans: 'Familjen Grotesk', system-ui, sans-serif;
+	--font-display: 'Familjen Grotesk', system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+	color-scheme: light;
+	transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Dark mode: set on <html> by Layout.astro from the saved choice or the system setting */
+html.portfolio[data-theme='dark'] {
+	color-scheme: dark;
+
+	--color-bg: #121317;
+	--color-surface: #1b1d23;
+	--color-surface-hover: #262931;
+	--color-primary: #7fc4a0;
+	--color-primary-dim: #9cd3b5;
+	--color-accent: #8fa8ff;
+	--color-text-main: #f3f1ea;
+	--color-text-muted: #a3a6ae;
+	--color-border: #2e3139;
+
+	--color-ink: #f3f1ea;
+	--color-paper: #121317;
+	--color-track: #262931;
+	--color-spec: #ff6b70;
+	--color-spec-text: #ff8a8e;
+	--color-code: #6f8dff;
+	--color-code-text: #8fa8ff;
+
+	--color-text-body: #c9c7bf;
+	--color-border-strong: #3d414a;
+	--color-ink-hover: #ffffff;
+	--color-panel: #0b0c0f;
+	--color-panel-border: #2e3139;
+	--color-on-panel: #f3f1ea;
+	--color-phone-frame: #30333b;
+
+	--hero-design-bg: #121317;
+	--hero-design-line: rgba(255, 107, 112, 0.08);
+	--hero-design-border: #2a2326;
+	--hero-code-bg: #10131c;
+	--hero-code-line: rgba(111, 141, 255, 0.09);
+	--hero-code-border: #1f2638;
+}
+
+html.portfolio h1,
+html.portfolio h2,
+html.portfolio h3 {
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+html.portfolio a:hover {
+	color: var(--color-accent);
+}
+
+html.portfolio :focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 3px;
+}
+
+/* Small uppercase mono line above headings and on cards */
+html.portfolio .kicker {
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--color-text-muted);
+}
+
+html.portfolio .btn {
+	min-height: 48px;
+	padding: 0.75rem 1.5rem;
+	font-weight: 500;
+	font-size: 1rem;
+}
+
+html.portfolio .btn-primary {
+	background: var(--color-ink);
+	color: var(--color-paper);
+}
+
+html.portfolio .btn-primary:hover {
+	background: var(--color-ink-hover);
+	color: var(--color-paper);
+	transform: none;
+}
+
+html.portfolio .btn-outline {
+	border: 1.5px solid var(--color-ink);
+	color: var(--color-ink);
+}
+
+html.portfolio .btn-outline:hover {
+	background: var(--color-ink);
+	border-color: var(--color-ink);
+	color: var(--color-paper);
+}
+
+html.portfolio .tag {
+	display: inline-block;
+	padding: 0.2rem 0.65rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-full);
+	background: var(--color-surface);
+	color: var(--color-text-muted);
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+}
+
+/* Small phones: a narrower gutter keeps the logo, switch and theme button on one row */
+@media (max-width: 400px) {
+	html.portfolio .container {
+		padding-left: 1.25rem;
+		padding-right: 1.25rem;
+	}
+}

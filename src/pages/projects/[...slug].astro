@@ -17,7 +17,7 @@ const { Content } = await render(post);
 <Layout title={`${post.data.title} - FizCode`} description={post.data.description}>
 	<article class="project-detail">
 		<div class="container">
-			<a href="/#projects" class="back-link">← Back to Projects</a>
+			<a href="/#work" class="back-link">← Back to projects</a>
 			
 			<header class="project-header">
 				<h1 class="project-title">{post.data.title}</h1>
@@ -43,36 +43,33 @@ const { Content } = await render(post);
 
 <style>
 	.project-detail {
-		padding: 120px 0 var(--spacing-xxl);
+		padding: 3rem 0 var(--spacing-xxl);
 	}
 
 	.back-link {
-		color: var(--color-text-muted);
-		font-size: 0.9rem;
-		margin-bottom: var(--spacing-lg);
 		display: inline-block;
-	}
-
-	.back-link:hover {
-		color: var(--color-primary);
+		margin-bottom: var(--spacing-xl);
+		color: var(--color-text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
 	}
 
 	.project-header {
-		margin-bottom: var(--spacing-xl);
-        text-align: center;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
+		max-width: 800px;
+		margin: 0 auto var(--spacing-lg);
 	}
 
 	.project-title {
-		font-size: 3rem;
+		font-size: clamp(2.5rem, 6vw, 3.75rem);
+		line-height: 1.05;
+		letter-spacing: -0.02em;
 		margin-bottom: var(--spacing-sm);
 	}
 
 	.project-description {
 		font-size: 1.25rem;
-		color: var(--color-text-muted);
+		line-height: 1.5;
+		color: var(--color-text-body);
 		margin-bottom: var(--spacing-md);
 	}
 
@@ -80,57 +77,72 @@ const { Content } = await render(post);
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.5rem;
-		justify-content: center;
-        margin-bottom: var(--spacing-lg);
+		margin-bottom: var(--spacing-lg);
 	}
 
-	.tag {
-		background: rgba(61, 220, 132, 0.1);
-		color: var(--color-primary);
-		padding: 0.25rem 0.75rem;
-		border-radius: var(--radius-full);
-		font-size: 0.875rem;
+	.divider {
+		max-width: 800px;
+		margin: var(--spacing-lg) auto var(--spacing-xl);
+		border: 0;
+		border-top: 1px solid var(--color-border);
 	}
-    
-    .divider {
-        border: 0;
-        height: 1px;
-        background: var(--color-border);
-        margin: var(--spacing-xl) 0;
-    }
 
 	.project-content {
 		max-width: 800px;
 		margin: 0 auto;
 		font-size: 1.125rem;
+		line-height: 1.75;
 		color: var(--color-text-main);
-        line-height: 1.8;
 	}
-    
-    /* Markdown Styles */
-    .project-content :global(h2) {
-        font-size: 2rem;
-        margin-top: var(--spacing-xl);
-        margin-bottom: var(--spacing-md);
-        color: var(--color-text-main);
-    }
-    
-    .project-content :global(p) {
-        margin-bottom: var(--spacing-md);
-        color: var(--color-text-muted);
-    }
-    
-    .project-content :global(ul) {
-        margin-bottom: var(--spacing-md);
-        padding-left: 1.5rem;
-        color: var(--color-text-muted);
-    }
-    
-    .project-content :global(li) {
-        margin-bottom: 0.5rem;
-    }
-    
-    .project-content :global(strong) {
-        color: var(--color-primary);
-    }
+
+	/* Markdown */
+	.project-content :global(h2) {
+		font-size: 1.875rem;
+		margin-top: var(--spacing-xl);
+		margin-bottom: var(--spacing-sm);
+	}
+
+	.project-content :global(h3) {
+		font-size: 1.375rem;
+		margin-top: var(--spacing-lg);
+		margin-bottom: var(--spacing-xs);
+	}
+
+	.project-content :global(p) {
+		margin-bottom: var(--spacing-md);
+		color: var(--color-text-body);
+	}
+
+	.project-content :global(ul),
+	.project-content :global(ol) {
+		margin-bottom: var(--spacing-md);
+		padding-left: 1.5rem;
+		color: var(--color-text-body);
+	}
+
+	.project-content :global(li) {
+		margin-bottom: 0.5rem;
+	}
+
+	.project-content :global(li::marker) {
+		color: var(--color-primary);
+	}
+
+	.project-content :global(strong) {
+		color: var(--color-text-main);
+		font-weight: 600;
+	}
+
+	.project-content :global(a) {
+		color: var(--color-accent);
+		text-decoration: underline;
+	}
+
+	.project-content :global(code) {
+		padding: 0.1em 0.35em;
+		border-radius: 4px;
+		background: var(--color-track);
+		font-family: var(--font-mono);
+		font-size: 0.875em;
+	}
 </style>

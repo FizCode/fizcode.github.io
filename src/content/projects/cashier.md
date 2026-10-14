@@ -1,15 +1,15 @@
 ---
-title: "Casheer App"
+title: "Cashier App"
 description: "A Point of Sale (POS) application for SMEs to manage sales and inventory in real-time."
 pubDate: 2024-01-01
-tags: ["Kotlin", "KMP", "Jetpack Compose", "Room", "Koin", "MVI", "Ktor Client", "Coroutines", "ML Kit"]
+tags: ["Kotlin", "KMP", "Jetpack Compose", "Room", "Metro DI", "MVI", "Ktor Client", "Coroutines", "ML Kit"]
 priority: 5
 heroImage: "/placeholder-hero.jpg"
 ---
 
 ## Overview
 
-**Casheer** is a comprehensive Point of Sale (POS) application designed specifically for small and medium-sized businesses (SMEs). It addresses the critical need for an efficient, easy-to-use system to track sales, manage inventory, and generate real-time reports.
+**Cashier** is a comprehensive Point of Sale (POS) application designed specifically for small and medium-sized businesses (SMEs). It addresses the critical need for an efficient, easy-to-use system to track sales, manage inventory, and generate real-time reports.
 
 ## Key Features
 

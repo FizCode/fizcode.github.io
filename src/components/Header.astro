@@ -1,75 +1,272 @@
 ---
+interface Props {
+  /** Show the Design / Code switch; the page styles itself from which radio is checked */
+  viewToggle?: boolean;
+}
+
+const { viewToggle = false } = Astro.props;
+
 const navItems = [
-  { href: '#home', label: 'Home' },
-  { href: '#about', label: 'About' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#contact', label: 'Contact' },
+  { href: '/#work', label: 'Work' },
+  { href: '/#about', label: 'About' },
+  { href: 'https://medium.com/@fizcode', label: 'Writing', external: true },
+  { href: '/#contact', label: 'Contact' },
 ];
 ---
 
 <header class="header">
   <div class="container header-container">
-    <a href="/" class="logo">
-      <span class="text-primary">&lt;</span>FizCode<span class="text-primary">/&gt;</span>
-    </a>
-    
-    <nav class="nav">
+    <a href="/" class="logo">&lt;FizCode/&gt;</a>
+
+    <nav class="nav" aria-label="Main">
       <ul class="nav-list">
         {navItems.map(item => (
           <li>
-            <a href={item.href} class="nav-link">{item.label}</a>
+            <a
+              href={item.href}
+              class="nav-link"
+              {...(item.external && { target: '_blank', rel: 'noopener noreferrer' })}
+            >
+              {item.label}
+            </a>
           </li>
         ))}
       </ul>
     </nav>
+
+    <div class="header-actions">
+      {viewToggle && (
+        <fieldset class="view-toggle">
+          <legend class="visually-hidden">View mode</legend>
+          <input type="radio" name="view" id="view-design" value="design" checked />
+          <label for="view-design">Design</label>
+          <input type="radio" name="view" id="view-code" value="code" />
+          <label for="view-code">Code</label>
+          <span class="thumb" aria-hidden="true"></span>
+        </fieldset>
+      )}
+
+      <!-- Like the presentation's theme button: moon in light mode, sun in dark mode -->
+      <button type="button" class="theme-btn" data-theme-toggle aria-label="Switch to dark mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z" />
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+      </button>
+    </div>
   </div>
 </header>
 
+<script>
+  // Layout.astro sets data-theme before first paint. The page follows the system theme until the
+  // visitor picks the other one; picking the system's theme again goes back to following it.
+  const root = document.documentElement;
+  const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')!;
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const systemTheme = () => (systemDark.matches ? 'dark' : 'light');
+
+  const saved = () => {
+    try { return localStorage.getItem('portfolio-theme'); } catch { return null; }
+  };
+
+  const applyTheme = (theme: string) => {
+    root.dataset.theme = theme;
+    button.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  };
+
+  applyTheme(root.dataset.theme ?? systemTheme());
+
+  button.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try {
+      if (next === systemTheme()) localStorage.removeItem('portfolio-theme');
+      else localStorage.setItem('portfolio-theme', next);
+    } catch {}
+  });
+
+  // Follow the system switching themes (e.g. automatic dark mode at night) unless overridden
+  systemDark.addEventListener('change', () => {
+    if (saved() !== 'light' && saved() !== 'dark') applyTheme(systemTheme());
+  });
+</script>
+
 <style>
   .header {
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 100%;
     z-index: 1000;
-    background-color: rgba(11, 14, 20, 0.8);
+    background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.75rem 0;
   }
 
   .header-container {
     display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
     justify-content: space-between;
     align-items: center;
   }
 
   .logo {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.5rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 1rem;
     color: var(--color-text-main);
   }
 
   .nav-list {
     display: flex;
+    flex-wrap: wrap;
     list-style: none;
     gap: var(--spacing-md);
   }
 
   .nav-link {
     font-size: 0.95rem;
-    font-weight: 500;
+    color: var(--color-text-main);
+  }
+
+  /* Segmented Design / Code switch: real radios, so it works with the keyboard and without JavaScript */
+  /* Two equal halves, so the thumb slides exactly one half across */
+  .view-toggle {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--color-track);
+  }
+
+  .view-toggle input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .view-toggle label {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 1.1rem;
+    border-radius: var(--radius-full);
     color: var(--color-text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.3s ease;
   }
 
-  .nav-link:hover {
-    color: var(--color-primary);
+  .view-toggle input:checked + label {
+    color: var(--color-paper);
   }
 
-  @media (max-width: 768px) {
+  /* The dark pill behind the selected label; slides to Code and back */
+  .thumb {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc((100% - 12px) / 2);
+    border-radius: var(--radius-full);
+    background: var(--color-ink);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  #view-code:checked ~ .thumb {
+    transform: translateX(calc(100% + 4px));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .thumb,
+    .view-toggle label {
+      transition: none;
+    }
+  }
+
+  .view-toggle input:focus-visible + label {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Same height as the Design / Code switch beside it */
+  .theme-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    flex: none;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-track);
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+
+  .theme-btn:hover {
+    background: var(--color-primary);
+    color: var(--color-bg);
+  }
+
+  .theme-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Light mode shows the moon, dark mode the sun */
+  .theme-btn .icon-sun,
+  :global(html[data-theme='dark']) .theme-btn .icon-moon {
+    display: none;
+  }
+
+  :global(html[data-theme='dark']) .theme-btn .icon-sun {
+    display: block;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .view-toggle label {
+      padding: 0 0.6rem;
+    }
+
+    .nav {
+      order: 3;
+      width: 100%;
+    }
+
     .nav-list {
-      display: none; /* Todo: Mobile Menu */
+      gap: var(--spacing-sm);
     }
   }
 </style>

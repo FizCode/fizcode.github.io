@@ -1,246 +1,1105 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import ProjectCard from '../components/ProjectCard.astro';
-import { getCollection } from 'astro:content';
+import Layout from "../layouts/Layout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
 
-const projects = (await getCollection('projects')).sort(
-	(a, b) => b.data.priority - a.data.priority
+const projects = (await getCollection("projects")).sort(
+	(a, b) => b.data.priority - a.data.priority,
 );
+
+// The hero's sample screen, shown in both views
+const sales = [
+	{ item: "Kopi susu ×2", price: "Rp 36.000" },
+	{ item: "Roti bakar", price: "Rp 22.000" },
+	{ item: "Teh tarik", price: "Rp 15.000" },
+];
+
+// The hero's source panel, hand-highlighted like Android Studio's Islands Dark editor
+const kw = (t: string) => `<span class="tk-keyword">${t}</span>`;
+const ann = (t: string) => `<span class="tk-annotation">${t}</span>`;
+const decl = (t: string) => `<span class="tk-function">${t}</span>`;
+const str = (t: string) => `<span class="tk-string">${t}</span>`;
+const num = (t: string) => `<span class="tk-number">${t}</span>`;
+const prop = (t: string) => `<span class="tk-property">${t}</span>`;
+const arg = (t: string) => `<span class="tk-named-arg">${t} =</span>`;
+
+/*
+ * One entry per line: [step, html]. The panel builds the code up in nesting order, step by step:
+ * the function, then Card, its arguments, Column, its arguments, then each Text. Closing brackets
+ * share their opener's step, so they appear together and get pushed down as the inside fills in.
+ */
+const salesCardLines: [number, string][] = [
+	[0, ann("@Composable")],
+	[0, `${kw("fun")} ${decl("SalesCard")}(state: SalesState) {`],
+	[1, "  Card("],
+	[2, `    ${arg("shape")} RoundedCornerShape(${num("28")}.${prop("dp")}),`],
+	[3, `    ${arg("colors")} CardDefaults.cardColors(`],
+	[4, `      ${arg("containerColor")}`],
+	[4, `        CashierTheme.${prop("colors")}.${prop("surfaceContainer")}`],
+	[3, "    )"],
+	[1, "  ) {"],
+	[5, "    Column("],
+	[6, `      Modifier.padding(${num("16")}.${prop("dp")}),`],
+	[7, `      ${arg("verticalArrangement")}`],
+	[7, `        Arrangement.spacedBy(${num("8")}.${prop("dp")})`],
+	[5, "    ) {"],
+	[8, "      Text("],
+	[9, `        ${arg("text")} ${str('"Today\'s sales"')},`],
+	[9, `        ${arg("style")} CashierTheme.${prop("type")}.${prop("labelMedium")}`],
+	[8, "      )"],
+	[10, "      Text("],
+	[11, `        ${arg("text")} state.${prop("total")},`],
+	[11, `        ${arg("style")} CashierTheme.${prop("type")}.${prop("titleLarge")}`],
+	[10, "      )"],
+	[5, "    }"],
+	[1, "  }"],
+	[0, "}"],
+];
 ---
 
-<Layout title="FizCode Portfolio">
-	
+<Layout title="FizCode Portfolio" viewToggle>
+	<!--
+		Design / Code: the header's radios switch the hero between a redline spec and the layout
+		bounds with the Compose behind it. Pure CSS (:has); only the spec values' scramble uses a script.
+	-->
 	<section id="home" class="hero">
-        {/* ... hero content ... */}
 		<div class="container hero-container">
 			<div class="hero-content">
-				<span class="badge">Android Developer</span>
+				<p class="kicker">Android Developer · Ex-UI/UX Designer</p>
 				<h1 class="hero-title">
-					Building <span class="text-primary">Mobile Experiences</span> That Matter.
+					I design the pixels.<br />Then I ship them.
 				</h1>
 				<p class="hero-subtitle">
-					I craft high-performance, user-centric Android applications using Kotlin and Jetpack Compose. 
-					Let's turn your ideas into reality.
+					Kotlin, Jetpack Compose and Kotlin Multiplatform — built by
+					someone who used to write the handoff specs, and still
+					catches the 2dp misalignment in code review.
 				</p>
-				<div class="hero-actions">
-					<a href="#projects" class="btn btn-primary">View Projects</a>
-					<a href="#contact" class="btn btn-outline">Contact Me</a>
+
+				<div class="mode-notes">
+					<p class="mode-note note-design">
+						<span class="dot"></span>
+						You're reading the design spec. Flip to Code to see how it's
+						built.
+					</p>
+					<p class="mode-note note-code">
+						<span class="dot"></span>
+						Same screen, now with layout bounds and the Compose behind
+						it.
+					</p>
 				</div>
+
+				<div class="hero-actions">
+					<a href="#work" class="btn btn-primary">See projects</a>
+					<a href="#contact" class="btn btn-outline">Say hello</a>
+				</div>
+			</div>
+
+			<!--
+				One phone for both views: switching animates its size and everything inside it, while the
+				redlines fade out, the layout bounds fade in and the source slides up beside it.
+			-->
+			<div class="hero-visual">
+				<div class="stage">
+					<div class="phone">
+						<p class="screen-title box">Cashier · Store</p>
+						<div class="sales-card box box-strong redline">
+							<span class="bounds-tag" aria-hidden="true"
+								>Card</span
+							>
+							<p class="sales-label box-inner">Today's sales</p>
+							<p class="sales-total box-inner">Rp 2.450.000</p>
+							<p class="sales-label small box-inner">
+								38 transactions
+							</p>
+						</div>
+						<div class="sales-list-wrap box">
+							<span class="bounds-tag" aria-hidden="true"
+								>LazyColumn</span
+							>
+							<ul class="sales-list">
+								{
+									sales.map(({ item, price }) => (
+										<li>
+											<>
+												<span>{item}</span>
+												<span>{price}</span>
+											</>
+										</li>
+									))
+								}
+							</ul>
+						</div>
+						<span class="sale-btn box box-strong redline"
+							>New sale</span
+						>
+					</div>
+
+					<div class="spec-layer" aria-hidden="true">
+						<span class="chip spec-chip" style="left: 0; top: 112px"
+							><span data-scramble>16</span>dp</span
+						>
+						<span
+							class="measure"
+							style="left: 50px; top: 120px; width: 26px"></span>
+						<span
+							class="chip spec-chip"
+							style="right: 20px; top: 96px"
+							>radius <span data-scramble>28</span>dp</span
+						>
+						<span
+							class="chip spec-chip"
+							style="right: 20px; top: 150px"
+							><span data-scramble>titleLarge</span> · <span
+								data-scramble>26</span
+							>sp</span
+						>
+						<span
+							class="chip token-chip"
+							style="right: 20px; top: 204px"
+							><span class="swatch" style="background: #e8efe9"
+							></span><span data-scramble>surfaceContainer</span
+							></span
+						>
+						<span class="chip spec-chip" style="left: 0; top: 498px"
+							><span data-scramble>48</span>dp ≥ touch</span
+						>
+						<span
+							class="chip token-chip"
+							style="right: 20px; top: 520px"
+							><span class="swatch" style="background: #2e6b4f"
+							></span><span data-scramble>primary</span></span
+						>
+					</div>
+
+					<figure class="code-panel" data-code-panel>
+						<figcaption>
+							<span>SalesCard.kt</span><span class="recomposed" data-recomposed
+								>recomposed ×1</span
+							>
+						</figcaption>
+						<pre><code>{salesCardLines.map(([step, html]) => <span class="ln" data-step={step}><span class="ln-text" set:html={html} /></span>)}</code></pre>
+					</figure>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="work" class="section">
+		<div class="container">
+			<div class="section-head">
+				<h2 class="section-title">Projects</h2>
+				<p class="kicker">
+					{String(projects.length).padStart(2, "0")} apps · Kotlin &amp;
+					Compose
+				</p>
+			</div>
+			<div class="projects-grid">
+				{
+					projects.map((project, i) => (
+						<ProjectCard
+							title={project.data.title}
+							description={project.data.description}
+							tags={project.data.tags}
+							slug={project.id}
+							featured={i === 0}
+						/>
+					))
+				}
 			</div>
 		</div>
 	</section>
 
 	<section id="about" class="section">
-        {/* ... about content ... */}
-		<div class="container">
-			<h2 class="section-title">About Me</h2>
-			<div class="about-grid">
-				<div class="about-text">
-					<p>
-						Hello, I'm <strong class="text-primary">FizCode</strong>! 
-						Passionate about designing, learning, and building innovative mobile applications. 
-						Driven to excel in Android development, leveraging my skills, expertise, and creativity to contribute meaningfully to exciting projects. 
-						Eager to continue learning and growing in this dynamic field.
-					</p>
-					<p>
-						My tech stack includes <strong class="text-primary">Kotlin, Jetpack Compose, Coroutines, Koin/Hilt, Room Database, Retrofit/Ktor Client</strong> and more... <br/><br/>
-						I believe in writing code that is not only functional but also maintainable and testable.
-					</p>
-				</div>
-				<div class="about-stats">
-					<div class="stat-card">
-						<h3>2+</h3>
-						<p>Years Experience</p>
-					</div>
-					<div class="stat-card">
-						<h3>5+</h3>
-						<p>Apps Developed</p>
-					</div>
-					<div class="stat-card">
-						<h3>100%</h3>
-						<p>Client Satisfaction</p>
-					</div>
-				</div>
+		<div class="container about-grid">
+			<div class="about-text">
+				<h2 class="section-title">About me</h2>
+				<p>
+					Hello, I'm <strong>FizCode</strong>! Passionate about
+					designing, learning, and building innovative mobile
+					applications. Driven to excel in Android development,
+					leveraging my skills, expertise, and creativity to
+					contribute meaningfully to exciting projects. Eager to
+					continue learning and growing in this dynamic field.
+				</p>
+				<p>
+					My tech stack includes <strong
+						>Kotlin, Jetpack Compose, Coroutines, Koin/Hilt, Room
+						Database, Retrofit/Ktor Client</strong
+					> and more...
+				</p>
+				<p>
+					I believe in writing code that is not only functional but
+					also maintainable and testable.
+				</p>
 			</div>
-		</div>
-	</section>
-
-	<section id="projects" class="section">
-		<div class="container">
-			<h2 class="section-title">Featured Projects</h2>
-			<div class="projects-grid">
-				{projects.map((project) => (
-					<ProjectCard 
-						title={project.data.title}
-						description={project.data.description}
-						tags={project.data.tags}
-						slug={project.id}
-					/>
-				))}
-			</div>
+			<dl class="about-stats">
+				<div class="stat-card">
+					<dt>Years Experience</dt>
+					<dd>2+</dd>
+				</div>
+				<div class="stat-card">
+					<dt>Apps Developed</dt>
+					<dd>5+</dd>
+				</div>
+				<div class="stat-card">
+					<dt>Client Satisfaction</dt>
+					<dd>100%</dd>
+				</div>
+			</dl>
 		</div>
 	</section>
 
 	<section id="contact" class="section">
-		<div class="container contact-container">
-			<div class="contact-content">
-				<h2 class="section-title">Let's Connect</h2>
+		<div class="container">
+			<div class="contact-card">
+				<h2 class="contact-title">Let's connect</h2>
 				<p>
-					I'm currently looking for new opportunities as an Android Developer. 
-					Whether you have a question or just want to say hi, my inbox is always open.
+					I'm currently looking for new opportunities as an Android
+					Developer. Whether you have a question or just want to say
+					hi, my inbox is always open.
 				</p>
-				<a href="mailto:fizcode.dev@gmail.com" class="btn btn-primary big-btn">Say Hello</a>
+				<a href="mailto:fizcode.dev@gmail.com" class="btn contact-btn"
+					>Say hello</a
+				>
 			</div>
 		</div>
 	</section>
-
 </Layout>
 
+<script>
+	/*
+	 * When the Design view appears, the spec values scramble and then settle on the real ones,
+	 * left to right: digits through random digits, names through random letters.
+	 */
+	const targets = Array.from(
+		document.querySelectorAll<HTMLElement>("[data-scramble]"),
+	);
+	const designRadio = document.getElementById(
+		"view-design",
+	) as HTMLInputElement | null;
+	const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+	const DURATION = 900; // ms, matched to the view's fade-in
+	const FRAME = 45; // ms between changes, so the scramble stays readable
+	const LETTERS = "abcdefghijklmnopqrstuvwxyz";
+
+	const finals = targets.map((el) => el.textContent ?? "");
+	const pick = (chars: string) =>
+		chars[Math.floor(Math.random() * chars.length)];
+
+	// A random stand-in of the same kind, so the text keeps its shape
+	const randomLike = (char: string) => {
+		if (/[0-9]/.test(char)) return pick("0123456789");
+		if (/[A-Z]/.test(char)) return pick(LETTERS).toUpperCase();
+		if (/[a-z]/.test(char)) return pick(LETTERS);
+		return char;
+	};
+
+	let frame = 0;
+
+	const showFinal = () =>
+		targets.forEach((el, i) => (el.textContent = finals[i]));
+
+	const scramble = () => {
+		cancelAnimationFrame(frame);
+		if (reducedMotion.matches) return showFinal();
+
+		const start = performance.now();
+		let last = -Infinity;
+
+		const tick = (now: number) => {
+			const progress = Math.min((now - start) / DURATION, 1);
+			if (progress === 1) return showFinal();
+
+			if (now - last >= FRAME) {
+				last = now;
+				// Nothing settles for the first 30%; then characters lock in from the left
+				const settle = Math.max(0, (progress - 0.3) / 0.7);
+				targets.forEach((el, i) => {
+					const final = finals[i];
+					const settled = Math.floor(settle * final.length);
+					el.textContent =
+						final.slice(0, settled) +
+						[...final.slice(settled)].map(randomLike).join("");
+				});
+			}
+			frame = requestAnimationFrame(tick);
+		};
+		frame = requestAnimationFrame(tick);
+	};
+
+	designRadio?.addEventListener(
+		"change",
+		() => designRadio.checked && scramble(),
+	);
+	if (designRadio?.checked) scramble();
+
+	/*
+	 * When the Code view appears, the source builds up line by line in nesting order (see
+	 * salesCardLines), and "recomposed ×1" lights up last.
+	 */
+	const codeRadio = document.getElementById(
+		"view-code",
+	) as HTMLInputElement | null;
+	const panel = document.querySelector<HTMLElement>("[data-code-panel]");
+
+	const STEP_DELAY = 260; // ms between steps
+	const FIRST_STEP = 200; // ms, once the panel has started fading in
+
+	let timers: number[] = [];
+
+	const buildCode = () => {
+		if (!panel) return;
+		const lines = Array.from(panel.querySelectorAll<HTMLElement>(".ln"));
+		const recomposed = panel.querySelector<HTMLElement>("[data-recomposed]")!;
+		const lastStep = Math.max(...lines.map((line) => Number(line.dataset.step)));
+
+		timers.forEach(clearTimeout);
+		timers = [];
+
+		if (reducedMotion.matches) {
+			panel.classList.remove("animated");
+			return;
+		}
+
+		// Close everything instantly, then open it again one step at a time
+		panel.classList.add("animated", "resetting");
+		lines.forEach((line) => line.classList.remove("shown"));
+		recomposed.classList.remove("shown");
+		void panel.offsetWidth;
+		panel.classList.remove("resetting");
+
+		for (let step = 0; step <= lastStep; step++) {
+			timers.push(
+				window.setTimeout(() => {
+					lines
+						.filter((line) => Number(line.dataset.step) === step)
+						.forEach((line) => line.classList.add("shown"));
+				}, FIRST_STEP + step * STEP_DELAY),
+			);
+		}
+		timers.push(
+			window.setTimeout(
+				() => recomposed.classList.add("shown"),
+				FIRST_STEP + (lastStep + 1) * STEP_DELAY + 150,
+			),
+		);
+	};
+
+	codeRadio?.addEventListener("change", () => codeRadio.checked && buildCode());
+	if (codeRadio?.checked) buildCode();
+</script>
+
 <style>
-/* ... previous styles ... */
-
-	.projects-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-		gap: var(--spacing-lg);
-		margin-top: var(--spacing-lg);
-	}
-
-	.contact-container {
-		text-align: center;
-		display: flex;
-		justify-content: center;
-	}
-
-	.contact-content {
-		max-width: 600px;
-	}
-
-	.contact-content p {
-		margin-bottom: var(--spacing-xl);
-		color: var(--color-text-muted);
-		font-size: 1.1rem;
-	}
-
-	.big-btn {
-		padding: 1rem 2.5rem;
-		font-size: 1.1rem;
-	}
+	/*
+	 * ---------- Design / Code ----------
+	 * The header's radios set the view. Design is the default look; every rule starting with
+	 * :global(html:has(#view-code:checked)) is the Code view. Properties that differ between the two
+	 * transition, so switching morphs the hero instead of swapping it.
+	 */
 	.hero {
-		padding: var(--spacing-xxl) 0;
+		--morph: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+		/* How far the source panel reaches below the stage once fully built */
+		--panel-drop: 90px;
+	}
+
+	.stage,
+	.stage *,
+	.mode-note {
+		transition:
+			width var(--morph),
+			height var(--morph),
+			margin var(--morph),
+			padding var(--morph),
+			gap var(--morph),
+			border-radius var(--morph),
+			font-size var(--morph),
+			outline-color var(--morph),
+			outline-width var(--morph),
+			opacity var(--morph),
+			transform var(--morph),
+			visibility var(--morph);
+	}
+
+	/* ---------- Hero ---------- */
+	/* Each view's grid is its own layer, so switching crossfades them */
+	.hero {
+		position: relative;
+		isolation: isolate;
+		border-bottom: 1px solid var(--hero-design-border);
+		transition: border-color var(--morph);
+	}
+
+	.hero::before,
+	.hero::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		transition: opacity var(--morph);
+	}
+
+	/* Design: a red 8px redline grid */
+	.hero::before {
+		background-color: var(--hero-design-bg);
+		background-image:
+			linear-gradient(var(--hero-design-line) 1px, transparent 1px),
+			linear-gradient(90deg, var(--hero-design-line) 1px, transparent 1px);
+		background-size: 8px 8px;
+	}
+
+	/* Code: a blue 24px layout grid */
+	.hero::after {
+		background-color: var(--hero-code-bg);
+		background-image:
+			linear-gradient(var(--hero-code-line) 1px, transparent 1px),
+			linear-gradient(90deg, var(--hero-code-line) 1px, transparent 1px);
+		background-size: 24px 24px;
+		opacity: 0;
+	}
+
+	:global(html:has(#view-code:checked)) .hero {
+		border-bottom-color: var(--hero-code-border);
+	}
+
+	:global(html:has(#view-code:checked)) .hero::after {
+		opacity: 1;
+	}
+
+	.hero-container {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		min-height: 80vh;
-		background: radial-gradient(circle at top right, rgba(61, 220, 132, 0.1) 0%, transparent 40%);
+		gap: 3.5rem;
+		padding-top: 4rem;
+		padding-bottom: 6rem;
+		transition: padding var(--morph);
+	}
+
+	/* Room below for the source panel, which hangs past the bottom of the stage */
+	:global(html:has(#view-code:checked)) .hero-container {
+		padding-bottom: calc(6rem + var(--panel-drop));
 	}
 
 	.hero-content {
-		max-width: 800px;
-	}
-
-	.badge {
-		background: rgba(61, 220, 132, 0.1);
-		color: var(--color-primary);
-		padding: 0.5rem 1rem;
-		border-radius: var(--radius-full);
-		font-size: 0.875rem;
-		font-weight: 600;
-		margin-bottom: var(--spacing-md);
-		display: inline-block;
+		flex: 1 1 460px;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-md);
 	}
 
 	.hero-title {
-		font-size: 4rem;
-		margin-bottom: var(--spacing-md);
-		line-height: 1.1;
-		font-weight: 800;
+		font-size: clamp(2.75rem, 6vw, 4.25rem);
+		line-height: 1.02;
+		letter-spacing: -0.02em;
 	}
 
 	.hero-subtitle {
-		font-size: 1.25rem;
-		color: var(--color-text-muted);
-		margin-bottom: var(--spacing-lg);
-		max-width: 600px;
+		max-width: 520px;
+		font-size: 1.1875rem;
+		line-height: 1.55;
+		color: var(--color-text-body);
+	}
+
+	/* Both notes share one spot and crossfade */
+	.mode-notes {
+		display: grid;
+	}
+
+	.mode-note {
+		grid-area: 1 / 1;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-size: 0.875rem;
+		color: var(--color-spec-text);
+	}
+
+	.note-code,
+	:global(html:has(#view-code:checked)) .note-design {
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(6px);
+	}
+
+	:global(html:has(#view-code:checked)) .note-code {
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+	}
+
+	.note-code {
+		color: var(--color-code-text);
+	}
+
+	.dot {
+		flex: none;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--color-spec);
+	}
+
+	.note-code .dot {
+		background: var(--color-code);
 	}
 
 	.hero-actions {
 		display: flex;
-		gap: var(--spacing-sm);
+		flex-wrap: wrap;
+		gap: 0.75rem;
 	}
 
+	.hero-visual {
+		flex: 1 1 440px;
+		min-width: 0;
+		display: flex;
+		justify-content: center;
+	}
+
+	/* The phone, the spec labels around it and the source panel share one fixed-size stage */
+	.stage {
+		position: relative;
+		width: 460px;
+		max-width: 100%;
+		height: 600px;
+	}
+
+	/* ---------- The phone: big with redlines in Design, smaller with bounds in Code ---------- */
+	.phone {
+		position: relative;
+		width: 300px;
+		height: 580px;
+		margin-left: 60px;
+		box-sizing: border-box;
+		padding: 28px 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		overflow: hidden;
+		border: 10px solid var(--color-phone-frame);
+		border-radius: 44px;
+		background: #fbfaf6;
+		color: #16181d;
+	}
+
+	:global(html:has(#view-code:checked)) .phone {
+		width: 250px;
+		height: 500px;
+		margin-left: 0;
+		padding: 24px 12px;
+		gap: 12px;
+		border-radius: 40px;
+	}
+
+	.screen-title {
+		font-size: 13px;
+		color: #6a6d75;
+	}
+
+	.sales-card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding: 16px;
+		border-radius: 28px;
+		background: #e8efe9;
+	}
+
+	.sales-label {
+		font-size: 13px;
+		color: #3e5a48;
+	}
+
+	.sales-label.small {
+		font-size: 12px;
+	}
+
+	.sales-total {
+		font-size: 26px;
+		font-weight: 600;
+	}
+
+	.sales-list-wrap {
+		position: relative;
+	}
+
+	.sales-list {
+		display: flex;
+		flex-direction: column;
+		list-style: none;
+	}
+
+	.sales-list li {
+		display: flex;
+		justify-content: space-between;
+		padding: 12px 4px;
+		font-size: 14px;
+	}
+
+	.sales-list li + li {
+		border-top: 1px solid #e4e1d7;
+	}
+
+	.sale-btn {
+		margin-top: auto;
+		padding: 14px;
+		border-radius: 16px;
+		background: #2e6b4f;
+		color: #fff;
+		font-size: 15px;
+		font-weight: 500;
+		text-align: center;
+	}
+
+	:global(html:has(#view-code:checked)) .screen-title {
+		font-size: 12px;
+	}
+
+	:global(html:has(#view-code:checked)) .sales-card {
+		gap: 6px;
+		padding: 14px;
+		border-radius: 24px;
+	}
+
+	:global(html:has(#view-code:checked)) .sales-label {
+		font-size: 12px;
+	}
+
+	:global(html:has(#view-code:checked)) .sales-label.small {
+		font-size: 11px;
+	}
+
+	:global(html:has(#view-code:checked)) .sales-total {
+		font-size: 22px;
+	}
+
+	:global(html:has(#view-code:checked)) .sales-list li {
+		padding: 10px 4px;
+		font-size: 13px;
+	}
+
+	:global(html:has(#view-code:checked)) .sale-btn {
+		padding: 12px;
+		border-radius: 14px;
+		font-size: 14px;
+	}
+
+	/* ---------- Outlines: red redlines in Design turn into blue dashed bounds in Code ---------- */
+	.box,
+	.box-inner {
+		outline: 1px dashed transparent;
+	}
+
+	.redline {
+		outline: 1px solid var(--color-spec);
+	}
+
+	:global(html:has(#view-code:checked)) .box {
+		outline: 1px dashed var(--color-code);
+	}
+
+	:global(html:has(#view-code:checked)) .box-strong {
+		outline-width: 1.5px;
+	}
+
+	:global(html:has(#view-code:checked)) .box-inner {
+		outline-color: #7c95e8;
+	}
+
+	.bounds-tag {
+		position: absolute;
+		top: -9px;
+		right: 10px;
+		padding: 1px 5px;
+		border-radius: 3px;
+		background: var(--color-code);
+		color: #fff;
+		font-family: var(--font-mono);
+		font-size: 9px;
+		line-height: 1.4;
+		opacity: 0;
+		transform: scale(0.8);
+	}
+
+	/* On the left, clear of the source panel that overlaps the phone's right side */
+	.sales-list-wrap .bounds-tag {
+		right: auto;
+		left: 10px;
+	}
+
+	:global(html:has(#view-code:checked)) .bounds-tag {
+		opacity: 1;
+		transform: none;
+	}
+
+	/* ---------- Spec labels around the phone (Design only) ---------- */
+	.spec-layer {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+	}
+
+	:global(html:has(#view-code:checked)) .spec-layer {
+		opacity: 0;
+		visibility: hidden;
+		transform: translateX(-12px);
+	}
+
+	/* Plain text, not flex: flex would drop the spaces between a scrambled value and its neighbours */
+	.chip {
+		position: absolute;
+		display: block;
+		line-height: 1.4;
+		padding: 2px 6px;
+		border-radius: 4px;
+		background: var(--color-surface);
+		font-family: var(--font-mono);
+		font-size: 11px;
+		white-space: nowrap;
+	}
+
+	.spec-chip {
+		border: 1px solid var(--color-spec);
+		color: var(--color-spec-text);
+	}
+
+	.token-chip {
+		border: 1px solid var(--color-border-strong);
+		color: var(--color-text-muted);
+	}
+
+	.swatch {
+		display: inline-block;
+		vertical-align: -1px;
+		margin-right: 6px;
+		width: 10px;
+		height: 10px;
+		border-radius: 2px;
+		border: 1px solid #9db3a5;
+	}
+
+	.measure {
+		position: absolute;
+		height: 1px;
+		background: var(--color-spec);
+	}
+
+	/* ---------- The source (Code only): overlaps the phone's lower right like a dev-tools popover ---------- */
+	/*
+	 * Android Studio, Islands Dark: the editor and its Kotlin colours, the same in both site themes.
+	 * One variable per token kind, so a colour is easy to match to your own scheme.
+	 */
+	.code-panel {
+		--ide-bg: #1e1f22;
+		--ide-border: #393b40;
+		--ide-text: #bcbec4;
+		--ide-muted: #6f737a;
+		--ide-keyword: #cf8e6d;
+		--ide-annotation: #b3ae60;
+		--ide-function: #56a8f5;
+		--ide-string: #6aab73;
+		--ide-number: #2aacb8;
+		--ide-property: #c77dbb;
+		--ide-named-arg: #56c1d6;
+
+		position: absolute;
+		/* Pinned by its top, just below the phone's sales card, so it grows downwards as the code builds */
+		top: 190px;
+		right: 0;
+		/* Wide enough for the longest line (style = CashierTheme.type.labelMedium) */
+		width: 360px;
+		max-width: 100%;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 18px;
+		border: 1px solid var(--ide-border);
+		border-radius: 16px;
+		background: var(--ide-bg);
+		color: var(--ide-text);
+		box-shadow: 0 24px 48px -16px rgba(22, 24, 29, 0.45);
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(24px) scale(0.97);
+	}
+
+	:global(html:has(#view-code:checked)) .code-panel {
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+	}
+
+	.code-panel figcaption {
+		display: flex;
+		justify-content: space-between;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		color: var(--ide-muted);
+	}
+
+	.recomposed {
+		color: var(--ide-string);
+	}
+
+	.code-panel pre {
+		overflow-x: auto;
+		font-family: var(--font-mono);
+		font-size: 10.5px;
+		line-height: 1.55;
+	}
+
+	/*
+	 * Each line opens from zero height when its step comes, so everything below it (the closing
+	 * brackets) slides down. Lines are only hidden once the script marks the panel as animated,
+	 * so without JavaScript the whole snippet shows.
+	 */
+	.code-panel .ln {
+		display: grid;
+		grid-template-rows: 1fr;
+		transition:
+			grid-template-rows 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+			opacity 0.35s ease;
+	}
+
+	/* Clip only vertically while a line opens, so long lines can still scroll sideways */
+	.ln-text {
+		min-height: 0;
+		overflow-x: visible;
+		overflow-y: clip;
+	}
+
+	.code-panel.animated .ln:not(.shown) {
+		grid-template-rows: 0fr;
+		opacity: 0;
+	}
+
+	.code-panel.animated .recomposed {
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	.code-panel.animated .recomposed.shown {
+		opacity: 1;
+		animation: recomposed-flash 0.8s ease;
+	}
+
+	/* A brief highlight, like Layout Inspector flagging a recomposition */
+	@keyframes recomposed-flash {
+		0% {
+			background: rgba(106, 171, 115, 0.35);
+		}
+		100% {
+			background: transparent;
+		}
+	}
+
+	/* Resetting before a replay: snap closed without animating */
+	.code-panel.resetting .ln,
+	.code-panel.resetting .recomposed {
+		transition: none;
+	}
+
+	.code-panel :global(.tk-keyword) {
+		color: var(--ide-keyword);
+	}
+	.code-panel :global(.tk-annotation) {
+		color: var(--ide-annotation);
+	}
+	.code-panel :global(.tk-function) {
+		color: var(--ide-function);
+	}
+	.code-panel :global(.tk-string) {
+		color: var(--ide-string);
+	}
+	.code-panel :global(.tk-number) {
+		color: var(--ide-number);
+	}
+	.code-panel :global(.tk-property) {
+		color: var(--ide-property);
+	}
+	.code-panel :global(.tk-named-arg) {
+		color: var(--ide-named-arg);
+	}
+
+	/* ---------- Sections ---------- */
 	.section {
-		padding: var(--spacing-xxl) 0;
+		padding: 5rem 0 6rem;
+	}
+
+	.section-head {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: flex-end;
+		gap: var(--spacing-sm);
+		margin-bottom: var(--spacing-lg);
 	}
 
 	.section-title {
 		font-size: 2.5rem;
-		margin-bottom: var(--spacing-xl);
-		position: relative;
-		display: inline-block;
 	}
 
-	.section-title::after {
-		content: '';
-		position: absolute;
-		bottom: -10px;
-		left: 0;
-		width: 60px;
-		height: 4px;
-		background: var(--color-primary);
-		border-radius: var(--radius-full);
+	.projects-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: var(--spacing-md);
 	}
 
 	.about-grid {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 3fr 2fr;
 		gap: var(--spacing-xl);
 		align-items: center;
 	}
 
+	.about-text {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-sm);
+	}
+
 	.about-text p {
-		margin-bottom: var(--spacing-md);
-		font-size: 1.1rem;
-		color: var(--color-text-muted);
+		font-size: 1.125rem;
+		line-height: 1.6;
+		color: var(--color-text-body);
+	}
+
+	.about-text strong {
+		color: var(--color-text-main);
+		font-weight: 600;
 	}
 
 	.about-stats {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: var(--spacing-md);
+		gap: var(--spacing-sm);
 	}
 
 	.stat-card {
-		background: var(--color-surface);
-		padding: var(--spacing-lg);
-		border-radius: var(--radius-md);
-		text-align: center;
+		display: flex;
+		flex-direction: column-reverse;
+		gap: 0.25rem;
+		padding: var(--spacing-md);
 		border: 1px solid var(--color-border);
-		transition: transform var(--transition-normal);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
 	}
 
-	.stat-card:hover {
-		transform: translateY(-5px);
-		border-color: var(--color-primary);
-	}
-
-	.stat-card h3 {
+	.stat-card dd {
 		font-size: 2.5rem;
-		color: var(--color-primary);
-		margin-bottom: var(--spacing-xs);
+		font-weight: 600;
+		line-height: 1;
+		letter-spacing: -0.02em;
 	}
 
-	.stat-card p {
+	.stat-card dt {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
 		color: var(--color-text-muted);
-		font-size: 0.9rem;
+	}
+
+	.contact-card {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--spacing-md);
+		padding: clamp(2rem, 5vw, 4rem);
+		border-radius: 28px;
+		border: 1px solid var(--color-panel-border);
+		background: var(--color-panel);
+		color: var(--color-on-panel);
+	}
+
+	.contact-title {
+		font-size: clamp(2.25rem, 5vw, 3.5rem);
+		color: var(--color-on-panel);
+		letter-spacing: -0.02em;
+	}
+
+	.contact-card p {
+		max-width: 560px;
+		font-size: 1.125rem;
+		color: #c9c7bf;
+	}
+
+	/* Light on the always-dark card, in both themes */
+	.contact-btn {
+		background: var(--color-on-panel);
+		color: #16181d;
+	}
+
+	.contact-btn:hover {
+		background: #fff;
+		color: #16181d;
 	}
 
 	@media (max-width: 768px) {
-		.hero-title {
-			font-size: 2.5rem;
-		}
-
 		.about-grid {
 			grid-template-columns: 1fr;
+		}
+	}
+
+	/*
+	 * Phones: no room for the side labels or the overlap. The phone stays centred and still morphs;
+	 * the source opens below it.
+	 */
+	@media (max-width: 560px) {
+		.hero {
+			--panel-drop: 0px;
+		}
+
+		.stage {
+			width: min(100%, 340px);
+			height: auto;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.phone,
+		:global(html:has(#view-code:checked)) .phone {
+			margin-left: 0;
+		}
+
+		.spec-layer {
+			display: none;
+		}
+
+		.code-panel {
+			position: relative;
+			top: auto;
+			width: 100%;
+			max-height: 0;
+			margin-top: 0;
+			padding-top: 0;
+			padding-bottom: 0;
+			overflow: hidden;
+			transition-property:
+				max-height, margin, padding, opacity, transform, visibility;
+		}
+
+		:global(html:has(#view-code:checked)) .code-panel {
+			max-height: 640px;
+			margin-top: 20px;
+			padding-top: 18px;
+			padding-bottom: 18px;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.stage,
+		.stage *,
+		.mode-note,
+		.hero,
+		.hero::before,
+		.hero::after {
+			transition: none !important;
 		}
 	}
 </style>

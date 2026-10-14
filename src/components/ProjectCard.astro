@@ -5,115 +5,104 @@ interface Props {
   tags: string[];
   link?: string;
   slug?: string;
+  /** Dark card, for the top project */
+  featured?: boolean;
 }
 
-const { title, description, tags, link, slug } = Astro.props;
+const { title, description, tags, link, slug, featured = false } = Astro.props;
 const href = slug ? `/projects/${slug}` : link || '#';
+// The first few tags make the card's stack line; the full list is on the project page
+const stack = tags.slice(0, 3).join(' · ');
 ---
 
-<article class="project-card">
-  <div class="card-content">
-    <h3 class="card-title">
-      <a href={href}>
-        {title}
-      </a>
-    </h3>
-    <p class="card-description">{description}</p>
-    <div class="tags">
-      {tags.map(tag => (
-        <span class="tag">{tag}</span>
-      ))}
-    </div>
-    <div class="card-footer">
-        <a href={href} class="link-arrow">
-            View Project 
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-        </a>
-    </div>
-  </div>
+<article class:list={['project-card', { featured }]}>
+  <p class="stack">{stack}</p>
+  <h3 class="card-title">
+    <a href={href}>{title}</a>
+  </h3>
+  <p class="card-description">{description}</p>
+  <span class="link-arrow" aria-hidden="true">View project →</span>
 </article>
 
 <style>
   .project-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    height: 100%;
+    padding: 1.75rem;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: all var(--transition-normal);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
+    transition: border-color var(--transition-fast), transform var(--transition-fast);
   }
 
   .project-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--color-primary);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    border-color: var(--color-ink);
+    transform: translateY(-3px);
   }
 
-  .card-content {
-    padding: var(--spacing-lg);
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+  .stack {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-primary);
   }
 
   .card-title {
-    font-size: 1.5rem;
-    margin-bottom: var(--spacing-xs);
+    font-size: 1.625rem;
   }
 
+  /* The whole card is the link */
   .card-title a::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .card-title a:hover {
+    color: inherit;
   }
 
   .card-description {
-    color: var(--color-text-muted);
-    margin-bottom: var(--spacing-md);
     flex-grow: 1;
+    color: var(--color-text-body);
+    line-height: 1.5;
   }
 
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: var(--spacing-md);
-  }
-
-  .tag {
-    background: rgba(61, 220, 132, 0.1);
-    color: var(--color-primary);
-    font-size: 0.75rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-full);
-    font-family: var(--font-sans);
+  .link-arrow {
+    font-size: 0.875rem;
     font-weight: 500;
   }
 
-  .card-footer {
-    display: flex;
-    align-items: center;
-    position: relative;
-    z-index: 2; /* Bring link above full card link */
-  }
-  
-  .link-arrow {
-      color: var(--color-primary);
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-  }
-  
-  .link-arrow:hover {
-      text-decoration: underline;
+  .featured {
+    background: var(--color-panel);
+    border-color: var(--color-panel-border);
+    color: var(--color-on-panel);
   }
 
+  .featured:hover {
+    border-color: var(--color-ink);
+  }
+
+  .featured .stack {
+    color: #9cc9b0;
+  }
+
+  .featured .card-title {
+    color: var(--color-on-panel);
+  }
+
+  .featured .card-description {
+    color: #c9c7bf;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card:hover {
+      transform: none;
+    }
+  }
 </style>
