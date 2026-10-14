@@ -6,7 +6,6 @@ interface Props {
   href?: string;
   size?: 'md' | 'lg';
   variant?: 'filled' | 'tonal';
-  /** Leading icon */
   icon?: IconName;
   disabled?: boolean;
   class?: string;
@@ -46,7 +45,6 @@ const Tag = href ? 'a' : 'button';
   .md { padding: 13px 22px; font: var(--weight-bold) var(--type-label-md)/1 var(--font-body); }
   .with-icon { height: var(--touch-target); padding: 0 20px 0 14px; }
 
-  /* state layer */
   .btn::after {
     content: '';
     position: absolute;
