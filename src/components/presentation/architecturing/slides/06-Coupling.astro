@@ -196,13 +196,13 @@ import { nodes, edges, rules, moduleFrame, VIEWBOX } from '../data/coupling';
 	}
 
 	.frame-tag {
-		fill: var(--color-surface);
+		fill: var(--color-surface-container);
 		stroke: var(--c-feature);
 		stroke-width: 2;
 	}
 
 	.frame-title {
-		fill: var(--color-text-main);
+		fill: var(--color-on-surface);
 		font-family: var(--font-mono);
 		font-size: 17px;
 		font-weight: 700;
@@ -216,10 +216,10 @@ import { nodes, edges, rules, moduleFrame, VIEWBOX } from '../data/coupling';
 
 	.edge {
 		fill: none;
-		stroke: var(--color-text-muted);
+		stroke: var(--color-on-surface-variant);
 		stroke-width: 2.5;
 		marker-end: url(#cpl-arrow-muted);
-		transition: opacity var(--transition-normal), stroke var(--transition-fast);
+		transition: opacity var(--duration-slide) var(--ease-standard), stroke var(--duration-short) var(--ease-standard);
 	}
 
 	/* A feature reaching into another feature */
@@ -229,7 +229,7 @@ import { nodes, edges, rules, moduleFrame, VIEWBOX } from '../data/coupling';
 		marker-end: url(#cpl-arrow-bad);
 	}
 
-	.arrowhead-muted { fill: var(--color-text-muted); }
+	.arrowhead-muted { fill: var(--color-on-surface-variant); }
 	.arrowhead-bad { fill: var(--c-bad); }
 
 	/* Blast radius: the paths between the changed module and what breaks */
@@ -252,9 +252,9 @@ import { nodes, edges, rules, moduleFrame, VIEWBOX } from '../data/coupling';
 
 	.result {
 		padding: 0.8em 1em;
-		background: var(--color-surface);
+		background: var(--color-surface-container);
 		border-left: 4px solid var(--c-bad);
-		border-radius: var(--radius-sm);
+		border-radius: var(--shape-sm);
 	}
 
 	.result-label {
@@ -273,7 +273,7 @@ import { nodes, edges, rules, moduleFrame, VIEWBOX } from '../data/coupling';
 	.rebuild {
 		margin-top: 0.8em;
 		padding-top: 0.7em;
-		border-top: 1px solid var(--color-border);
+		border-top: 1px solid var(--color-outline-variant);
 	}
 
 	.rebuild[hidden] {
@@ -281,7 +281,7 @@ import { nodes, edges, rules, moduleFrame, VIEWBOX } from '../data/coupling';
 	}
 
 	.rebuild-label {
-		color: var(--color-accent);
+		color: var(--color-primary);
 	}
 
 	.rebuild-count {

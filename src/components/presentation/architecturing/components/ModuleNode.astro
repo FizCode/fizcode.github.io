@@ -52,7 +52,7 @@ const childrenId = `${node.name.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '
 	.node {
 		--rail: clamp(0.75rem, 2.2vh, 1.5rem);
 		--gap: clamp(0.4rem, 1.05vh, 0.75rem);
-		--line: var(--color-text-muted);
+		--line: var(--color-on-surface-variant);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -64,35 +64,35 @@ const childrenId = `${node.name.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '
 		align-items: center;
 		gap: 0.5em;
 		padding: 0.55em 0.8em;
-		background: var(--color-surface);
-		border: 2px solid var(--c-border, var(--color-border));
-		border-radius: var(--radius-sm);
-		color: var(--color-text-main);
+		background: var(--color-surface-container);
+		border: 2px solid var(--c-border, var(--color-outline-variant));
+		border-radius: var(--shape-sm);
+		color: var(--color-on-surface);
 		font-family: var(--font-mono);
 		font-size: clamp(0.9rem, min(2.65vh, 1.5vw), 2.4rem); /* ~29px */
 		font-weight: 600;
 		white-space: nowrap;
 		cursor: pointer;
-		transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+		transition: background var(--duration-short) var(--ease-standard), transform var(--duration-short) var(--ease-standard), box-shadow var(--duration-short) var(--ease-standard);
 	}
 
 	.box:hover {
-		background: var(--color-surface-hover);
+		background: var(--color-surface-container-high);
 		transform: translateY(-2px);
 	}
 
 	.box:focus-visible {
-		outline: 3px solid var(--color-accent);
+		outline: 3px solid var(--color-primary);
 		outline-offset: 3px;
 	}
 
 	.box.selected {
-		box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-border, var(--color-border)) 35%, transparent);
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-border, var(--color-outline-variant)) 35%, transparent);
 	}
 
 	/* Packages are folders inside a module: plain sans text so they read as a lower level */
 	.node[data-kind='package'] > .box {
-		font-family: var(--font-sans);
+		font-family: var(--font-body);
 		font-size: clamp(0.85rem, min(2.35vh, 1.32vw), 2.1rem); /* ~25px */
 		font-weight: 500;
 		padding: 0.55em 0.65em;
@@ -107,14 +107,14 @@ const childrenId = `${node.name.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '
 	.box.optional {
 		border-style: dashed;
 		background: transparent;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 
 	/* + / − indicator for boxes that open */
 	.toggle::before {
 		content: '+';
-		color: var(--color-text-muted);
-		font-family: var(--font-sans);
+		color: var(--color-on-surface-variant);
+		font-family: var(--font-body);
 	}
 
 	.box[aria-expanded='true'] .toggle::before {
@@ -141,7 +141,7 @@ const childrenId = `${node.name.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '
 	.node[data-layout='tree'] > .children {
 		position: relative;
 		padding-top: var(--rail);
-		animation: reveal var(--transition-normal);
+		animation: reveal var(--duration-slide) var(--ease-standard);
 	}
 
 	.node[data-layout='tree'] > .children::before {
@@ -201,7 +201,7 @@ const childrenId = `${node.name.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '
 		gap: var(--gap);
 		margin-top: var(--gap);
 		padding-left: calc(2 * var(--rail));
-		animation: reveal var(--transition-normal);
+		animation: reveal var(--duration-slide) var(--ease-standard);
 	}
 
 	.node[data-layout='list'] > .children > li {

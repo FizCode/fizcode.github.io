@@ -69,7 +69,7 @@ import { duplicatedRule, lookAlike, ruleOfThumb } from '../data/dry';
 		flex-direction: column;
 		align-items: center;
 		gap: 1em;
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	:global(.slide:has(.alike-step.visible)) .panel-rule,
@@ -105,10 +105,10 @@ import { duplicatedRule, lookAlike, ruleOfThumb } from '../data/dry';
 		flex-direction: column;
 		gap: 0.3em;
 		padding: 1em 1.3em;
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
+		background: var(--color-surface-container);
+		border: 1px solid var(--color-outline-variant);
 		border-top: 5px solid var(--c-answer);
-		border-radius: var(--radius-md);
+		border-radius: var(--shape-md);
 	}
 
 	.answer-yes { --c-answer: var(--c-app); }
@@ -133,14 +133,14 @@ import { duplicatedRule, lookAlike, ruleOfThumb } from '../data/dry';
 		margin-top: 0.6em;
 		font-size: 1.15em;
 		font-style: italic;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 		text-align: center;
 	}
 
 	.quote cite {
 		font-size: 0.8em;
 		font-style: normal;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 
 	@media (max-width: 800px) {

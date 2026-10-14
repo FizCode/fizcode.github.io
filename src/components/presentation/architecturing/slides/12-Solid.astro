@@ -61,16 +61,16 @@ import { principles, closing } from '../data/solid';
 		flex-direction: column;
 		gap: 0.6em;
 		padding: 0.8em 1em 1em;
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
+		background: var(--color-surface-container);
+		border: 1px solid var(--color-outline-variant);
+		border-radius: var(--shape-md);
 		line-height: 1.35;
-		transition: border-color var(--transition-normal);
+		transition: border-color var(--duration-slide) var(--ease-standard);
 	}
 
 	/* A filled-in letter lights up */
 	.letter-card:has(.details.visible) {
-		border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-border));
+		border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-outline-variant));
 	}
 
 	.letter {
@@ -78,9 +78,9 @@ import { principles, closing } from '../data/solid';
 		font-size: 3.4em; /* ~72px */
 		font-weight: 800;
 		line-height: 1;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		opacity: 0.45;
-		transition: color var(--transition-normal), opacity var(--transition-normal);
+		transition: color var(--duration-slide) var(--ease-standard), opacity var(--duration-slide) var(--ease-standard);
 	}
 
 	.letter-card:has(.details.visible) .letter {
@@ -98,13 +98,13 @@ import { principles, closing } from '../data/solid';
 		font-family: var(--font-display);
 		font-size: 1.15em;
 		font-weight: 700;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	/* Two lines reserved, so the sketches line up across the cards */
 	.meaning {
 		min-height: 2.7em;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	.details :global(.sketch) {
@@ -113,7 +113,7 @@ import { principles, closing } from '../data/solid';
 	}
 
 	.seen {
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 
 	.slides {
@@ -129,7 +129,7 @@ import { principles, closing } from '../data/solid';
 		font-size: 0.8em;
 		font-weight: 700;
 		color: var(--color-primary);
-		border: 1px solid color-mix(in srgb, var(--color-primary) 55%, var(--color-border));
+		border: 1px solid color-mix(in srgb, var(--color-primary) 55%, var(--color-outline-variant));
 		border-radius: 999px;
 	}
 
@@ -138,7 +138,7 @@ import { principles, closing } from '../data/solid';
 		font-family: var(--font-display);
 		font-size: 1.5em;
 		font-weight: 700;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 		text-align: center;
 	}
 

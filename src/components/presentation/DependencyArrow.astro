@@ -25,7 +25,7 @@ const { direction = 'down', label = 'depends on' } = Astro.props;
 		width: 3px;
 		height: var(--arrow-length, clamp(2rem, 5.5vh, 4.5rem));
 		margin: var(--arrow-margin, 12px 0);
-		background: var(--color-text-muted);
+		background: var(--color-on-surface-variant);
 		font-size: var(--arrow-font, clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem)); /* ~21px */
 	}
 
@@ -41,12 +41,12 @@ const { direction = 'down', label = 'depends on' } = Astro.props;
 
 	.head-down::after {
 		bottom: -12px;
-		border-top: 12px solid var(--color-text-muted);
+		border-top: 12px solid var(--color-on-surface-variant);
 	}
 
 	.head-up::after {
 		top: -12px;
-		border-bottom: 12px solid var(--color-text-muted);
+		border-bottom: 12px solid var(--color-on-surface-variant);
 	}
 
 	span {
@@ -56,6 +56,6 @@ const { direction = 'down', label = 'depends on' } = Astro.props;
 		transform: translateY(-50%);
 		white-space: nowrap;
 		font-size: var(--arrow-label-scale, 1em);
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 </style>

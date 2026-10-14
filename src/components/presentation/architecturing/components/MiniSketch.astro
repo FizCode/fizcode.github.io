@@ -118,7 +118,7 @@ const uid = `sketch-${Math.random().toString(36).slice(2, 8)}`;
 	.tone-core { --c-sketch: var(--c-core); }
 
 	rect {
-		fill: var(--color-bg);
+		fill: var(--color-surface);
 		stroke: var(--c-sketch);
 		stroke-width: 2;
 	}
@@ -128,7 +128,7 @@ const uid = `sketch-${Math.random().toString(36).slice(2, 8)}`;
 	}
 
 	text {
-		fill: var(--color-text-main);
+		fill: var(--color-on-surface);
 		font-family: var(--font-mono);
 		font-size: 10px;
 		font-weight: 700;
@@ -138,11 +138,11 @@ const uid = `sketch-${Math.random().toString(36).slice(2, 8)}`;
 
 	.dep {
 		fill: none;
-		stroke: var(--color-text-muted);
+		stroke: var(--color-on-surface-variant);
 		stroke-width: 1.5;
 	}
 
 	.arrowhead {
-		fill: var(--color-text-muted);
+		fill: var(--color-on-surface-variant);
 	}
 </style>

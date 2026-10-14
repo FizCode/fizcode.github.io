@@ -4,6 +4,7 @@ import '@/styles/base.css';
 import { DEFAULT_SEED, THEME_STORAGE_KEY } from '@/lib/theme';
 import { site } from '@/data/site';
 import type { JsonLd } from '@/lib/seo';
+import FontLinks from '@/components/layout/FontLinks.astro';
 import GlassHeader from '@/components/layout/GlassHeader.astro';
 
 interface Props {
@@ -17,8 +18,6 @@ interface Props {
 
 const { title, description = site.description, noindex = false, jsonLd } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const fontsHref =
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Plus+Jakarta+Sans:wght@300..800&family=Roboto+Flex:wght@400..700&display=swap';
 ---
 
 <!doctype html>
@@ -40,15 +39,7 @@ const fontsHref =
     <meta name="twitter:card" content="summary" />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 
-    <!--
-      Fonts load without blocking the first paint (text shows in a fallback font, then swaps).
-      Only the weights the site uses are requested: Roboto Flex's width and optical-size axes alone
-      cost about 150 KB and nothing uses them.
-    -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href={fontsHref} onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href={fontsHref} /></noscript>
+    <FontLinks />
 
     <!-- Applies the saved (or system) theme before first paint, so the page never flashes the wrong colors -->
     <script is:inline define:vars={{ storageKey: THEME_STORAGE_KEY }}>

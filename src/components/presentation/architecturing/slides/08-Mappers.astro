@@ -129,7 +129,7 @@ const [toDomain] = domainMappers;
 		align-self: flex-start;
 		padding: 0.1em 0.7em;
 		border: 2px solid var(--c-border);
-		border-radius: var(--radius-full);
+		border-radius: var(--shape-full);
 		color: var(--c-border);
 		font-weight: 700;
 	}
@@ -166,25 +166,25 @@ const [toDomain] = domainMappers;
 		align-items: center;
 		gap: 0.1em;
 		text-align: center;
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	.arrow-label code {
 		font-family: var(--font-mono);
 		font-weight: 700;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	.arrow-label span {
 		font-size: 0.8em;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 
 	.arrow-line {
 		position: relative;
 		width: 100%;
 		height: 3px;
-		background: var(--color-text-muted);
+		background: var(--color-on-surface-variant);
 	}
 
 	.arrow-line::after {
@@ -195,7 +195,7 @@ const [toDomain] = domainMappers;
 		transform: translateY(-50%);
 		border-top: 9px solid transparent;
 		border-bottom: 9px solid transparent;
-		border-left: 12px solid var(--color-text-muted);
+		border-left: 12px solid var(--color-on-surface-variant);
 	}
 
 	/* The UI model and its mapper are optional: drawn dashed */
@@ -208,7 +208,7 @@ const [toDomain] = domainMappers;
 	}
 
 	.arrow.optional .arrow-line {
-		background: repeating-linear-gradient(90deg, var(--color-text-muted) 0 8px, transparent 8px 14px);
+		background: repeating-linear-gradient(90deg, var(--color-on-surface-variant) 0 8px, transparent 8px 14px);
 	}
 
 	/* The data model and the domain model share one spot; the domain step swaps them */
@@ -218,7 +218,7 @@ const [toDomain] = domainMappers;
 
 	.swap > .card {
 		grid-area: 1 / 1;
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	/*
@@ -244,7 +244,7 @@ const [toDomain] = domainMappers;
 	.flow,
 	.files {
 		grid-area: 1 / 1;
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	/* Mapper code below the models */
@@ -258,7 +258,7 @@ const [toDomain] = domainMappers;
 		justify-content: center;
 		align-items: flex-start;
 		gap: clamp(1rem, 3vw, 3rem);
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	/* The last step's comparison fills the mapper spot (its styles live in CodeComparison) */
@@ -286,12 +286,12 @@ const [toDomain] = domainMappers;
 			transform: translateX(-50%);
 			border-left: 9px solid transparent;
 			border-right: 9px solid transparent;
-			border-top: 12px solid var(--color-text-muted);
+			border-top: 12px solid var(--color-on-surface-variant);
 			border-bottom: none;
 		}
 
 		.arrow.optional .arrow-line {
-			background: repeating-linear-gradient(180deg, var(--color-text-muted) 0 8px, transparent 8px 14px);
+			background: repeating-linear-gradient(180deg, var(--color-on-surface-variant) 0 8px, transparent 8px 14px);
 		}
 	}
 

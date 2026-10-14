@@ -85,7 +85,7 @@ const principles = [
 		flex-direction: column;
 		align-items: center;
 		gap: 1em;
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	:global(.slide:has(.yagni-step.visible)) .panel-kiss,
@@ -109,7 +109,7 @@ const principles = [
 	}
 
 	.principle span {
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		font-size: 1.05em;
 	}
 
@@ -129,9 +129,9 @@ const principles = [
 		flex-direction: column;
 		gap: 0.4em;
 		padding: 0.9em 1.2em 1em;
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
+		background: var(--color-surface-container);
+		border: 1px solid var(--color-outline-variant);
+		border-radius: var(--shape-md);
 		line-height: 1.35;
 	}
 
@@ -140,7 +140,7 @@ const principles = [
 	}
 
 	.start {
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 
 	.start span {
@@ -151,7 +151,7 @@ const principles = [
 
 	.add {
 		font-weight: 700;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	/* The rule's keywords, in the talk's "good" colour */
@@ -164,7 +164,7 @@ const principles = [
 		font-family: var(--font-display);
 		font-size: 1.4em;
 		font-weight: 700;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 		text-align: center;
 	}
 

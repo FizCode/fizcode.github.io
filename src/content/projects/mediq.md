@@ -4,7 +4,7 @@ order: 5
 summary: Hospital queue management system that reduces patient wait times.
 platform: Android
 role: Design & development
-year: 2023
+year: 2022
 
 # homepage card
 tags: [Compose, Hilt, Material 3]

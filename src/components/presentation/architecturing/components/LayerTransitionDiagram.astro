@@ -158,13 +158,13 @@ const vars = (entries: Record<string, number>) =>
 
 	.frame {
 		fill: none;
-		stroke: var(--color-border);
+		stroke: var(--color-outline-variant);
 		stroke-width: 2;
 	}
 
 	.tag {
-		fill: var(--color-surface-hover);
-		stroke: var(--color-border);
+		fill: var(--color-surface-container-high);
+		stroke: var(--color-outline-variant);
 		stroke-width: 1.5;
 	}
 
@@ -174,14 +174,14 @@ const vars = (entries: Record<string, number>) =>
 	}
 
 	.tag-label {
-		fill: var(--color-text-main);
+		fill: var(--color-on-surface);
 		font-family: var(--font-mono);
 		font-size: 17px;
 		font-weight: 700;
 	}
 
 	.box rect {
-		fill: var(--color-surface);
+		fill: var(--color-surface-container);
 		stroke: var(--c-border);
 		stroke-width: 3;
 	}
@@ -191,7 +191,7 @@ const vars = (entries: Record<string, number>) =>
 	.box-data, .file-in-data { --c-border: var(--c-data); }
 
 	.name {
-		fill: var(--color-text-main);
+		fill: var(--color-on-surface);
 		font-family: var(--font-mono);
 		font-size: 22px;
 		font-weight: 700;
@@ -212,18 +212,18 @@ const vars = (entries: Record<string, number>) =>
 
 	.dep {
 		fill: none;
-		stroke: var(--color-text-muted);
+		stroke: var(--color-on-surface-variant);
 		stroke-width: 2.5;
 	}
 
 	.dep-label {
-		fill: var(--color-text-muted);
-		font-family: var(--font-sans);
+		fill: var(--color-on-surface-variant);
+		font-family: var(--font-body);
 		font-size: 15px;
 	}
 
 	.arrowhead {
-		fill: var(--color-text-muted);
+		fill: var(--color-on-surface-variant);
 	}
 
 	/* ---------- Before ---------- */

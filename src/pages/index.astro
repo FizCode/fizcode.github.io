@@ -1,20 +1,26 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import { getProjects } from '@/lib/projects';
-import { personSchema } from '@/lib/seo';
-import AmbientShapes from '@/components/layout/AmbientShapes.astro';
-import BottomNav from '@/components/layout/BottomNav.astro';
-import ContactSection from '@/components/layout/ContactSection.astro';
-import AboutSection from '@/components/home/AboutSection.astro';
-import Hero from '@/components/home/Hero.astro';
-import WorkSection from '@/components/home/WorkSection.astro';
+import Layout from "@/layouts/Layout.astro";
+import { getProjects } from "@/lib/projects";
+import { personSchema } from "@/lib/seo";
+import AmbientShapes from "@/components/layout/AmbientShapes.astro";
+import BottomNav from "@/components/layout/BottomNav.astro";
+import ContactSection from "@/components/layout/ContactSection.astro";
+import AboutSection from "@/components/home/AboutSection.astro";
+import Hero from "@/components/home/Hero.astro";
+import WorkSection from "@/components/home/WorkSection.astro";
 
 const projects = await getProjects();
 const [first] = projects;
-const action = first && { href: `/projects/${first.id}/`, label: `First project: ${first.data.title}` };
+const action = first && {
+  href: `/projects/${first.id}/`,
+  label: `First project: ${first.data.title}`,
+};
 ---
 
-<Layout title="Fiz — Android Developer, Kotlin & Jetpack Compose" jsonLd={personSchema()}>
+<Layout
+  title="FizCode — Android Developer, Kotlin & Jetpack Compose"
+  jsonLd={personSchema()}
+>
   <AmbientShapes />
   <Hero />
   <WorkSection projects={projects} />

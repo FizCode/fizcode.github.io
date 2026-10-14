@@ -269,7 +269,7 @@ import { app, features, core, shared, tour } from "../data/modules";
 
 	.column-label {
 		font-size: 0.8em;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 	}
@@ -277,8 +277,8 @@ import { app, features, core, shared, tour } from "../data/modules";
 	.column-core {
 		padding: 0.6em;
 		background: color-mix(in srgb, var(--c-core) 6%, transparent);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
+		border: 1px solid var(--color-outline-variant);
+		border-radius: var(--shape-md);
 	}
 
 	/* :app -> rail -> an arrow down to each feature */
@@ -311,7 +311,7 @@ import { app, features, core, shared, tour } from "../data/modules";
 		left: calc(50% - 1.5px);
 		width: 3px;
 		height: calc(var(--rail) - var(--head));
-		background: var(--color-text-muted);
+		background: var(--color-on-surface-variant);
 	}
 
 	.feature-row > li::after {
@@ -321,7 +321,7 @@ import { app, features, core, shared, tour } from "../data/modules";
 		left: 0;
 		right: 0;
 		height: 3px;
-		background: var(--color-text-muted);
+		background: var(--color-on-surface-variant);
 	}
 
 	.feature-row > li:first-child::after {
@@ -339,7 +339,7 @@ import { app, features, core, shared, tour } from "../data/modules";
 		transform: translateX(-50%);
 		border-left: 7px solid transparent;
 		border-right: 7px solid transparent;
-		border-top: var(--head) solid var(--color-text-muted);
+		border-top: var(--head) solid var(--color-on-surface-variant);
 	}
 
 	/*
@@ -353,7 +353,7 @@ import { app, features, core, shared, tour } from "../data/modules";
 		top: calc(100% + 2px);
 		width: 2px;
 		height: calc(var(--rail) + 2px);
-		background: var(--color-text-muted);
+		background: var(--color-on-surface-variant);
 	}
 
 	/* The open feature's internals' rail, stretched to pass under the feature (see linkToRail) */
@@ -364,15 +364,15 @@ import { app, features, core, shared, tour } from "../data/modules";
 		left: var(--link-left, 0);
 		width: var(--link-width, 0);
 		height: 2px;
-		background: var(--color-text-muted);
+		background: var(--color-on-surface-variant);
 	}
 
 	/* Build-up: a part waits, invisible but holding its place, until its step arrives */
 	[data-from] {
 		transition:
-			opacity var(--transition-normal),
-			transform var(--transition-normal),
-			visibility var(--transition-normal);
+			opacity var(--duration-slide) var(--ease-standard),
+			transform var(--duration-slide) var(--ease-standard),
+			visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	[data-from]:not(.shown) {
@@ -400,8 +400,8 @@ import { app, features, core, shared, tour } from "../data/modules";
 	/* The board steps back; the focused box and its note take its place */
 	.column {
 		transition:
-			opacity var(--transition-normal),
-			visibility var(--transition-normal);
+			opacity var(--duration-slide) var(--ease-standard),
+			visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	.board.focusing > .column {
@@ -420,8 +420,8 @@ import { app, features, core, shared, tour } from "../data/modules";
 		opacity: 0;
 		visibility: hidden;
 		transition:
-			opacity var(--transition-normal),
-			visibility var(--transition-normal);
+			opacity var(--duration-slide) var(--ease-standard),
+			visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	.board.focusing .focus {
@@ -435,9 +435,9 @@ import { app, features, core, shared, tour } from "../data/modules";
 		gap: 0.4em;
 		max-width: 28em;
 		padding: 0.9em 1.3em;
-		background: var(--color-surface);
+		background: var(--color-surface-container);
 		border-left: 4px solid var(--color-primary);
-		border-radius: var(--radius-sm);
+		border-radius: var(--shape-sm);
 		font-size: clamp(0.95rem, min(2.4vh, 1.35vw), 2.2rem); /* ~26px */
 		line-height: 1.4;
 	}
@@ -448,13 +448,13 @@ import { app, features, core, shared, tour } from "../data/modules";
 	}
 
 	.focus-text {
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	.focus-hint {
 		margin-top: 0.3em;
 		font-size: 0.7em;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 
 	/* ---------- Side slide links, in the bottom corners ---------- */
@@ -467,15 +467,15 @@ import { app, features, core, shared, tour } from "../data/modules";
 
 	.aside {
 		padding: 0.45em 0.9em;
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-sm);
-		color: var(--color-text-muted);
+		background: var(--color-surface-container);
+		border: 1px solid var(--color-outline-variant);
+		border-radius: var(--shape-sm);
+		color: var(--color-on-surface-variant);
 		font-weight: 600;
 		transition:
-			color var(--transition-fast),
-			border-color var(--transition-fast),
-			transform var(--transition-fast);
+			color var(--duration-short) var(--ease-standard),
+			border-color var(--duration-short) var(--ease-standard),
+			transform var(--duration-short) var(--ease-standard);
 	}
 
 	.aside:hover,

@@ -1,6 +1,6 @@
-/* Diagram colors shared by this talk's slides, for both presentation themes */
+/* Diagram colors shared by this talk's slides, for both presentation themes. They carry meaning (app, feature, core, …), so they stay independent of the blue theme. */
 :root {
-	--c-app: var(--color-primary);
+	--c-app: #3ddc84; /* Android green: the app module keeps its own color next to the blue theme */
 	--c-feature: #3b82f6;
 	--c-core: #a78bfa;
 	--c-package: #64748b;
@@ -12,6 +12,7 @@
 
 /* Deeper tones keep borders and text readable on a white background */
 :root[data-theme='light'] {
+	--c-app: #15803d;
 	--c-feature: #1d4ed8;
 	--c-core: #7c3aed;
 	--c-package: #94a3b8;
