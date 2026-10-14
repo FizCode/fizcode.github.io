@@ -22,7 +22,6 @@ export const site = {
   ],
 } as const;
 
-/** The round button next to the bottom navigation */
 export interface DockAction {
   href: string;
   label: string;

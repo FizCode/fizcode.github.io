@@ -1,16 +1,30 @@
 ---
 import { SEEDS } from '@/lib/theme';
+import { lobedPath } from '@/lib/shapes';
 import Button from '@/components/ui/Button.astro';
 import Icon from '@/components/ui/Icon.astro';
 import IconButton from '@/components/ui/IconButton.astro';
 import SeedSwatch from '@/components/ui/SeedSwatch.astro';
 import { site } from '@/data/site';
+
+const [first] = SEEDS;
+const currentShape = lobedPath([first.lobes, 0.07, 0], 40, 120);
 ---
 
 <header class="header">
   <div class="bar">
     <a href="/" class="type-title-md logo">{site.name}</a>
     <div class="controls">
+      <button
+        type="button"
+        class="seed-toggle"
+        data-seed-toggle
+        aria-label="Theme color"
+        aria-expanded="false"
+        aria-controls="seed-pop"
+      >
+        <svg viewBox="0 0 100 100" aria-hidden="true"><path d={currentShape} data-seed-shape /></svg>
+      </button>
       <div role="group" aria-label="Theme color" class="seeds">
         {SEEDS.map(({ seed, lobes }, i) => <SeedSwatch seed={seed} lobes={lobes} pressed={i === 0} />)}
       </div>
@@ -20,6 +34,9 @@ import { site } from '@/data/site';
       </IconButton>
     </div>
     <Button href="#contact" size="md" class="hire">Hire me</Button>
+  </div>
+  <div id="seed-pop" role="group" aria-label="Theme color" class="seed-pop" hidden data-seed-pop>
+    {SEEDS.map(({ seed, lobes }, i) => <SeedSwatch seed={seed} lobes={lobes} pressed={i === 0} />)}
   </div>
 </header>
 
@@ -55,7 +72,52 @@ import { site } from '@/data/site';
   .seeds { display: flex; align-items: center; gap: 6px; }
   .divider { width: 1px; height: 24px; background: var(--color-outline-variant); }
 
+  .seed-toggle,
+  .seed-pop { display: none; }
+
   @media (max-width: 640px) {
     :global(.hire) { display: none; }
+    .bar {
+      flex-wrap: nowrap;
+      gap: var(--space-8);
+      padding: 6px 6px 6px 20px;
+    }
+    /* The five swatches fold into one button showing the current theme; the rest open below the bar */
+    .seeds { display: none; }
+    .controls { gap: var(--space-4); }
+    .seed-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: none;
+      border-radius: var(--shape-full);
+      background: transparent;
+      cursor: pointer;
+    }
+    .seed-toggle svg { width: 40px; height: 40px; overflow: visible; }
+    .seed-toggle path {
+      fill: var(--color-primary);
+      stroke: var(--color-on-surface);
+      stroke-width: 7;
+      stroke-linejoin: round;
+    }
+    .seed-toggle:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+    .seed-pop:not([hidden]) {
+      position: absolute;
+      top: calc(100% + var(--space-8));
+      right: var(--space-16);
+      display: flex;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      border-radius: var(--shape-full);
+      background: var(--glass-fill);
+      border: 1px solid var(--glass-edge);
+      box-shadow: var(--elevation-glass);
+      backdrop-filter: blur(var(--blur-lg)) saturate(var(--glass-saturate));
+      -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(var(--glass-saturate));
+    }
   }
 </style>

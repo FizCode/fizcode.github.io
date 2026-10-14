@@ -43,7 +43,6 @@ svg {
   color: var(--color-on-surface-variant);
 }
 
-/* Shared horizontal frame of every section */
 .container {
   max-width: var(--container-max);
   margin-inline: auto;
