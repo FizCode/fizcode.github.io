@@ -31,7 +31,6 @@ highlights:
   - title: The standard Android stack
     text: Dagger/Hilt and Retrofit, from before my shift to Koin and Compose.
 
-next: animanga
 ---
 
 ## Overview

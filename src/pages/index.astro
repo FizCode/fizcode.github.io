@@ -2,6 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import { getProjects } from '@/lib/projects';
 import AmbientShapes from '@/components/layout/AmbientShapes.astro';
+import BottomNav from '@/components/layout/BottomNav.astro';
 import ContactSection from '@/components/layout/ContactSection.astro';
 import AboutSection from '@/components/home/AboutSection.astro';
 import Hero from '@/components/home/Hero.astro';
@@ -12,10 +13,11 @@ const [first] = projects;
 const action = first && { href: `/projects/${first.id}/`, label: `First project: ${first.data.title}` };
 ---
 
-<Layout title="fizcode — Android developer" current="home" scrollSpy action={action}>
+<Layout title="fizcode — Android developer">
   <AmbientShapes />
   <Hero />
   <WorkSection projects={projects} />
   <AboutSection />
   <ContactSection />
+  {action && <BottomNav slot="dock" action={action} />}
 </Layout>

@@ -173,6 +173,13 @@
   --color-tertiary-container: #444B22;
 }
 
+/* Current seed color (header trigger swatch on phones) */
+:root, :root[data-seed="blue"] { --seed-current: var(--seed-blue); }
+:root[data-seed="green"]  { --seed-current: var(--seed-green); }
+:root[data-seed="violet"] { --seed-current: var(--seed-violet); }
+:root[data-seed="rose"]   { --seed-current: var(--seed-rose); }
+:root[data-seed="orange"] { --seed-current: var(--seed-orange); }
+
 /* Glass surfaces (header, nav bar, chips) */
 :root {
   --glass-fill: rgba(255, 255, 255, 0.55);
@@ -249,6 +256,12 @@
   --loader-hold: 6s;
   --loader-morph: 2.2s;
   --reveal-distance: 48px;
+  --dock-scale-compact: 0.9;
+  --dock-scroll-threshold: 120px;   /* used in JS */
+  --dock-scroll-jitter: 6px;        /* used in JS */
+  --header-hide-scale: 0.9;
+  --duration-header: 500ms;
+  --ease-emphasized: cubic-bezier(.2, 0, 0, 1);
 }
 
 /* ───────── Breakpoints ───────── */
@@ -321,6 +334,7 @@
   --icon-button-size: 56px;
   --icon-button-radius-hover: 18px;
   --fab-size: 64px;
-  --fab-radius: 20px;
+  --fab-radius: 50%;
+  --fab-radius-hover: 20px;
   --touch-target: 48px;
 }

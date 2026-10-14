@@ -2,22 +2,15 @@
 import '@/styles/tokens.css';
 import '@/styles/base.css';
 import { DEFAULT_SEED, THEME_STORAGE_KEY } from '@/lib/theme';
-import { site, type DockAction, type NavId } from '@/data/site';
-import BottomNav from '@/components/layout/BottomNav.astro';
+import { site } from '@/data/site';
 import GlassHeader from '@/components/layout/GlassHeader.astro';
 
 interface Props {
   title: string;
   description?: string;
-  /** Item highlighted in the bottom navigation */
-  current?: NavId;
-  /** Let the bottom navigation follow the reader through the page */
-  scrollSpy?: boolean;
-  /** Round button beside the bottom navigation; leave out to shrink it away */
-  action?: DockAction;
 }
 
-const { title, description = site.description, current = 'home', scrollSpy = false, action } = Astro.props;
+const { title, description = site.description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -65,7 +58,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <main>
         <slot />
       </main>
-      <BottomNav current={current} scrollSpy={scrollSpy} action={action} />
+      <!-- The floating bar at the bottom: BottomNav on the homepage, ProjectDock on project pages -->
+      <slot name="dock" />
     </div>
   </body>
 </html>

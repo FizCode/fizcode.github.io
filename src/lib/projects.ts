@@ -5,10 +5,6 @@ export type Project = CollectionEntry<'projects'>;
 /** A project plus its position in the list, shown as "01", "02", … */
 export type IndexedProject = Project & { index: string };
 
-/** The project that follows `project` in display order, if any */
-export const getFollowingProject = (projects: IndexedProject[], project: IndexedProject) =>
-  projects[projects.findIndex((p) => p.id === project.id) + 1];
-
 const formatIndex = (position: number) => String(position + 1).padStart(2, '0');
 
 /** All projects in display order. The index follows the order, so reordering never leaves gaps. */
