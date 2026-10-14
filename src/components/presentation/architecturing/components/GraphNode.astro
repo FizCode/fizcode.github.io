@@ -32,7 +32,7 @@ const lineY = node.label.length === 2 ? [NODE_H / 2 - 12, NODE_H / 2 + 12] : [NO
 		--c-border: var(--c-feature);
 		cursor: pointer;
 		outline: none;
-		transition: opacity var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard);
 	}
 
 	.kind-shared {
@@ -44,10 +44,10 @@ const lineY = node.label.length === 2 ? [NODE_H / 2 - 12, NODE_H / 2 + 12] : [NO
 	}
 
 	rect {
-		fill: var(--color-surface);
+		fill: var(--color-surface-container);
 		stroke: var(--c-border);
 		stroke-width: 2.5;
-		transition: fill var(--transition-fast), stroke var(--transition-fast);
+		transition: fill var(--duration-short) var(--ease-standard), stroke var(--duration-short) var(--ease-standard);
 	}
 
 	.optional rect {
@@ -55,16 +55,16 @@ const lineY = node.label.length === 2 ? [NODE_H / 2 - 12, NODE_H / 2 + 12] : [NO
 	}
 
 	.node:hover rect {
-		fill: var(--color-surface-hover);
+		fill: var(--color-surface-container-high);
 	}
 
 	.node:focus-visible rect {
-		stroke: var(--color-accent);
+		stroke: var(--color-primary);
 		stroke-width: 4;
 	}
 
 	text {
-		fill: var(--color-text-main);
+		fill: var(--color-on-surface);
 		font-family: var(--font-mono);
 		font-size: 18px;
 		font-weight: 700;
@@ -75,7 +75,7 @@ const lineY = node.label.length === 2 ? [NODE_H / 2 - 12, NODE_H / 2 + 12] : [NO
 
 	/* Packages are folders inside a module: plain text, like on the module structure slide */
 	.kind-package text {
-		font-family: var(--font-sans);
+		font-family: var(--font-body);
 		font-size: 19px;
 		font-weight: 600;
 	}
@@ -86,13 +86,13 @@ const lineY = node.label.length === 2 ? [NODE_H / 2 - 12, NODE_H / 2 + 12] : [NO
 	}
 
 	.changed rect {
-		fill: color-mix(in srgb, var(--c-bad) 22%, var(--color-surface));
+		fill: color-mix(in srgb, var(--c-bad) 22%, var(--color-surface-container));
 		stroke: var(--c-bad);
 		stroke-width: 4;
 	}
 
 	.affected rect {
-		fill: color-mix(in srgb, var(--c-bad) 10%, var(--color-surface));
+		fill: color-mix(in srgb, var(--c-bad) 10%, var(--color-surface-container));
 		stroke: var(--c-bad);
 		stroke-dasharray: 7 5;
 	}

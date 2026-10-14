@@ -1,9 +1,18 @@
 /*
- * Shared by every presentation page (loaded by PresentationLayout), never by the portfolio,
- * so the portfolio keeps its dark palette. Dark reuses global.css; light overrides the tokens.
+ * Shared by every presentation page (loaded by PresentationLayout), never by the portfolio.
+ * Colors, fonts, shapes and motion come from tokens.css (blue theme); the dark/light switch
+ * sets data-theme on <html>, like the portfolio. Only what slides add on top is defined here.
  */
 :root {
-	--font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+	/* Pace of the step reveals and zoom: a little quicker than the portfolio's motion */
+	--duration-slide: 300ms;
+	/* Hover state on a card: the card color with a touch of text color mixed in */
+	--color-surface-container-high: color-mix(
+		in srgb,
+		var(--color-on-surface) calc(var(--state-hover) * 100%),
+		var(--color-surface-container)
+	);
+
 	/* Code highlighting (Code.astro) */
 	--code-keyword: #c084fc;
 	--code-string: #86efac;
@@ -17,15 +26,6 @@
 
 :root[data-theme='light'] {
 	color-scheme: light;
-	--color-bg: #f8fafc;
-	--color-surface: #ffffff;
-	--color-surface-hover: #eef2f7;
-	--color-primary: #15803d; /* darker green keeps text readable on white */
-	--color-primary-dim: #166534;
-	--color-accent: #2563eb;
-	--color-text-main: #0f172a;
-	--color-text-muted: #475569;
-	--color-border: #cbd5e1;
 	--code-keyword: #7c3aed;
 	--code-string: #15803d;
 	--code-type: #0369a1;
@@ -33,7 +33,7 @@
 }
 
 html {
-	transition: background-color var(--transition-normal), color var(--transition-normal);
+	transition: background-color var(--duration-slide) var(--ease-standard), color var(--duration-slide) var(--ease-standard);
 }
 
 /* Step-by-step reveal: clicking a slide shows its .fragment elements one at a time */
@@ -41,7 +41,7 @@ html {
 	opacity: 0;
 	visibility: hidden;
 	transform: translateY(12px);
-	transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal);
+	transition: opacity var(--duration-slide) var(--ease-standard), transform var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 }
 
 .deck .fragment.visible {
@@ -56,13 +56,13 @@ html {
  */
 .pill {
 	padding: 0.15em 0.6em;
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-full);
-	background: var(--color-surface);
+	border: 1px solid var(--color-outline-variant);
+	border-radius: var(--shape-full);
+	background: var(--color-surface-container);
 }
 
 .pill--code {
-	background: var(--color-bg);
+	background: var(--color-surface);
 	font-family: var(--font-mono);
 	font-weight: 600;
 }
@@ -80,18 +80,18 @@ html {
 	margin: 0;
 	padding: 0.9em 1.1em;
 	overflow: hidden;
-	background: var(--color-bg);
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-md);
+	background: var(--color-surface);
+	border: 1px solid var(--color-outline-variant);
+	border-radius: var(--shape-md);
 	font-family: var(--font-mono);
 	font-size: var(--code-font, clamp(0.72rem, min(1.7vh, 0.95vw), 1.5rem)); /* ~18px */
 	line-height: 1.45;
-	color: var(--color-text-main);
+	color: var(--color-on-surface);
 	white-space: pre;
 	text-align: left;
 }
 
-.tok-comment { color: var(--color-text-muted); font-style: italic; }
+.tok-comment { color: var(--color-on-surface-variant); font-style: italic; }
 .tok-string { color: var(--code-string); }
 .tok-keyword { color: var(--code-keyword); }
 .tok-type { color: var(--code-type); }
@@ -118,11 +118,11 @@ html {
 	gap: 1.5rem;
 	/* Top clears the navigation bars; bottom clears the hint */
 	padding: clamp(4.75rem, 8.9vh, 6rem) 3vw clamp(2.75rem, 6vh, 4.5rem);
-	background: color-mix(in srgb, var(--color-bg) 97%, transparent);
+	background: color-mix(in srgb, var(--color-surface) 97%, transparent);
 	backdrop-filter: blur(4px);
 	cursor: zoom-out;
 	opacity: 0;
-	transition: opacity var(--transition-normal);
+	transition: opacity var(--duration-slide) var(--ease-standard);
 }
 
 .zoom-overlay[hidden] {
@@ -136,7 +136,7 @@ html {
 /* Scaled around its centre, so it grows in place in the middle of the free space */
 .zoom-stage {
 	transform: scale(calc(var(--zoom, 1) * 0.92));
-	transition: transform var(--transition-normal);
+	transition: transform var(--duration-slide) var(--ease-standard);
 }
 
 .zoom-overlay.open .zoom-stage {
@@ -146,7 +146,7 @@ html {
 .zoom-hint {
 	position: absolute;
 	bottom: 2vh;
-	color: var(--color-text-muted);
+	color: var(--color-on-surface-variant);
 	font-size: clamp(0.8rem, 1.6vh, 1.2rem);
 }
 

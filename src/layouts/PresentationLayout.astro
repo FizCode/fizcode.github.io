@@ -1,6 +1,8 @@
 ---
+import '../styles/tokens.css';
 import '../styles/presentation-base.css';
 import '../styles/presentation.css';
+import FontLinks from '../components/layout/FontLinks.astro';
 
 interface Props {
 	title: string;
@@ -20,10 +22,7 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<meta name="robots" content="noindex" />
 
-		<!-- Google Fonts -->
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+		<FontLinks />
 
 		<title>{title}</title>
 
@@ -227,7 +226,7 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 		opacity: 0;
 		visibility: hidden;
 		transform: translateX(24px);
-		transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard), transform var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	.deck > :global(.slide.active) {
@@ -264,7 +263,7 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 
 	.deck :global(.lead) {
 		font-size: clamp(1rem, min(2.8vh, 1.6vw), 2.5rem); /* ~30px */
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		max-width: 50ch;
 		margin-bottom: 0.8em;
 	}
@@ -292,28 +291,28 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 		z-index: 1;
 		display: flex;
 		align-items: center;
-		gap: var(--spacing-sm);
+		gap: var(--space-16);
 		padding: 0.4rem 0.6rem;
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-full);
+		background: var(--color-surface-container);
+		border: 1px solid var(--color-outline-variant);
+		border-radius: var(--shape-full);
 	}
 
 	.nav-btn {
 		width: 2.5rem;
 		height: 2.5rem;
 		border: none;
-		border-radius: var(--radius-full);
-		background: var(--color-surface-hover);
-		color: var(--color-text-main);
+		border-radius: var(--shape-full);
+		background: var(--color-surface-container-high);
+		color: var(--color-on-surface);
 		font-size: 1.1rem;
 		cursor: pointer;
-		transition: background var(--transition-fast), color var(--transition-fast);
+		transition: background var(--duration-short) var(--ease-standard), color var(--duration-short) var(--ease-standard);
 	}
 
 	.nav-btn:hover:not(:disabled) {
 		background: var(--color-primary);
-		color: var(--color-bg);
+		color: var(--color-surface);
 	}
 
 	.nav-btn:disabled {
@@ -324,7 +323,7 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 	.nav-divider {
 		width: 1px;
 		height: 1.5rem;
-		background: var(--color-border);
+		background: var(--color-outline-variant);
 	}
 
 	/* Show the icon of the mode you would switch to */
@@ -342,7 +341,7 @@ const { title, description = "FizCode Presentation" } = Astro.props;
 		min-width: 3.5rem;
 		text-align: center;
 		font-size: 0.9rem;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		font-variant-numeric: tabular-nums;
 	}
 </style>

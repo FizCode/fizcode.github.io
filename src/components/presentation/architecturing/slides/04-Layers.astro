@@ -160,24 +160,24 @@ import { layers } from '../data/layers';
 	.box {
 		width: min(100%, 9em);
 		padding: 0.65em 0.5em;
-		background: var(--color-surface);
+		background: var(--color-surface-container);
 		border: 3px solid var(--c-border);
-		border-radius: var(--radius-md);
-		color: var(--color-text-main);
+		border-radius: var(--shape-md);
+		color: var(--color-on-surface);
 		text-align: center;
 		font-family: var(--font-mono);
 		font-size: clamp(1rem, min(3.2vh, 1.8vw), 2.9rem); /* ~35px */
 		font-weight: 700;
 		cursor: pointer;
-		transition: background var(--transition-fast);
+		transition: background var(--duration-short) var(--ease-standard);
 	}
 
 	.box:hover {
-		background: var(--color-surface-hover);
+		background: var(--color-surface-container-high);
 	}
 
 	.box:focus-visible {
-		outline: 3px solid var(--color-accent);
+		outline: 3px solid var(--color-primary);
 		outline-offset: -6px;
 	}
 
@@ -189,13 +189,13 @@ import { layers } from '../data/layers';
 		background: color-mix(
 			in srgb,
 			var(--c-border) 15%,
-			var(--color-surface)
+			var(--color-surface-container)
 		);
 	}
 
 	.back-hint {
 		display: none;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		font-size: clamp(0.8rem, min(1.8vh, 1vw), 1.6rem); /* ~19px */
 	}
 
@@ -232,14 +232,14 @@ import { layers } from '../data/layers';
 	}
 
 	.desc p {
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		line-height: 1.4;
 	}
 
 	/* Shared .pill, sized to sit inside the heading */
 	.optional-tag {
 		padding: 0.05em 0.5em;
-		font-family: var(--font-sans);
+		font-family: var(--font-body);
 		font-size: 0.55em;
 		font-weight: 500;
 	}
@@ -292,7 +292,7 @@ import { layers } from '../data/layers';
 		flex-direction: column;
 		gap: 0.45em;
 		padding-left: 1.1em;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 		line-height: 1.35;
 	}
 

@@ -98,13 +98,13 @@ const placement = (key: LayerKey) => {
 	/* The feature frame */
 	.frame {
 		fill: none;
-		stroke: var(--color-border);
+		stroke: var(--color-outline-variant);
 		stroke-width: 2;
 	}
 
 	.tag {
-		fill: var(--color-surface-hover);
-		stroke: var(--color-border);
+		fill: var(--color-surface-container-high);
+		stroke: var(--color-outline-variant);
 		stroke-width: 1.5;
 	}
 
@@ -116,7 +116,7 @@ const placement = (key: LayerKey) => {
 	}
 
 	.tag-label {
-		fill: var(--color-text-main);
+		fill: var(--color-on-surface);
 		font-family: var(--font-mono);
 		font-size: 17px;
 		font-weight: 700;
@@ -133,13 +133,13 @@ const placement = (key: LayerKey) => {
 	}
 
 	.layer rect {
-		fill: var(--color-surface);
+		fill: var(--color-surface-container);
 		stroke: var(--c-border);
 		stroke-width: 3;
 	}
 
 	.layer text {
-		fill: var(--color-text-main);
+		fill: var(--color-on-surface);
 		font-family: var(--font-mono);
 		font-size: 22px;
 		font-weight: 700;
@@ -161,7 +161,7 @@ const placement = (key: LayerKey) => {
 	/* Arrows: the head points at the dependency */
 	.dep {
 		fill: none;
-		stroke: var(--color-text-muted);
+		stroke: var(--color-on-surface-variant);
 		stroke-width: 2.5;
 		marker-end: url(#dir-arrow-muted);
 	}
@@ -173,8 +173,8 @@ const placement = (key: LayerKey) => {
 	}
 
 	.dep-label {
-		fill: var(--color-text-muted);
-		font-family: var(--font-sans);
+		fill: var(--color-on-surface-variant);
+		font-family: var(--font-body);
 		font-size: 15px;
 	}
 
@@ -190,7 +190,7 @@ const placement = (key: LayerKey) => {
 		dominant-baseline: central;
 	}
 
-	.arrowhead-muted { fill: var(--color-text-muted); }
+	.arrowhead-muted { fill: var(--color-on-surface-variant); }
 	.arrowhead-bad { fill: var(--c-bad); }
 
 	/* The linear arrows give way to the onion's */
@@ -217,10 +217,10 @@ const placement = (key: LayerKey) => {
 	.explain-block {
 		grid-area: 1 / 1;
 		padding: 0.8em 1em;
-		background: var(--color-surface);
+		background: var(--color-surface-container);
 		border-left: 4px solid var(--c-accent-line);
-		border-radius: var(--radius-sm);
-		transition: opacity var(--transition-normal), visibility var(--transition-normal);
+		border-radius: var(--shape-sm);
+		transition: opacity var(--duration-slide) var(--ease-standard), visibility var(--duration-slide) var(--ease-standard);
 	}
 
 	.explain-linear { --c-accent-line: var(--c-bad); }
@@ -252,13 +252,13 @@ const placement = (key: LayerKey) => {
 	.inversion {
 		margin-top: 0.9em;
 		padding-top: 0.7em;
-		border-top: 1px solid var(--color-border);
-		color: var(--color-text-muted);
+		border-top: 1px solid var(--color-outline-variant);
+		color: var(--color-on-surface-variant);
 		line-height: 1.4;
 	}
 
 	.inversion strong {
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	@media (max-width: 800px) {

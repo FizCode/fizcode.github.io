@@ -55,10 +55,10 @@ const sides = [comparison.left, comparison.right];
 
 	.tone-bad .option-label { color: var(--c-bad); }
 	.tone-good .option-label { color: var(--c-app); }
-	.tone-neutral .option-label { color: var(--color-text-muted); }
+	.tone-neutral .option-label { color: var(--color-on-surface-variant); }
 
-	.tone-bad :global(.code-block) { border-color: color-mix(in srgb, var(--c-bad) 55%, var(--color-border)); }
-	.tone-good :global(.code-block) { border-color: color-mix(in srgb, var(--c-app) 55%, var(--color-border)); }
+	.tone-bad :global(.code-block) { border-color: color-mix(in srgb, var(--c-bad) 55%, var(--color-outline-variant)); }
+	.tone-good :global(.code-block) { border-color: color-mix(in srgb, var(--c-app) 55%, var(--color-outline-variant)); }
 
 	.reasons {
 		display: flex;
@@ -66,7 +66,7 @@ const sides = [comparison.left, comparison.right];
 		justify-content: center;
 		gap: 0.5em 2em;
 		list-style: none;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	.reasons li::before {

@@ -58,9 +58,9 @@ const items = subtitles.map((s) => (typeof s === 'string' ? { text: s } : s));
 	.subtitle {
 		grid-row: 2;
 		grid-column: 1;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		font-size: clamp(1rem, min(2.6vh, 1.5vw), 2.4rem); /* ~28px */
-		transition: opacity var(--transition-normal);
+		transition: opacity var(--duration-slide) var(--ease-standard);
 	}
 
 	.size-small .subtitle {
@@ -73,7 +73,7 @@ const items = subtitles.map((s) => (typeof s === 'string' ? { text: s } : s));
 	}
 
 	.subtitle strong {
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 		font-weight: 600;
 	}
 

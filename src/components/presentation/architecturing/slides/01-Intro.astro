@@ -27,7 +27,7 @@ import { hook, parts, footer } from '../data/intro';
 <style>
 	/* Sizes scale with the screen; values in comments are at 1920x1080 */
 	.question {
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	.parts {
@@ -44,9 +44,9 @@ import { hook, parts, footer } from '../data/intro';
 		flex-direction: column;
 		gap: 0.3em;
 		padding: 0.9em 1.2em 1em;
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
+		background: var(--color-surface-container);
+		border: 1px solid var(--color-outline-variant);
+		border-radius: var(--shape-md);
 		line-height: 1.35;
 	}
 
@@ -57,7 +57,7 @@ import { hook, parts, footer } from '../data/intro';
 		font-family: var(--font-display);
 		font-size: 1.3em;
 		font-weight: 700;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	.part-number {
@@ -66,18 +66,18 @@ import { hook, parts, footer } from '../data/intro';
 		width: 1.6em;
 		height: 1.6em;
 		font-size: 0.75em;
-		color: var(--color-bg);
+		color: var(--color-surface);
 		background: var(--color-primary);
 		border-radius: 50%;
 	}
 
 	.part-goal {
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	.part-topics {
 		font-size: 0.85em;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 
 	/* Who it is for and who is talking, separated by dots */
@@ -87,7 +87,7 @@ import { hook, parts, footer } from '../data/intro';
 		gap: 0.3em 0;
 		margin-top: clamp(1rem, 3.5vh, 2.5rem);
 		font-size: clamp(0.8rem, min(1.9vh, 1.1vw), 1.7rem); /* ~21px */
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 	}
 
 	.footer span:not(:last-child)::after {
@@ -97,7 +97,7 @@ import { hook, parts, footer } from '../data/intro';
 
 	.footer span:last-child {
 		font-weight: 700;
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	@media (max-width: 800px) {

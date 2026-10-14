@@ -145,7 +145,7 @@ const tallest = Math.max(...qitaCore.map((group) => group.nodes.length));
 	.column-label,
 	.group-label {
 		font-size: 0.8em;
-		color: var(--color-text-muted);
+		color: var(--color-on-surface-variant);
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 	}
@@ -164,8 +164,8 @@ const tallest = Math.max(...qitaCore.map((group) => group.nodes.length));
 
 	.panel {
 		padding: 0.6em;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
+		border: 1px solid var(--color-outline-variant);
+		border-radius: var(--shape-md);
 	}
 
 	.panel {
@@ -199,7 +199,7 @@ const tallest = Math.max(...qitaCore.map((group) => group.nodes.length));
 
 	.feature-group + .feature-group {
 		padding-top: 0.5em;
-		border-top: 1px dashed var(--color-border);
+		border-top: 1px dashed var(--color-outline-variant);
 	}
 
 	/* One row per module: its box, a line, then its submodules or packages */
@@ -228,7 +228,7 @@ const tallest = Math.max(...qitaCore.map((group) => group.nodes.length));
 	.link {
 		width: 1em;
 		height: 2px;
-		background: var(--color-text-muted);
+		background: var(--color-on-surface-variant);
 	}
 
 	.parts {
@@ -283,9 +283,9 @@ const tallest = Math.max(...qitaCore.map((group) => group.nodes.length));
 		width: min(100%, 60em);
 		min-height: 3.6em;
 		padding: 0.6em 1.2em;
-		background: var(--color-surface);
+		background: var(--color-surface-container);
 		border-left: 4px solid var(--color-primary);
-		border-radius: var(--radius-sm);
+		border-radius: var(--shape-sm);
 		font-size: clamp(0.9rem, min(2.1vh, 1.2vw), 2rem); /* ~23px */
 		line-height: 1.4;
 	}
@@ -300,7 +300,7 @@ const tallest = Math.max(...qitaCore.map((group) => group.nodes.length));
 	}
 
 	.note-text {
-		color: var(--color-text-main);
+		color: var(--color-on-surface);
 	}
 
 	/* Narrow screens: stack the columns, main tree first */
