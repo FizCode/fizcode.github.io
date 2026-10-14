@@ -5,7 +5,7 @@ order: 3
 summary: The official app of Indonesia's largest telecom operator. Account management and video streaming in one place.
 role: Development
 platform: Android
-year: 2023 - 2024
+year: 2024 - 2026
 
 # homepage card
 tags: [Compose, ExoPlayer, MVVM]
