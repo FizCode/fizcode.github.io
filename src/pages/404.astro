@@ -1,0 +1,31 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import AmbientShapes from '@/components/layout/AmbientShapes.astro';
+import Button from '@/components/ui/Button.astro';
+---
+
+<Layout title="Page not found — fizcode" noindex>
+  <AmbientShapes single />
+  <section class="container lost">
+    <p class="type-eyebrow muted">404 · Page not found</p>
+    <h1 class="type-display-md">That page isn’t here.</h1>
+    <p class="type-body-lg muted">The link may be old, or the address mistyped.</p>
+    <div class="actions">
+      <Button href="/">Back to the homepage</Button>
+      <Button href="/#work" variant="tonal">See selected work</Button>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .lost {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-28);
+    padding-block: var(--space-120) var(--space-140);
+  }
+  p, h1 { margin: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-12); }
+</style>

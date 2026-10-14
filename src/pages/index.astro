@@ -1,6 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { getProjects } from '@/lib/projects';
+import { personSchema } from '@/lib/seo';
 import AmbientShapes from '@/components/layout/AmbientShapes.astro';
 import BottomNav from '@/components/layout/BottomNav.astro';
 import ContactSection from '@/components/layout/ContactSection.astro';
@@ -13,7 +14,7 @@ const [first] = projects;
 const action = first && { href: `/projects/${first.id}/`, label: `First project: ${first.data.title}` };
 ---
 
-<Layout title="fizcode — Android developer">
+<Layout title="Fiz — Android Developer, Kotlin & Jetpack Compose" jsonLd={personSchema()}>
   <AmbientShapes />
   <Hero />
   <WorkSection projects={projects} />

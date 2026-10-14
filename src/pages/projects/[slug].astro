@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
 import { getProjects, type IndexedProject } from '@/lib/projects';
+import { projectSchema } from '@/lib/seo';
 import '@/styles/prose.css';
 import AmbientShapes from '@/components/layout/AmbientShapes.astro';
 import ContactSection from '@/components/layout/ContactSection.astro';
@@ -24,7 +25,7 @@ interface Props {
 }
 
 const { project, projects } = Astro.props;
-const { title, summary, screens, features, highlights, next } = project.data;
+const { title, summary, description, screens, features, highlights, next } = project.data;
 const { Content, headings } = await render(project);
 const nextProject = next ? projects.find((p) => p.id === next.id) : undefined;
 
@@ -37,7 +38,11 @@ const toc: TocEntry[] = [
 ];
 ---
 
-<Layout title={`${title} — fizcode`} description={summary}>
+<Layout
+  title={`${title} — Android case study | fizcode`}
+  description={description ?? summary}
+  jsonLd={projectSchema(project)}
+>
   <AmbientShapes single />
   <ProjectHero project={project} />
   {screens.length > 0 && <ProjectScreens project={project} />}
