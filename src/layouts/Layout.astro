@@ -41,7 +41,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     <FontLinks />
 
-    <!-- Applies the saved (or system) theme before first paint, so the page never flashes the wrong colors -->
+    <!-- Applies the saved (or system) theme before first paint, so the page never flashes the wrong colors; also flags browsers that can't blur (see base.css) -->
     <script is:inline define:vars={{ storageKey: THEME_STORAGE_KEY }}>
       (() => {
         const root = document.documentElement;
@@ -50,6 +50,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           saved = JSON.parse(localStorage.getItem(storageKey) ?? '{}');
         } catch {}
         const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+        const canBlur = CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)');
+        if (!canBlur) root.dataset.noBlur = '';
         if (saved.seed) root.dataset.seed = saved.seed;
         root.dataset.theme = saved.scheme ?? (systemDark ? 'dark' : 'light');
       })();

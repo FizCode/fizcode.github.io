@@ -43,6 +43,16 @@ svg {
   color: var(--color-on-surface-variant);
 }
 
+/*
+ * Glass surfaces (header, bottom bar, chips) blur what is behind them. Some browsers can't
+ * (older web views, in-app browsers, devices with GPU effects switched off). There the glass
+ * would only be a see-through tint and text under it would show through, so it turns almost solid.
+ * Layout.astro sets data-no-blur on <html> when neither form of backdrop-filter is supported.
+ */
+:root[data-no-blur] {
+  --glass-fill: color-mix(in srgb, var(--color-surface) 94%, transparent);
+}
+
 .container {
   max-width: var(--container-max);
   margin-inline: auto;
