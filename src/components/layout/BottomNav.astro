@@ -4,7 +4,6 @@ import Icon from '@/components/ui/Icon.astro';
 import NavItem from '@/components/ui/NavItem.astro';
 
 interface Props {
-  /** The round button: where it leads, and its accessible name */
   action: DockAction;
 }
 
@@ -64,7 +63,6 @@ const { action } = Astro.props;
     box-shadow: var(--elevation-glass);
     margin-left: var(--space-12);
   }
-  /* Same morph as the arrow on the project cards */
   @media (prefers-reduced-motion: no-preference) {
     .fab {
       transition:

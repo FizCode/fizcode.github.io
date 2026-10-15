@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getProjects } from '@/lib/projects';
 
-/** Lists the pages worth indexing: the homepage and every project. */
 export const GET: APIRoute = async ({ site }) => {
   const projects = await getProjects();
   const paths = ['/', ...projects.map((project) => `/projects/${project.id}/`)];

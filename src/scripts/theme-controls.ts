@@ -54,7 +54,6 @@ export function initThemeControls() {
   toggle?.addEventListener('click', () => setPopover(popover?.hidden ?? false));
   document.addEventListener('seed-popover:close', () => setPopover(false));
 
-  // Escape (focus goes back to the button) or a tap outside closes the popover
   addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && popover && !popover.hidden) {
       setPopover(false);

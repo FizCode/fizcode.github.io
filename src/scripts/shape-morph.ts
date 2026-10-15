@@ -2,7 +2,6 @@ import { LOADER_SEQUENCE, lobedRadii, pathFromRadii } from '@/lib/shapes';
 
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
 
-/** Reads a CSS time token such as `6s` or `200ms` as milliseconds. */
 const readMs = (element: Element, property: string) => {
   const value = getComputedStyle(element).getPropertyValue(property).trim();
   return value.endsWith('ms') ? parseFloat(value) : parseFloat(value) * 1000;
