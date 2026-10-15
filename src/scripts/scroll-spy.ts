@@ -52,3 +52,13 @@ export function spySections(links: HTMLAnchorElement[], onActive: (link: HTMLAnc
   addEventListener('resize', schedule);
   update();
 }
+
+/** Marks the link of the section being read with `aria-current`. Does nothing without links. */
+export function trackSections(links: HTMLAnchorElement[]) {
+  spySections(links, (active) =>
+    links.forEach((link) => {
+      if (link === active) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    }),
+  );
+}

@@ -4,7 +4,6 @@ import Icon from '@/components/ui/Icon.astro';
 import NavItem from '@/components/ui/NavItem.astro';
 
 interface Props {
-  /** The round button: where it leads, and its accessible name */
   action: DockAction;
 }
 
@@ -22,24 +21,6 @@ const { action } = Astro.props;
   </a>
 </div>
 
-<script>
-  import { watchDock } from '@/scripts/dock-compact';
-  import { spySections } from '@/scripts/scroll-spy';
-
-  const dock = document.querySelector<HTMLElement>('[data-dock]');
-  if (dock) watchDock(dock);
-
-  const nav = document.querySelector<HTMLElement>('[data-scroll-spy]');
-  if (nav) {
-    const links = [...nav.querySelectorAll<HTMLAnchorElement>('[data-nav-item]')];
-    spySections(links, (active) =>
-      links.forEach((link) => {
-        if (link === active) link.setAttribute('aria-current', 'true');
-        else link.removeAttribute('aria-current');
-      }),
-    );
-  }
-</script>
 
 <style>
   .dock {
@@ -82,7 +63,6 @@ const { action } = Astro.props;
     box-shadow: var(--elevation-glass);
     margin-left: var(--space-12);
   }
-  /* Same morph as the arrow on the project cards */
   @media (prefers-reduced-motion: no-preference) {
     .fab {
       transition:

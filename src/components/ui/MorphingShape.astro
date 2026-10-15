@@ -9,18 +9,10 @@ interface Props {
 const { size } = Astro.props;
 ---
 
-<!-- Drifts slowly through the shape sequence while turning (see scripts/shape-morph.ts) -->
 <svg class="shape" style={`--size: ${size}px`} viewBox="0 0 100 100" aria-hidden="true">
   <path data-shape-morph d={lobedPath(LOADER_SEQUENCE[0])} />
 </svg>
 
-<script>
-  import { startShapeMorph } from '@/scripts/shape-morph';
-
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll<SVGPathElement>('[data-shape-morph]').forEach(startShapeMorph);
-  }
-</script>
 
 <style>
   .shape {

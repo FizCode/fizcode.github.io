@@ -31,17 +31,6 @@ const { title, next } = Astro.props;
   </a>
 </div>
 
-<script>
-  import { watchDock } from '@/scripts/dock-compact';
-  import { watchReadProgress } from '@/scripts/read-progress';
-
-  const dock = document.querySelector<HTMLElement>('[data-dock]');
-  if (dock) watchDock(dock);
-
-  const info = document.querySelector<HTMLAnchorElement>('[data-dock-info]');
-  const fill = document.querySelector<HTMLElement>('[data-progress]');
-  if (info && fill) watchReadProgress(info, fill);
-</script>
 
 <style>
   .dock {
@@ -113,7 +102,6 @@ const { title, next } = Astro.props;
     text-transform: uppercase;
     color: var(--color-on-surface-variant);
   }
-  /* Reading progress */
   .track {
     position: absolute;
     left: 12px;
