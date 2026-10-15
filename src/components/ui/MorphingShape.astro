@@ -14,13 +14,6 @@ const { size } = Astro.props;
   <path data-shape-morph d={lobedPath(LOADER_SEQUENCE[0])} />
 </svg>
 
-<script>
-  import { startShapeMorph } from '@/scripts/shape-morph';
-
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll<SVGPathElement>('[data-shape-morph]').forEach(startShapeMorph);
-  }
-</script>
 
 <style>
   .shape {

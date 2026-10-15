@@ -68,6 +68,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <!-- The floating bar at the bottom: BottomNav on the homepage, ProjectDock on project pages -->
       <slot name="dock" />
     </div>
+    <script>
+      import '@/scripts/main';
+    </script>
   </body>
 </html>
 
