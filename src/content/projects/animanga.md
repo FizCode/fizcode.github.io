@@ -51,3 +51,5 @@ next: cashier
 AniManga Info is my own app for following **seasonal anime and manga**, designed and built end to end.
 
 It is in alpha and coming to Google Play.
+
+Read the app's [privacy policy](/privacy/animanga/).

@@ -3,7 +3,7 @@ import { getProjects } from '@/lib/projects';
 
 export const GET: APIRoute = async ({ site }) => {
   const projects = await getProjects();
-  const paths = ['/', ...projects.map((project) => `/projects/${project.id}/`)];
+  const paths = ['/', ...projects.map((project) => `/projects/${project.id}/`), '/privacy/animanga/'];
   const urls = paths.map((path) => `  <url><loc>${new URL(path, site)}</loc></url>`).join('\n');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

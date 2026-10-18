@@ -38,7 +38,7 @@ A high-performance, static portfolio website built for Android Developers. Desig
 │   ├── data/                  # Site info and the icon set
 │   ├── layouts/               # Layout.astro
 │   ├── lib/                   # Project queries, theme and shape helpers
-│   ├── pages/                 # index.astro, projects/[slug].astro
+│   ├── pages/                 # index.astro, projects/[slug].astro, privacy/animanga.astro (the app's privacy policy)
 │   ├── scripts/               # Client scripts (theme, scrolling, shape morph)
 │   └── styles/                # tokens.css, base.css, prose.css
 ├── astro.config.mjs

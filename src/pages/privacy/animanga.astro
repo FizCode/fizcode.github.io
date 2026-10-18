@@ -1,0 +1,163 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import '@/styles/prose.css';
+import AmbientShapes from '@/components/layout/AmbientShapes.astro';
+
+const developer = 'FizCode';
+const contactEmail = 'fizcode@outlook.com';
+const effectiveDate = '18 October 2026';
+---
+
+<Layout
+  title="AniManga Info privacy policy | fizcode"
+  description="What the AniManga Info Android app stores on your device, what it sends to MyAnimeList and AniList, and what it never collects."
+>
+  <AmbientShapes single />
+  <section class="container policy">
+    <header>
+      <p class="type-eyebrow muted">AniManga Info · Effective {effectiveDate}</p>
+      <h1 class="type-display-md">Privacy policy</h1>
+      <p class="type-body-lg muted">
+        AniManga Info is an Android app to browse anime and manga. This page explains what it does
+        with your information. In short: it has no account, it shows no ads, and it does not send
+        anything to the developer.
+      </p>
+    </header>
+
+    <div class="prose">
+      <h2>Who is responsible</h2>
+      <p>
+        The app is made by {developer}. If you have a question about this policy, write to
+        <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
+      </p>
+
+      <h2>No account, no data sent to the developer</h2>
+      <p>
+        You do not create an account or sign in. The app does not talk to any server of the
+        developer, so the developer receives no information about you or how you use the app.
+      </p>
+
+      <h2>What stays on your device</h2>
+      <p>The app keeps the following in its private storage on your phone:</p>
+      <ul>
+        <li>
+          <strong>Your bookmarks.</strong> For each one: the title, poster link, type, rating and a few
+          details of the anime or manga you saved.
+        </li>
+        <li>
+          <strong>Your settings.</strong> The theme (system, light or dark), the titling style and the
+          NSFW level you chose.
+        </li>
+        <li><strong>Whether you have seen the introduction</strong> shown when you first open the app.</li>
+      </ul>
+      <p>
+        None of this is sent to the developer. You can remove it at any time by clearing the app's
+        storage in the Android settings or by uninstalling the app. If you use Android's backup, your
+        phone may include this data in your Google backup. That is controlled by Google and your device
+        settings, not by the app.
+      </p>
+
+      <h2>What the app sends over the internet</h2>
+      <p>
+        The anime and manga information comes from two services. The app contacts them over a secure
+        (HTTPS) connection:
+      </p>
+      <ul>
+        <li>
+          <a href="https://myanimelist.net" rel="noopener">MyAnimeList</a> for seasons, rankings, search
+          and details.
+        </li>
+        <li>
+          <a href="https://anilist.co" rel="noopener">AniList</a> for extra details, cast, staff and
+          characters.
+        </li>
+      </ul>
+      <p>These requests contain:</p>
+      <ul>
+        <li>the text you type in a search, and the anime or manga you open;</li>
+        <li>
+          the content setting you chose. When the NSFW level allows adult content, the request to
+          MyAnimeList asks for it;
+        </li>
+        <li>an identifier of the app that MyAnimeList requires for its API.</li>
+      </ul>
+      <p>
+        Like every website or app you connect to, these services and the servers that deliver their
+        images can see your IP address and basic technical details of the connection. The app does not
+        send your name, email, location or any device identifier. How MyAnimeList and AniList handle
+        what they receive is described in their own policies:
+        <a href="https://myanimelist.net/about/privacy_policy" rel="noopener">MyAnimeList privacy policy</a>
+        and <a href="https://anilist.co/terms" rel="noopener">AniList terms and privacy</a>.
+      </p>
+
+      <h2>What the app does not collect</h2>
+      <ul>
+        <li>No ads and no advertising ID.</li>
+        <li>No analytics and no crash reporting.</li>
+        <li>No location, contacts, photos, camera, microphone or files.</li>
+        <li>No personal information of any kind is sold or shared by the developer.</li>
+      </ul>
+
+      <h2>Sharing</h2>
+      <p>
+        When you tap share on a synopsis, the app opens Android's share sheet with the text and a link
+        to the anime or manga. You choose where it goes. The developer does not see it.
+      </p>
+
+      <h2>Adult content and age</h2>
+      <p>
+        The app can show media that MyAnimeList marks as suggestive (grey) or explicit (not safe). They
+        are off by default, and the settings warn that they are meant for people of 17 and older, and
+        21 and older. The app does not check or store your age. The app is not directed at children
+        under 13.
+      </p>
+
+      <h2>Keeping and deleting your information</h2>
+      <p>
+        Your bookmarks and settings live only on your phone and stay until you clear the app's storage
+        or uninstall it. The developer holds no copy, so there is nothing to ask the developer to
+        delete.
+      </p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If the app starts to collect or share anything new, this page will be updated before the change
+        reaches the app, and the effective date at the top will change.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy: <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .policy {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-48);
+    padding-block: var(--space-120) var(--space-140);
+  }
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    max-width: 760px;
+  }
+  header p, h1 { margin: 0; }
+
+  /* The project pages turn the first line after a heading into a big lead; a policy reads as plain text */
+  .policy :global(.prose h2) {
+    font-size: var(--type-title-lg);
+    margin-top: var(--space-48);
+  }
+  .policy :global(.prose h2:first-child) { margin-top: 0; }
+  .policy :global(.prose h2 + p) {
+    font: var(--weight-regular) var(--type-body-md)/1.7 var(--font-body);
+    letter-spacing: normal;
+    color: var(--color-on-surface-variant);
+  }
+</style>
